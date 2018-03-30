@@ -7,12 +7,16 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
 import org.atomicworkshop.Reference;
 import org.atomicworkshop.Reference.Blocks;
+import org.atomicworkshop.Reference.TileEntities;
 import org.atomicworkshop.blocks.BlockSequencer;
 import org.atomicworkshop.libraries.BlockLibrary;
+import org.atomicworkshop.tiles.TileEntitySequencer;
 
+@SuppressWarnings("SameParameterValue")
 @EventBusSubscriber
 public final class RegistrationHandler
 {
@@ -21,6 +25,8 @@ public final class RegistrationHandler
 		final IForgeRegistry<Block> registry = registryEvent.getRegistry();
 
 		registerBlock(registry, new BlockSequencer(), Blocks.sequencer);
+
+		GameRegistry.registerTileEntity(TileEntitySequencer.class, TileEntities.sequencer);
 	}
 
 	@SubscribeEvent

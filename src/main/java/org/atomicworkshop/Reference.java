@@ -18,6 +18,16 @@ public final class Reference
 		private Blocks() { }
 	}
 
+	public static final class TileEntities {
+		public static final String sequencer = tileEntityName("sequencer");
+
+		private TileEntities() { }
+
+		private static String tileEntityName(String name) {
+			return "tile." + name;
+		}
+	}
+
 	private Reference() { }
 
 	private static ResourceLocation resource(String path) {
