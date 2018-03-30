@@ -1,0 +1,16 @@
+[
+{
+  "modid": "theconductor",
+  "name": "The Conductor",
+  "description": "Update Me when surprise ruined.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["WorkshopCraft", "AtomicBlom"],
+  "credits": "Searge and crew for running ModJam5",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
