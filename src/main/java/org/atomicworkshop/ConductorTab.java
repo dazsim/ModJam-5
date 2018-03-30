@@ -6,9 +6,9 @@ import org.atomicworkshop.libraries.BlockLibrary;
 
 public class ConductorTab extends CreativeTabs
 {
-	ItemStack tabIcon;
+	private ItemStack tabIcon = null;
 
-	public ConductorTab() {
+	ConductorTab() {
 		super(Reference.TabLabel);
 	}
 

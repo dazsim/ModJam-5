@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
 
 //FIXME: (Steven) Look up how to do version constraints again.
+@SuppressWarnings("MethodMayBeStatic")
 @Mod(modid = Reference.MOD_ID, name = Reference.NAME, version = Reference.VERSION)
 public class ConductorMod
 {

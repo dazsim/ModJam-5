@@ -3,6 +3,7 @@ package org.atomicworkshop;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.util.ResourceLocation;
 
+@SuppressWarnings("UtilityClass")
 public final class Reference
 {
 	public static final String MOD_ID = "theconductor";
@@ -11,8 +12,8 @@ public final class Reference
 	public static final String TabLabel = MOD_ID + ".tab_label";
 	public static final CreativeTabs CreativeTab = new ConductorTab();
 
-	public static class Blocks {
-		public static ResourceLocation sequencer = resource("sequencer");
+	public static final class Blocks {
+		public static final ResourceLocation sequencer = resource("sequencer");
 
 		private Blocks() { }
 	}
