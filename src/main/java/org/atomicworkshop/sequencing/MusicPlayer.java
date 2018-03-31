@@ -1,13 +1,11 @@
 package org.atomicworkshop.sequencing;
 
 import com.google.common.collect.Lists;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import java.util.List;
-import java.util.UUID;
 
 @EventBusSubscriber
 public final class MusicPlayer
@@ -40,27 +38,22 @@ public final class MusicPlayer
 	public static void onClientTick(ClientTickEvent clientTickEvent) {
 		if (clientTickEvent.phase != Phase.START) return;
 
-		//FIXME: represent times in nanoseconds to avoid a divide.
-		final long currentTime = System.nanoTime() / 1000000;
+		final long currentTimeMillis = System.nanoTime() / 1000000;
 
 		synchronized (sequenceLock) {
 			if (playingSequences.isEmpty()) return;
 
 			for (final PlayingSequence playingSequence : playingSequences)
 			{
-				final long nextTickTime = playingSequence.getNextTickTime();
-				if (currentTime >= nextTickTime) {
-					long ticksToNextInterval = playingSequence.getBeatsPerMinute();
-					playingSequence.setNextTickTime(currentTime + ticksToNextInterval);
+				final long nextTickTime = playingSequence.getNextIntervalMillis();
+				if (currentTimeMillis >= nextTickTime) {
+					//FIXME: This is flat-out wrong.
+					final long millisToNextInterval = playingSequence.getBeatsPerMinute();
+					playingSequence.setNextIntervalMillis(currentTimeMillis + millisToNextInterval);
 					playingSequence.playNextInterval();
 				}
 			}
 		}
-	}
-
-	public static SequencerSet getSequencerSetForWorld(World world, UUID songId)
-	{
-		return new SequencerSet(world, songId);
 	}
 }
 

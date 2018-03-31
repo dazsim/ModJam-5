@@ -1,37 +1,118 @@
 package org.atomicworkshop.tiles;
 
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.world.World;
 import net.minecraftforge.event.world.NoteBlockEvent.Instrument;
+import org.atomicworkshop.Reference.NBT;
 import org.atomicworkshop.sequencing.MusicPlayer;
 import org.atomicworkshop.sequencing.Pattern;
 import org.atomicworkshop.sequencing.Sequencer;
 import org.atomicworkshop.sequencing.SequencerSet;
+import javax.annotation.Nullable;
 import java.util.UUID;
 
 public class TileEntitySequencer extends TileEntity
 {
 
-	private static UUID demoSongUUID = UUID.randomUUID();
+	public TileEntitySequencer()
+	{
+		demoSongUUID = UUID.randomUUID();
+	}
+
+	private UUID demoSongUUID;
 
 	private Sequencer sequencer;
+	private boolean isPlaying;
 
-	@Override
-	protected void setWorldCreate(World worldIn)
+	private boolean hasSynchronizer()
 	{
-		super.setWorldCreate(worldIn);
-		createDemoSong();
+		return false;
 	}
 
 	@Override
-	public void setWorld(World worldIn)
+	public void onChunkUnload()
 	{
-		super.setWorld(worldIn);
-		if (worldIn != null) {
-			createDemoSong();
+		stopPlaying();
+	}
+
+	@Override
+	public void readFromNBT(NBTTagCompound compound)
+	{
+		super.readFromNBT(compound);
+		isPlaying = compound.getBoolean(NBT.isPlaying);
+
+		demoSongUUID = compound.getUniqueId(NBT.songId);
+		if (demoSongUUID.equals(UUID.fromString("00000000-0000-0000-0000-000000000000"))) {
+			demoSongUUID = UUID.randomUUID();
 		}
 	}
+
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound compound)
+	{
+		super.writeToNBT(compound);
+
+		compound.setBoolean(NBT.isPlaying, isPlaying);
+		compound.setUniqueId(NBT.songId, demoSongUUID);
+
+		return compound;
+	}
+
+	@Nullable
+	@Override
+	public SPacketUpdateTileEntity getUpdatePacket()
+	{
+		NBTTagCompound updateTag = getUpdateTag();
+		return new SPacketUpdateTileEntity(pos, 0, updateTag);
+	}
+
+	@Override
+	public NBTTagCompound getUpdateTag()
+	{
+		return writeToNBT(new NBTTagCompound());
+	}
+
+	@Override
+	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt)
+	{
+		super.onDataPacket(net, pkt);
+		boolean wasPlaying = isPlaying;
+		handleUpdateTag(pkt.getNbtCompound());
+
+		if (isPlaying && !wasPlaying) {
+			createDemoSong();
+
+		} else if (!isPlaying && wasPlaying) {
+			MusicPlayer.stopPlaying(new SequencerSet(world, demoSongUUID));
+			sendUpdates();
+		}
+	}
+
+	private void sendUpdates() {
+		world.markBlockRangeForRenderUpdate(pos, pos);
+		IBlockState state = world.getBlockState(pos);
+		world.notifyBlockUpdate(pos, state, state, 3);
+		world.scheduleBlockUpdate(pos, getBlockType(),0,0);
+		markDirty();
+	}
+
+	public void stopPlaying()
+	{
+		MusicPlayer.stopPlaying(new SequencerSet(world, demoSongUUID));
+	}
+
+	public void notifyPowered(boolean powered)
+	{
+		if (isPlaying != powered) {
+			isPlaying = powered;
+			sendUpdates();
+		}
+	}
+
 
 	private void createDemoSong()
 	{
@@ -73,23 +154,5 @@ public class TileEntitySequencer extends TileEntity
 		demoSong.updateBpm();
 
 		MusicPlayer.playSong(demoSong);
-	}
-
-
-
-	private boolean hasSynchronizer()
-	{
-		return false;
-	}
-
-	@Override
-	public void onChunkUnload()
-	{
-		stopPlaying();
-	}
-
-	public void stopPlaying()
-	{
-		MusicPlayer.stopPlaying(new SequencerSet(world, demoSongUUID));
 	}
 }
