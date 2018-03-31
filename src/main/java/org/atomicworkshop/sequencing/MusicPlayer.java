@@ -47,7 +47,6 @@ public final class MusicPlayer
 			{
 				final long nextIntervalMillis = playingSequence.getNextIntervalMillis();
 				if (currentTimeMillis >= nextIntervalMillis) {
-					//FIXME: This is flat-out wrong.
 					final long millisToNextInterval = 250 / (playingSequence.getBeatsPerMinute() / 60);
 					playingSequence.setNextIntervalMillis(currentTimeMillis + millisToNextInterval);
 					playingSequence.playNextInterval();
