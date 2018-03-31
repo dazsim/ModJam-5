@@ -129,28 +129,64 @@ public class TileEntitySequencer extends TileEntity
 
 		sequencer = demoSong.addSequencer(pos);
 		sequencer.setDesiredBPM(120);
-		sequencer.setAdjacentNoteBlock(EnumFacing.NORTH, Instrument.PIANO);
-		sequencer.setAdjacentNoteBlock(EnumFacing.SOUTH, Instrument.BASSGUITAR);
-		sequencer.setAdjacentNoteBlock(EnumFacing.EAST, Instrument.BELL);
 
-		final Pattern demoPattern1 = new Pattern();
-		demoPattern1.setPitchAtInternal(0, 6);
-		demoPattern1.setPitchAtInternal(1, 10);
-		demoPattern1.setPitchAtInternal(2, 13);
+		int pattern = world.rand.nextInt(4);
+		final Pattern demoPattern = new Pattern();
+		if (pattern == 0)
+		{
+			sequencer.setAdjacentNoteBlock(EnumFacing.NORTH, Instrument.PIANO);
+			sequencer.setAdjacentNoteBlock(EnumFacing.SOUTH, Instrument.BASSGUITAR);
+			sequencer.setAdjacentNoteBlock(EnumFacing.EAST, Instrument.PIANO);
 
-		demoPattern1.setPitchAtInternal(4, 8);
-		demoPattern1.setPitchAtInternal(5, 11);
-		demoPattern1.setPitchAtInternal(6, 15);
+			demoPattern.setPitchAtInternal(0, 6);
+			demoPattern.setPitchAtInternal(1, 10);
+			demoPattern.setPitchAtInternal(2, 13);
 
-		demoPattern1.setPitchAtInternal(8, 10);
-		demoPattern1.setPitchAtInternal(9, 13);
-		demoPattern1.setPitchAtInternal(10, 17);
+			demoPattern.setPitchAtInternal(4, 8);
+			demoPattern.setPitchAtInternal(5, 11);
+			demoPattern.setPitchAtInternal(6, 15);
 
-		demoPattern1.setPitchAtInternal(12, 11);
-		demoPattern1.setPitchAtInternal(13, 15);
-		demoPattern1.setPitchAtInternal(14, 18);
+			demoPattern.setPitchAtInternal(8, 10);
+			demoPattern.setPitchAtInternal(9, 13);
+			demoPattern.setPitchAtInternal(10, 17);
 
-		sequencer.setPattern(0, demoPattern1);
+			demoPattern.setPitchAtInternal(12, 11);
+			demoPattern.setPitchAtInternal(13, 15);
+			demoPattern.setPitchAtInternal(14, 18);
+
+		} else if (pattern == 1) {
+			sequencer.setAdjacentNoteBlock(EnumFacing.NORTH, Instrument.BASSDRUM);
+
+			demoPattern.setPitchAtInternal(0, 6);
+			demoPattern.setPitchAtInternal(8, 6);
+
+		} else if (pattern == 2) {
+			sequencer.setAdjacentNoteBlock(EnumFacing.NORTH, Instrument.SNARE);
+
+			demoPattern.setPitchAtInternal(4, 6);
+			demoPattern.setPitchAtInternal(12, 6);
+		} else if (pattern == 3) {
+			sequencer.setAdjacentNoteBlock(EnumFacing.NORTH, Instrument.CLICKS);
+
+			demoPattern.setPitchAtInternal(1, 14);
+			demoPattern.setPitchAtInternal(2, 18);
+			demoPattern.setPitchAtInternal(3, 5);
+
+			demoPattern.setPitchAtInternal(5, 14);
+			demoPattern.setPitchAtInternal(6, 18);
+			demoPattern.setPitchAtInternal(7, 5);
+
+			demoPattern.setPitchAtInternal(9, 16);
+			demoPattern.setPitchAtInternal(10, 18);
+			demoPattern.setPitchAtInternal(11, 5);
+
+			demoPattern.setPitchAtInternal(13, 14);
+			demoPattern.setPitchAtInternal(14, 18);
+			demoPattern.setPitchAtInternal(15, 5 );
+		}
+
+		sequencer.setPattern(0, demoPattern);
+
 		demoSong.updateBpm();
 
 		MusicPlayer.playSong(demoSong);
