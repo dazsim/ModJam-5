@@ -40,7 +40,7 @@ public class SequencerSet implements Iterable<Sequencer>
 		}
 	}
 
-	long getBeatsPerMinute()
+	public long getBeatsPerMinute()
 	{
 		return beatsPerMinute;
 	}

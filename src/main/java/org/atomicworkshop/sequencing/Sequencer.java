@@ -105,7 +105,7 @@ public class Sequencer
 		return patterns[currentPatternIndex];
 	}
 
-	ImmutableList<AdjacentNoteBlock> getAvailableNoteBlocks()
+	public ImmutableList<AdjacentNoteBlock> getAvailableNoteBlocks()
 	{
 		return currentAdjacentNoteBlocks;
 	}
