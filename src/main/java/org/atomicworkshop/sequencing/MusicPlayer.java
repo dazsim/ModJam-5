@@ -1,74 +1,56 @@
 package org.atomicworkshop.sequencing;
 
 import com.google.common.collect.Lists;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import java.util.List;
 
-public class MusicPlayer
+@EventBusSubscriber
+public final class MusicPlayer
 {
-	public MusicPlayer()
+	private static final List<PlayingSequence> playingSequences = Lists.newArrayList();
+	private static final Object sequenceLock = new Object();
+
+	public static void playSong(SequencerSet sequencerSet)
 	{
+		if (sequencerSet == null) return;
 
-	}
+		synchronized(sequenceLock) {
+			for (final PlayingSequence playingSequence : playingSequences)
+			{
+				if (playingSequence.getSequencerSet().equals(sequencerSet)) return;
+			}
 
-	public static class SequencerSet {
-		int beatsPerMinute;
-		List<Sequencer> sequencers = Lists.newArrayList();
-
-		public Sequencer addSequencer(BlockPos pos)
-		{
-			Sequencer newSequencer = new Sequencer(pos);
-			sequencers.add(newSequencer);
-			return newSequencer;
+			playingSequences.add(new PlayingSequence(sequencerSet));
 		}
 	}
 
-	public static class Sequencer
-	{
-		private final BlockPos blockPos;
-		Pattern[] patterns;
-		AdjacentNoteBlock[] adjacentNoteBlocks;
-
-		public Sequencer(BlockPos blockPos)
-		{
-			this.blockPos = blockPos;
-			adjacentNoteBlocks = new AdjacentNoteBlock[] {
-					new AdjacentNoteBlock(EnumFacing.NORTH),
-					new AdjacentNoteBlock(EnumFacing.EAST),
-					new AdjacentNoteBlock(EnumFacing.SOUTH),
-					new AdjacentNoteBlock(EnumFacing.WEST),
-			};
-
-			patterns = new Pattern[8];
-		}
-
-		public void setAdjacentNoteBlock(EnumFacing direction, SoundEvent sound)
-		{
-			adjacentNoteBlocks[direction.getHorizontalIndex()].sound = sound;
-		}
-
-
-		public BlockPos getBlockPos()
-		{
-			return blockPos;
+	public static void stopPlaying(SequencerSet sequencerSet) {
+		if (sequencerSet == null) return;
+		synchronized (sequenceLock) {
+			playingSequences.removeIf(playingSequence -> playingSequence.getSequencerSet().equals(sequencerSet));
 		}
 	}
 
-	public static class Pattern {
-		byte[][] patternData = new byte[16][24];
-	}
+	@SubscribeEvent
+	public static void onClientTick(ClientTickEvent clientTickEvent) {
+		if (clientTickEvent.phase != Phase.START) return;
 
-	public static class AdjacentNoteBlock
-	{
-		public SoundEvent sound;
-		EnumFacing direction;
+		//FIXME: represent times in nanoseconds to avoid a divide.
+		final long currentTime = System.nanoTime() / 1000000;
 
-		public AdjacentNoteBlock(EnumFacing direction)
-		{
-			this.direction = direction;
-			sound = null;
+		synchronized (sequenceLock) {
+			if (playingSequences.isEmpty()) return;
+
+			for (final PlayingSequence playingSequence : playingSequences)
+			{
+				if (playingSequence.getNextTickTime() >= currentTime) {
+					playingSequence.setNextTickTime(currentTime + (playingSequence.getBeatsPerMinute() / 60 / 1000));
+					playingSequence.playNextInterval();
+				}
+			}
 		}
 	}
 }
