@@ -19,8 +19,7 @@ import javax.annotation.Nullable;
 public class BlockSequencer extends BlockHorizontal implements ITileEntityProvider
 {
 	public BlockSequencer() {
-		//FIXME: Create an appropriate material. Needs to be immovable
-		super(Material.ANVIL);
+		super(new SequencerMaterial());
 
 		final IBlockState defaultState = blockState.getBaseState()
 				.withProperty(FACING, EnumFacing.NORTH);
@@ -30,6 +29,8 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	@Override
 	public boolean shouldCheckWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side)
 	{
+		//Disabling weak power checks here prevents Note Blocks from being fired when the sequencer receives a redstone
+		//signal.
 		return false;
 	}
 
@@ -55,7 +56,9 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	}
 
 	@Override
-	public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand)
+	public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing,
+	                                        float hitX, float hitY, float hitZ, int meta,
+	                                        EntityLivingBase placer, EnumHand hand)
 	{
 		return getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite());
 	}
