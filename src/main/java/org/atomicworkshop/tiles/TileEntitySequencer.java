@@ -158,10 +158,6 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		final Pattern demoPattern = new Pattern();
 		if (pattern == 0)
 		{
-//			sequencer.setAdjacentNoteBlock(EnumFacing.NORTH, PIANO);
-//			sequencer.setAdjacentNoteBlock(EnumFacing.SOUTH, BASSGUITAR);
-//			sequencer.setAdjacentNoteBlock(EnumFacing.EAST, PIANO);
-
 			demoPattern.setPitchAtInternal(0, 6);
 			demoPattern.setPitchAtInternal(1, 10);
 			demoPattern.setPitchAtInternal(2, 13);
@@ -179,19 +175,14 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			demoPattern.setPitchAtInternal(14, 18);
 
 		} else if (pattern == 1) {
-//			sequencer.setAdjacentNoteBlock(EnumFacing.NORTH, BASSDRUM);
-
 			demoPattern.setPitchAtInternal(0, 6);
 			demoPattern.setPitchAtInternal(8, 6);
 
 		} else if (pattern == 2) {
-//			sequencer.setAdjacentNoteBlock(EnumFacing.NORTH, Instrument.SNARE);
-
 			demoPattern.setPitchAtInternal(4, 6);
 			demoPattern.setPitchAtInternal(12, 6);
-		} else if (pattern == 3) {
-//			sequencer.setAdjacentNoteBlock(EnumFacing.NORTH, Instrument.CLICKS);
 
+		} else if (pattern == 3) {
 			demoPattern.setPitchAtInternal(1, 14);
 			demoPattern.setPitchAtInternal(2, 18);
 			demoPattern.setPitchAtInternal(3, 5);

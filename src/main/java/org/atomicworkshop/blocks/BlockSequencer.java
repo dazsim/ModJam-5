@@ -28,6 +28,12 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	}
 
 	@Override
+	public boolean shouldCheckWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side)
+	{
+		return false;
+	}
+
+	@Override
 	protected BlockStateContainer createBlockState()
 	{
 		return new BlockStateContainer(this, FACING);

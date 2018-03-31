@@ -23,7 +23,10 @@ public final class MusicPlayer
 				if (playingSequence.getSequencerSet().getId().equals(sequencerSet.getId())) return;
 			}
 
-			playingSequences.add(new PlayingSequence(sequencerSet));
+			PlayingSequence e = new PlayingSequence(sequencerSet);
+			final long currentTimeMillis = System.nanoTime() / 1000000;
+			e.setNextIntervalMillis(currentTimeMillis + (250 / (e.getBeatsPerMinute() / 60)));
+			playingSequences.add(e);
 		}
 	}
 
