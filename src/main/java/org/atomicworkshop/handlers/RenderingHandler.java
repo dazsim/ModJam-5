@@ -1,12 +1,16 @@
 package org.atomicworkshop.handlers;
 
+import org.atomicworkshop.Reference.Blocks;
+import org.atomicworkshop.libraries.ItemLibrary;
+import org.atomicworkshop.tesr.TESRBlockSequencer;
+import org.atomicworkshop.tiles.TileEntitySequencer;
+
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.atomicworkshop.Reference.Blocks;
-import org.atomicworkshop.libraries.ItemLibrary;
 
 @EventBusSubscriber
 public class RenderingHandler
@@ -19,5 +23,6 @@ public class RenderingHandler
 				0,
 				new ModelResourceLocation(Blocks.sequencer, "inventory")
 		);
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntitySequencer.class, new TESRBlockSequencer());
 	}
 }
