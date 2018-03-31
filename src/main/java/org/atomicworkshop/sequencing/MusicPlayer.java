@@ -1,11 +1,13 @@
 package org.atomicworkshop.sequencing;
 
 import com.google.common.collect.Lists;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import java.util.List;
+import java.util.UUID;
 
 @EventBusSubscriber
 public final class MusicPlayer
@@ -20,7 +22,7 @@ public final class MusicPlayer
 		synchronized(sequenceLock) {
 			for (final PlayingSequence playingSequence : playingSequences)
 			{
-				if (playingSequence.getSequencerSet().equals(sequencerSet)) return;
+				if (playingSequence.getSequencerSet().getId().equals(sequencerSet.getId())) return;
 			}
 
 			playingSequences.add(new PlayingSequence(sequencerSet));
@@ -30,7 +32,7 @@ public final class MusicPlayer
 	public static void stopPlaying(SequencerSet sequencerSet) {
 		if (sequencerSet == null) return;
 		synchronized (sequenceLock) {
-			playingSequences.removeIf(playingSequence -> playingSequence.getSequencerSet().equals(sequencerSet));
+			playingSequences.removeIf(playingSequence -> playingSequence.getSequencerSet().getId().equals(sequencerSet.getId()));
 		}
 	}
 
@@ -46,12 +48,19 @@ public final class MusicPlayer
 
 			for (final PlayingSequence playingSequence : playingSequences)
 			{
-				if (playingSequence.getNextTickTime() >= currentTime) {
-					playingSequence.setNextTickTime(currentTime + (playingSequence.getBeatsPerMinute() / 60 / 1000));
+				final long nextTickTime = playingSequence.getNextTickTime();
+				if (currentTime >= nextTickTime) {
+					long ticksToNextInterval = playingSequence.getBeatsPerMinute();
+					playingSequence.setNextTickTime(currentTime + ticksToNextInterval);
 					playingSequence.playNextInterval();
 				}
 			}
 		}
+	}
+
+	public static SequencerSet getSequencerSetForWorld(World world, UUID songId)
+	{
+		return new SequencerSet(world, songId);
 	}
 }
 

@@ -6,6 +6,7 @@ import net.minecraft.world.World;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class SequencerSet implements Iterable<Sequencer>
@@ -13,10 +14,12 @@ public class SequencerSet implements Iterable<Sequencer>
 	private int beatsPerMinute;
 	private final List<Sequencer> sequencers = Lists.newArrayList();
 	private final World world;
+	private final UUID id;
 
-	public SequencerSet(World world)
+	public SequencerSet(World world, UUID id)
 	{
 		this.world = world;
+		this.id = id;
 	}
 
 	public Sequencer addSequencer(BlockPos pos)
@@ -63,5 +66,10 @@ public class SequencerSet implements Iterable<Sequencer>
 	public World getWorld()
 	{
 		return world;
+	}
+
+	public UUID getId()
+	{
+		return id;
 	}
 }

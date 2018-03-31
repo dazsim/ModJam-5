@@ -48,6 +48,7 @@ public class Pattern
 				if (enabledPitches[currentPitch]) {
 					return true;
 				}
+				++currentPitch;
 			}
 
 			return false;

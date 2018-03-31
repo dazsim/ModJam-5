@@ -1,6 +1,7 @@
 package org.atomicworkshop.blocks;
 
 import net.minecraft.block.BlockHorizontal;
+import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -13,7 +14,7 @@ import net.minecraft.world.World;
 import org.atomicworkshop.tiles.TileEntitySequencer;
 import javax.annotation.Nullable;
 
-public class BlockSequencer extends BlockHorizontal
+public class BlockSequencer extends BlockHorizontal implements ITileEntityProvider
 {
 	public BlockSequencer() {
 		//FIXME: Create an appropriate material. Needs to be immovable
@@ -53,8 +54,20 @@ public class BlockSequencer extends BlockHorizontal
 
 	@Nullable
 	@Override
-	public TileEntity createTileEntity(World world, IBlockState state)
+	public TileEntity createNewTileEntity(World worldIn, int meta)
 	{
 		return new TileEntitySequencer();
+	}
+
+	@Override
+	public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
+	{
+		TileEntity tileEntity = worldIn.getTileEntity(pos);
+		if (tileEntity instanceof TileEntitySequencer) {
+			TileEntitySequencer teSequencer = (TileEntitySequencer)tileEntity;
+			teSequencer.stopPlaying();
+		}
+
+		super.breakBlock(worldIn, pos, state);
 	}
 }

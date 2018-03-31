@@ -43,7 +43,7 @@ class PlayingSequence
 	void playNextInterval()
 	{
 		++interval;
-		if (interval > 16) {
+		if (interval >= 16) {
 			interval = 0;
 		}
 
@@ -77,7 +77,8 @@ class PlayingSequence
 				final int playingInstrumentId = e.getInstrument().ordinal();
 				final int playingNoteId = e.getVanillaNoteId();
 				final float pitch = (float)Math.pow(2.0D, (playingNoteId - 12) / 12.0D);
-				world.playSound(null, pos, getInstrument(playingInstrumentId), SoundCategory.RECORDS, 3.0F, pitch);
+				SoundEvent instrument = getInstrument(playingInstrumentId);
+				world.playSound(null, pos, instrument, SoundCategory.RECORDS, 3.0F, pitch);
 
 				//Trigger a note particle at location
 			}
