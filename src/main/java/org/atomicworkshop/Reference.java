@@ -28,6 +28,11 @@ public final class Reference
 		}
 	}
 
+	public static final class NBT {
+		public static final String isPlaying = "isPlaying";
+		public static String songId = "songId";
+	}
+
 	private Reference() { }
 
 	private static ResourceLocation resource(String path) {
