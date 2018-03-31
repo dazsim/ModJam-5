@@ -1,6 +1,7 @@
 package org.atomicworkshop.sequencing;
 
 import com.google.common.collect.Lists;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -40,6 +41,14 @@ public final class MusicPlayer
 	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent clientTickEvent) {
 		if (clientTickEvent.phase != Phase.START) return;
+		Minecraft minecraft = Minecraft.getMinecraft();
+		if (minecraft.isGamePaused()) return;
+		if (minecraft.world == null) {
+			synchronized (sequenceLock) {
+				playingSequences.clear();
+			}
+			return;
+		}
 
 		final long currentTimeMillis = System.nanoTime() / 1000000;
 
