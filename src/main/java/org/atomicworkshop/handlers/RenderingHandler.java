@@ -1,5 +1,6 @@
 package org.atomicworkshop.handlers;
 
+import net.minecraftforge.fml.relauncher.Side;
 import org.atomicworkshop.Reference.Blocks;
 import org.atomicworkshop.libraries.ItemLibrary;
 import org.atomicworkshop.tesr.TESRBlockSequencer;
@@ -12,7 +13,7 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-@EventBusSubscriber
+@EventBusSubscriber(Side.CLIENT)
 public class RenderingHandler
 {
 	@SubscribeEvent
