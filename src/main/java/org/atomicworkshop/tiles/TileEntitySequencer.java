@@ -25,6 +25,9 @@ import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.*;
 public class TileEntitySequencer extends TileEntity implements ITickable
 {
 
+	private static final int IS_PLAYING = 0;
+	private static final int CHANGE_PATTERN = 1;
+
 	public TileEntitySequencer()
 	{
 		sequencerSetId = UUID.randomUUID();
@@ -90,12 +93,15 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		final boolean wasPlaying = isPlaying;
 		handleUpdateTag(pkt.getNbtCompound());
 
+		checkPlayStatus(wasPlaying, isPlaying);
+	}
+
+	private void checkPlayStatus(boolean wasPlaying, boolean isPlaying)
+	{
 		if (isPlaying && !wasPlaying) {
 			startPlaying();
-			sendUpdates();
 		} else if (!isPlaying && wasPlaying) {
 			stopPlaying();
-			sendUpdates();
 		}
 	}
 
@@ -123,6 +129,8 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		}
 
 		MusicPlayer.playSong(demoSong);
+
+		world.addBlockEvent(pos, getBlockType(), IS_PLAYING, 1);
 	}
 
 	private void sendUpdates() {
@@ -136,16 +144,31 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 	public void stopPlaying()
 	{
 		MusicPlayer.stopPlaying(new SequencerSet(world, sequencerSetId));
+		world.addBlockEvent(pos, getBlockType(), IS_PLAYING, 0);
 	}
 
 	public void notifyPowered(boolean powered)
 	{
 		if (isPlaying != powered) {
 			isPlaying = powered;
-			sendUpdates();
+			world.addBlockEvent(pos, getBlockType(), IS_PLAYING, isPlaying ? 1 : 0);
 		}
 	}
 
+	@Override
+	public boolean receiveClientEvent(int id, int type)
+	{
+		if (id == IS_PLAYING) {
+			final boolean wasPlaying = isPlaying;
+			isPlaying = type != 0;
+			checkPlayStatus(wasPlaying, isPlaying);
+			return true;
+		} else if (id == CHANGE_PATTERN) {
+			sequencer.setPendingPatternIndex(type);
+			return true;
+		}
+		return false;
+	}
 
 	private void createDemoSong()
 	{

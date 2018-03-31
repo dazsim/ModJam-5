@@ -101,6 +101,16 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 		tileEntity.notifyPowered(isPowered);
 	}
 
+	@Override
+	@Deprecated
+	public boolean eventReceived(IBlockState state, World world, BlockPos pos, int id, int param)
+	{
+		final TileEntitySequencer tileEntity = getTileEntity(world, pos);
+		if (tileEntity == null) return false;
+
+		return tileEntity.receiveClientEvent(id, param);
+	}
+
 	private TileEntitySequencer getTileEntity(IBlockAccess world, BlockPos pos) {
 		TileEntity tileEntity = world.getTileEntity(pos);
 		if (tileEntity instanceof TileEntitySequencer) {
