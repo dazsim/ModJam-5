@@ -49,6 +49,8 @@ public class TileEntitySequencer extends TileEntity
 		sequencer = demoSong.addSequencer(pos);
 		sequencer.setDesiredBPM(120);
 		sequencer.setAdjacentNoteBlock(EnumFacing.NORTH, Instrument.PIANO);
+		sequencer.setAdjacentNoteBlock(EnumFacing.SOUTH, Instrument.BASSGUITAR);
+		sequencer.setAdjacentNoteBlock(EnumFacing.EAST, Instrument.BELL);
 
 		final Pattern demoPattern1 = new Pattern();
 		demoPattern1.setPitchAtInternal(0, 6);
@@ -63,9 +65,9 @@ public class TileEntitySequencer extends TileEntity
 		demoPattern1.setPitchAtInternal(9, 13);
 		demoPattern1.setPitchAtInternal(10, 17);
 
-		demoPattern1.setPitchAtInternal(11, 11);
-		demoPattern1.setPitchAtInternal(12, 15);
-		demoPattern1.setPitchAtInternal(13, 18);
+		demoPattern1.setPitchAtInternal(12, 11);
+		demoPattern1.setPitchAtInternal(13, 15);
+		demoPattern1.setPitchAtInternal(14, 18);
 
 		sequencer.setPattern(0, demoPattern1);
 		demoSong.updateBpm();
@@ -78,6 +80,12 @@ public class TileEntitySequencer extends TileEntity
 	private boolean hasSynchronizer()
 	{
 		return false;
+	}
+
+	@Override
+	public void onChunkUnload()
+	{
+		stopPlaying();
 	}
 
 	public void stopPlaying()

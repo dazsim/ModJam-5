@@ -2,7 +2,10 @@ package org.atomicworkshop.sequencing;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
@@ -15,7 +18,7 @@ class PlayingSequence
 {
 	private final SequencerSet sequencerSet;
 	private long nextTickTime;
-	private int interval;
+	private int interval = -1;
 
 	private int noteBlockSearch;
 
@@ -45,6 +48,9 @@ class PlayingSequence
 		++interval;
 		if (interval >= 16) {
 			interval = 0;
+			//Setting the noteBlockSearch to 0 here ensures that the sounds played per pattern are deterministic
+			//for a given pattern
+			noteBlockSearch = 0;
 		}
 
 		for (final Sequencer sequencer : sequencerSet)
@@ -56,14 +62,16 @@ class PlayingSequence
 
 			final ImmutableList<AdjacentNoteBlock> availableNoteBlocks = sequencer.getAvailableNoteBlocks();
 			if (availableNoteBlocks.isEmpty()) continue;
-			if (noteBlockSearch >= availableNoteBlocks.size()) {
-				noteBlockSearch %= availableNoteBlocks.size();
-			}
 
 			final Pattern currentPattern = sequencer.getCurrentPattern();
 			for (final Byte pitchToPlay : currentPattern.getPitchesAtInterval(interval))
 			{
 				//Identify Note block to "play"
+
+				++noteBlockSearch;
+				if (noteBlockSearch >= availableNoteBlocks.size()) {
+					noteBlockSearch %= availableNoteBlocks.size();
+				}
 				AdjacentNoteBlock noteBlock = availableNoteBlocks.get(noteBlockSearch);
 
 				final BlockPos pos = sequencerBlockPos.offset(noteBlock.getDirection());
@@ -78,9 +86,14 @@ class PlayingSequence
 				final int playingNoteId = e.getVanillaNoteId();
 				final float pitch = (float)Math.pow(2.0D, (playingNoteId - 12) / 12.0D);
 				SoundEvent instrument = getInstrument(playingInstrumentId);
-				world.playSound(null, pos, instrument, SoundCategory.RECORDS, 3.0F, pitch);
+
+				double x = pos.getX() + 0.5;
+				double y = pos.getY() + 0.5;
+				double z = pos.getZ() + 0.5;
+				world.playSound(x, y, z, instrument, SoundCategory.RECORDS, 3.0F, pitch, false);
 
 				//Trigger a note particle at location
+				world.spawnParticle(EnumParticleTypes.NOTE, x, y + 0.7D, z, playingNoteId / 24.0D, 0.0D, 0.0D);
 			}
 		}
 	}
