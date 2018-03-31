@@ -34,8 +34,8 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 	}
 
 	private UUID sequencerSetId;
-
-	private Sequencer sequencer = null;
+	//TODO: fix privacy later, right now the TESR needs access
+	public Sequencer sequencer = null;
 	private boolean isPlaying;
 
 	private boolean hasSynchronizer()
@@ -172,6 +172,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 
 	private void createDemoSong()
 	{
+		
 		if (world == null) return;
 
 		sequencer = new Sequencer(world, pos);

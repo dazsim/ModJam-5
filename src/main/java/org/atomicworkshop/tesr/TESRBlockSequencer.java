@@ -1,17 +1,12 @@
 package org.atomicworkshop.tesr;
 
+import org.atomicworkshop.sequencing.Sequencer;
 import org.atomicworkshop.tiles.TileEntitySequencer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 
 public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequencer>
 {
@@ -26,6 +21,7 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 			int destroyStage,float alpha) {
 			
 			int f = te.getBlockMetadata();
+			int bpm = 120;
 			//f == orientation 
 			//render buttons
 			//render cards
@@ -34,25 +30,19 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
         	float f3 = 0.015625F * f1;
         	GlStateManager.pushMatrix();
         	FontRenderer fontrenderer = this.getFontRenderer();
-        	
-        	String s = "120";
-        	if (f==2)
-        	{ 
-        		GlStateManager.translate(0.5, 0.4+(0.5F * f1), 0.96+(0.01f * f1));//0.5, 0.5, 0.0 NORTH
-        	} else if (f==3)//south
+        	GlStateManager.translate(x, y, z);
+        	GlStateManager.translate(0.8, 0.5, 0.8);
+        	GlStateManager.rotate(0.0f, 0.5f, 0.0f, 1.0f);
+        	if (te instanceof TileEntitySequencer && te !=null)
         	{
-        		GlStateManager.rotate(180, 0.0F, 1.0F, 0);
-        		GlStateManager.translate(-0.5, 0.4+(0.5F * f1), -0.04+(0.01f * f1));//south
-        	} else if (f==4)
-        	{
-        		GlStateManager.translate(0.96, 0.4+(0.5F * f1), 0.5+(0.01f * f1));
-        		GlStateManager.rotate(90, 0.0F, 1.0F, 0);
-        	} else if (f==5) //east
-        	{
-        		GlStateManager.rotate(-90, 0.0F, 1.0F, 0);
-        		GlStateManager.translate(0.5, 0.4+(0.5F * f1), -0.04+(0.01f * f1));
         		
-        	} 
+        		if (te.sequencer instanceof Sequencer && te.sequencer!=null)
+        		{
+        			bpm = te.sequencer.getBeatsPerMinute();
+        		}
+        	}
+        	String s = ""+bpm;
+        	
         	
         	
         

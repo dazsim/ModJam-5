@@ -10,10 +10,10 @@
       "y ": 180
     },
     "facing": {
-      "north": { },
-      "south": { },
-      "east": { },
-      "west": { }
+      "north": { "model": "theconductor:sequencer", "y": 270},
+      "south": { "model": "theconductor:sequencer", "y": 90},
+      "east": { "model": "theconductor:sequencer"},
+      "west": { "model": "theconductor:sequencer", "y": 180}
     }
   }
 }
