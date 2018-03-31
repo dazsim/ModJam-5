@@ -13,20 +13,25 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import org.atomicworkshop.ConductorMod;
 import org.atomicworkshop.tiles.TileEntitySequencer;
 import javax.annotation.Nullable;
-import java.time.OffsetDateTime;
 
 public class BlockSequencer extends BlockHorizontal implements ITileEntityProvider
 {
 	public BlockSequencer() {
-		//FIXME: Create an appropriate material. Needs to be immovable
-		super(Material.ANVIL);
+		super(new SequencerMaterial());
 
 		final IBlockState defaultState = blockState.getBaseState()
 				.withProperty(FACING, EnumFacing.NORTH);
 		setDefaultState(defaultState);
+	}
+
+	@Override
+	public boolean shouldCheckWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side)
+	{
+		//Disabling weak power checks here prevents Note Blocks from being fired when the sequencer receives a redstone
+		//signal.
+		return false;
 	}
 
 	@Override
@@ -51,7 +56,9 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	}
 
 	@Override
-	public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand)
+	public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing,
+	                                        float hitX, float hitY, float hitZ, int meta,
+	                                        EntityLivingBase placer, EnumHand hand)
 	{
 		return getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite());
 	}
@@ -92,6 +99,16 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 		if (tileEntity == null) return;
 
 		tileEntity.notifyPowered(isPowered);
+	}
+
+	@Override
+	@Deprecated
+	public boolean eventReceived(IBlockState state, World world, BlockPos pos, int id, int param)
+	{
+		final TileEntitySequencer tileEntity = getTileEntity(world, pos);
+		if (tileEntity == null) return false;
+
+		return tileEntity.receiveClientEvent(id, param);
 	}
 
 	private TileEntitySequencer getTileEntity(IBlockAccess world, BlockPos pos) {

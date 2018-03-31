@@ -3,6 +3,7 @@ package org.atomicworkshop.sequencing;
 import com.google.common.collect.Lists;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.atomicworkshop.ConductorMod;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
@@ -22,11 +23,13 @@ public class SequencerSet implements Iterable<Sequencer>
 		this.id = id;
 	}
 
-	public Sequencer addSequencer(BlockPos pos)
+	public void addSequencer(Sequencer sequencer)
 	{
-		final Sequencer newSequencer = new Sequencer(pos);
-		sequencers.add(newSequencer);
-		return newSequencer;
+		if (sequencer.getWorld().provider.getDimension() != world.provider.getDimension()) {
+			ConductorMod.logger.warn("SequencerSet world {} vs Sequencer world {}");
+		}
+
+		sequencers.add(sequencer);
 	}
 
 	public void updateBpm()

@@ -5,12 +5,15 @@ import com.google.common.collect.Lists;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.event.world.NoteBlockEvent;
 import net.minecraftforge.event.world.NoteBlockEvent.Instrument;
 import java.util.List;
+import java.util.UUID;
 
 public class Sequencer
 {
+	private final World world;
 	private final BlockPos blockPos;
 	private Pattern[] patterns;
 	private AdjacentNoteBlock[] adjacentNoteBlocks;
@@ -19,8 +22,9 @@ public class Sequencer
 	private int pendingPatternIndex;
 	private int currentPatternIndex;
 
-	public Sequencer(BlockPos blockPos)
+	public Sequencer(World world, BlockPos blockPos)
 	{
+		this.world = world;
 		this.blockPos = blockPos;
 		adjacentNoteBlocks = new AdjacentNoteBlock[] {
 				new AdjacentNoteBlock(EnumFacing.NORTH),
@@ -44,6 +48,10 @@ public class Sequencer
 			}
 		}
 		currentAdjacentNoteBlocks = ImmutableList.copyOf(availableNoteBlocks);
+	}
+
+	public Instrument getInstrumentFromNoteBlock(EnumFacing direction) {
+		return adjacentNoteBlocks[direction.getHorizontalIndex()].getInstrument();
 	}
 
 	public BlockPos getBlockPos()
@@ -108,5 +116,10 @@ public class Sequencer
 	public ImmutableList<AdjacentNoteBlock> getAvailableNoteBlocks()
 	{
 		return currentAdjacentNoteBlocks;
+	}
+
+	public World getWorld()
+	{
+		return world;
 	}
 }
