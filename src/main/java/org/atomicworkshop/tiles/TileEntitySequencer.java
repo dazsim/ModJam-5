@@ -11,7 +11,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.event.world.NoteBlockEvent.Instrument;
+import org.atomicworkshop.ConductorMod;
 import org.atomicworkshop.Reference.NBT;
 import org.atomicworkshop.sequencing.MusicPlayer;
 import org.atomicworkshop.sequencing.Pattern;
@@ -50,15 +52,43 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 	}
 
 	@Override
+	protected void setWorldCreate(World worldIn)
+	{
+		setWorld(worldIn);
+	}
+
+	@Override
 	public void readFromNBT(NBTTagCompound compound)
 	{
 		super.readFromNBT(compound);
+		boolean wasPlaying = isPlaying;
 		isPlaying = compound.getBoolean(NBT.isPlaying);
 
 		sequencerSetId = compound.getUniqueId(NBT.songId);
 		if (sequencerSetId.equals(UUID.fromString("00000000-0000-0000-0000-000000000000"))) {
 			sequencerSetId = UUID.randomUUID();
 		}
+
+		if (sequencer == null) {
+			sequencer = new Sequencer(world, pos);
+		}
+
+		final NBTTagCompound compoundTag = compound.getCompoundTag(NBT.sequence);
+		if (!compoundTag.hasNoTags())
+		{
+			sequencer.readFromNBT(compoundTag);
+			ConductorMod.logger.info("read from NBT");
+			if (sequencer.getBeatsPerMinute() < 60) {
+				createDemoSong();
+				markDirty();
+				ConductorMod.logger.info("created demo data (no bpm)");
+			}
+		} else {
+			createDemoSong();
+			markDirty();
+			ConductorMod.logger.info("created demo data (no tags)");
+		}
+		updatePlayStatus(wasPlaying);
 	}
 
 	@Override
@@ -69,6 +99,12 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		compound.setBoolean(NBT.isPlaying, isPlaying);
 		compound.setUniqueId(NBT.songId, sequencerSetId);
 
+		if (sequencer != null)
+		{
+			compound.setTag(NBT.sequence, sequencer.writeToNBT());
+		}
+
+		ConductorMod.logger.info("writing to NBT");
 		return compound;
 	}
 
@@ -93,10 +129,10 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		final boolean wasPlaying = isPlaying;
 		handleUpdateTag(pkt.getNbtCompound());
 
-		checkPlayStatus(wasPlaying, isPlaying);
+		updatePlayStatus(wasPlaying);
 	}
 
-	private void checkPlayStatus(boolean wasPlaying, boolean isPlaying)
+	private void updatePlayStatus(boolean wasPlaying)
 	{
 		if (isPlaying && !wasPlaying) {
 			startPlaying();
@@ -107,37 +143,38 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 
 	private void startPlaying()
 	{
-		//TODO: Only create a demo song if there isn't any pattern data attached to this TE.
-		createDemoSong();
+		if (world == null || pos == null || !world.isRemote) return;
 
 		//TODO: Find Synchronizer and get the Sequencer set for it.
-		final SequencerSet demoSong;
+		final SequencerSet sequencerSet;
 
 		if (!hasSynchronizer()) {
-			demoSong = new SequencerSet(world, sequencerSetId);
+			sequencerSet = new SequencerSet(world, sequencerSetId);
 		} else {
 			//TODO: Resolve SequencerSet from sequencer
-			demoSong = new SequencerSet(world, sequencerSetId);
+			sequencerSet = new SequencerSet(world, sequencerSetId);
 		}
-		demoSong.addSequencer(sequencer);
+		sequencerSet.addSequencer(sequencer);
 
-		demoSong.updateBpm();
+		sequencerSet.updateBpm();
 
 		for (final EnumFacing horizontal : EnumFacing.HORIZONTALS)
 		{
 			verifyNoteBlockFacing(horizontal);
 		}
 
-		MusicPlayer.playSong(demoSong);
+		MusicPlayer.playSong(sequencerSet);
 
 		world.addBlockEvent(pos, getBlockType(), IS_PLAYING, 1);
 	}
 
 	private void sendUpdates() {
+		if (world == null || pos == null) return;
+
 		world.markBlockRangeForRenderUpdate(pos, pos);
 		final IBlockState state = world.getBlockState(pos);
 		world.notifyBlockUpdate(pos, state, state, 3);
-		world.scheduleBlockUpdate(pos, getBlockType(),0,0);
+		world.scheduleBlockUpdate(pos, getBlockType(), 0, 0);
 		markDirty();
 	}
 
@@ -161,9 +198,10 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		if (id == IS_PLAYING) {
 			final boolean wasPlaying = isPlaying;
 			isPlaying = type != 0;
-			checkPlayStatus(wasPlaying, isPlaying);
+			updatePlayStatus(wasPlaying);
 			return true;
-		} else if (id == CHANGE_PATTERN) {
+		}
+		if (id == CHANGE_PATTERN) {
 			sequencer.setPendingPatternIndex(type);
 			return true;
 		}
@@ -180,48 +218,53 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 
 		final int pattern = world.rand.nextInt(4);
 		final Pattern demoPattern = new Pattern();
-		if (pattern == 0)
+		switch (pattern)
 		{
-			demoPattern.setPitchAtInternal(0, 6);
-			demoPattern.setPitchAtInternal(1, 10);
-			demoPattern.setPitchAtInternal(2, 13);
+			case 0:
+				demoPattern.setPitchAtInternal(0, 6);
+				demoPattern.setPitchAtInternal(1, 10);
+				demoPattern.setPitchAtInternal(2, 13);
 
-			demoPattern.setPitchAtInternal(4, 8);
-			demoPattern.setPitchAtInternal(5, 11);
-			demoPattern.setPitchAtInternal(6, 15);
+				demoPattern.setPitchAtInternal(4, 8);
+				demoPattern.setPitchAtInternal(5, 11);
+				demoPattern.setPitchAtInternal(6, 15);
 
-			demoPattern.setPitchAtInternal(8, 10);
-			demoPattern.setPitchAtInternal(9, 13);
-			demoPattern.setPitchAtInternal(10, 17);
+				demoPattern.setPitchAtInternal(8, 10);
+				demoPattern.setPitchAtInternal(9, 13);
+				demoPattern.setPitchAtInternal(10, 17);
 
-			demoPattern.setPitchAtInternal(12, 11);
-			demoPattern.setPitchAtInternal(13, 15);
-			demoPattern.setPitchAtInternal(14, 18);
+				demoPattern.setPitchAtInternal(12, 11);
+				demoPattern.setPitchAtInternal(13, 15);
+				demoPattern.setPitchAtInternal(14, 18);
 
-		} else if (pattern == 1) {
-			demoPattern.setPitchAtInternal(0, 6);
-			demoPattern.setPitchAtInternal(8, 6);
+				break;
+			case 1:
+				demoPattern.setPitchAtInternal(0, 6);
+				demoPattern.setPitchAtInternal(8, 6);
 
-		} else if (pattern == 2) {
-			demoPattern.setPitchAtInternal(4, 6);
-			demoPattern.setPitchAtInternal(12, 6);
+				break;
+			case 2:
+				demoPattern.setPitchAtInternal(4, 6);
+				demoPattern.setPitchAtInternal(12, 6);
 
-		} else if (pattern == 3) {
-			demoPattern.setPitchAtInternal(1, 14);
-			demoPattern.setPitchAtInternal(2, 18);
-			demoPattern.setPitchAtInternal(3, 5);
+				break;
+			case 3:
+				demoPattern.setPitchAtInternal(1, 14);
+				demoPattern.setPitchAtInternal(2, 18);
+				demoPattern.setPitchAtInternal(3, 5);
 
-			demoPattern.setPitchAtInternal(5, 14);
-			demoPattern.setPitchAtInternal(6, 18);
-			demoPattern.setPitchAtInternal(7, 5);
+				demoPattern.setPitchAtInternal(5, 14);
+				demoPattern.setPitchAtInternal(6, 18);
+				demoPattern.setPitchAtInternal(7, 5);
 
-			demoPattern.setPitchAtInternal(9, 16);
-			demoPattern.setPitchAtInternal(10, 18);
-			demoPattern.setPitchAtInternal(11, 5);
+				demoPattern.setPitchAtInternal(9, 16);
+				demoPattern.setPitchAtInternal(10, 18);
+				demoPattern.setPitchAtInternal(11, 5);
 
-			demoPattern.setPitchAtInternal(13, 14);
-			demoPattern.setPitchAtInternal(14, 18);
-			demoPattern.setPitchAtInternal(15, 5 );
+				demoPattern.setPitchAtInternal(13, 14);
+				demoPattern.setPitchAtInternal(14, 18);
+				demoPattern.setPitchAtInternal(15, 5);
+				break;
 		}
 
 		sequencer.setPattern(0, demoPattern);
@@ -241,15 +284,20 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 
 	private void verifyNoteBlockFacing(EnumFacing facing)
 	{
-		BlockPos offset = pos.offset(facing.getOpposite());
+		final BlockPos offset = pos.offset(facing.getOpposite());
 		final IBlockState noteBlockState = world.getBlockState(offset);
+
+		@Nullable
 		final Instrument instrument;
-		if (noteBlockState.getBlock() != Blocks.NOTEBLOCK) {
-			instrument = null;
-		} else {
+		if (Blocks.NOTEBLOCK.equals(noteBlockState.getBlock()))
+		{
 			final IBlockState instrumentBlockState = world.getBlockState(offset.down());
 			instrument = getInstrumentFromBlockState(instrumentBlockState);
+		} else
+		{
+			instrument = null;
 		}
+
 		final Instrument instrumentFromNoteBlock = sequencer.getInstrumentFromNoteBlock(facing);
 
 		if (instrument != instrumentFromNoteBlock) {
@@ -258,6 +306,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		}
 	}
 
+	@SuppressWarnings("ObjectEquality") //Disabled because this is super close to vanilla's TileEntity stuff.
 	private static Instrument getInstrumentFromBlockState(IBlockState state)
 	{
 		//Blatantly ripped from TileEntityNote

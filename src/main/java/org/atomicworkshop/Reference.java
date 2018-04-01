@@ -31,6 +31,11 @@ public final class Reference
 	public static final class NBT {
 		public static final String isPlaying = "isPlaying";
 		public static String songId = "songId";
+		public static String beatsPerMinute = "bpm";
+		public static String currentPatternIndex = "currentPattern";
+		public static String pendingPatternIndex = "pendingPattern";
+		public static String pattern = "pattern";
+		public static String sequence = "sequence";
 	}
 
 	private Reference() { }
