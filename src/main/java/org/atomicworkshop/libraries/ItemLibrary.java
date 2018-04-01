@@ -13,12 +13,12 @@ import org.atomicworkshop.items.ItemPunchCardBlank;
 @ObjectHolder(Reference.MOD_ID)
 public class ItemLibrary
 {
-	public class itemPunchCardBlank {
-
-	}
 	@Nonnull
 	public static final ItemBlock sequencer;
-
+	@Nonnull
+	public static final ItemBlock wire;
+	@Nonnull
+	public static final ItemBlock synchronizer;
 	@ObjectHolder("punchcardblank")
 	public static final ItemPunchCardBlank punchCardBlank;
 
@@ -26,6 +26,9 @@ public class ItemLibrary
 	//Trick IntelliJ/Eclipse into thinking that sequencer won't be null
 	static {
 		sequencer = null;
+		wire = null;
+		synchronizer = null;
+
 		punchCardBlank = null;
 		itemPunchCard = null;
 	}

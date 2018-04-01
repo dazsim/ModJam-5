@@ -26,6 +26,16 @@ public class RenderingHandler
 				new ModelResourceLocation(Blocks.sequencer, "inventory")
 		);
 		ModelLoader.setCustomModelResourceLocation(
+				ItemLibrary.wire,
+				0,
+				new ModelResourceLocation(Blocks.wire, "inventory")
+		);
+		ModelLoader.setCustomModelResourceLocation(
+				ItemLibrary.synchronizer,
+				0,
+				new ModelResourceLocation(Blocks.synchronizer, "inventory")
+		);
+		ModelLoader.setCustomModelResourceLocation(
 				ItemLibrary.punchCardBlank,
 				0,
 				new ModelResourceLocation(Items.punchcardblank, "inventory")

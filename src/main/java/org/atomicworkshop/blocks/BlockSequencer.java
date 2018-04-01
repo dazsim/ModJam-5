@@ -16,10 +16,13 @@ import net.minecraft.world.World;
 import org.atomicworkshop.tiles.TileEntitySequencer;
 import javax.annotation.Nullable;
 
+@SuppressWarnings("deprecation")
 public class BlockSequencer extends BlockHorizontal implements ITileEntityProvider
 {
+	private final AxisAlignedBB boundingBox = new AxisAlignedBB(0, 0, 0, 1, 0.5, 1);
+
 	public BlockSequencer() {
-		super(new SequencerMaterial());
+		super(new MachineMaterial());
 
 		final IBlockState defaultState = blockState.getBaseState()
 				.withProperty(FACING, EnumFacing.NORTH);
@@ -35,16 +38,10 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	}
 
 	@Override
+	@Deprecated
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
 	{
-		return new AxisAlignedBB(0, 0, 0, 1, 0.5, 1);
-	}
-
-	@Nullable
-	@Override
-	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
-	{
-		return new AxisAlignedBB(0, 0, 0, 1, 0.5, 1);
+		return boundingBox;
 	}
 
 	@Override
@@ -86,11 +83,10 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	@Override
 	public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
 	{
-		TileEntity tileEntity = worldIn.getTileEntity(pos);
-		if (tileEntity instanceof TileEntitySequencer) {
-			TileEntitySequencer teSequencer = (TileEntitySequencer)tileEntity;
-			teSequencer.stopPlaying();
-		}
+		final TileEntitySequencer tileEntity = getTileEntity(worldIn, pos);
+		if (tileEntity == null) return;
+
+		tileEntity.stopPlaying();
 
 		super.breakBlock(worldIn, pos, state);
 	}
@@ -115,6 +111,7 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	}
 
 	@Override
+	@Deprecated
 	public boolean isOpaqueCube(IBlockState state)
 	{
 		return false;
@@ -130,8 +127,8 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 		return tileEntity.receiveClientEvent(id, param);
 	}
 
-	private TileEntitySequencer getTileEntity(IBlockAccess world, BlockPos pos) {
-		TileEntity tileEntity = world.getTileEntity(pos);
+	private static TileEntitySequencer getTileEntity(IBlockAccess world, BlockPos pos) {
+		final TileEntity tileEntity = world.getTileEntity(pos);
 		if (tileEntity instanceof TileEntitySequencer) {
 			return (TileEntitySequencer)tileEntity;
 		}

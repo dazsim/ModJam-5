@@ -14,6 +14,9 @@ public final class Reference
 
 	public static final class Blocks {
 		public static final ResourceLocation sequencer = resource("sequencer");
+		public static final ResourceLocation synchronizer = resource("synchronizer");
+		public static final ResourceLocation wire = resource("wire");
+
 
 		private Blocks() { }
 	}
@@ -26,6 +29,7 @@ public final class Reference
 
 	public static final class TileEntities {
 		public static final String sequencer = tileEntityName("sequencer");
+		public static final String synchronizer = tileEntityName("synchronizer");
 
 		private TileEntities() { }
 
@@ -36,12 +40,14 @@ public final class Reference
 
 	public static final class NBT {
 		public static final String isPlaying = "isPlaying";
-		public static String songId = "songId";
-		public static String beatsPerMinute = "bpm";
-		public static String currentPatternIndex = "currentPattern";
-		public static String pendingPatternIndex = "pendingPattern";
-		public static String pattern = "pattern";
-		public static String sequence = "sequence";
+		public static final String songId = "songId";
+		public static final String beatsPerMinute = "bpm";
+		public static final String currentPatternIndex = "currentPattern";
+		public static final String pendingPatternIndex = "pendingPattern";
+		public static final String pattern = "pattern";
+		public static final String sequence = "sequence";
+
+		private NBT() { }
 	}
 
 	private Reference() { }
