@@ -80,12 +80,10 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			ConductorMod.logger.info("read from NBT");
 			if (sequencer.getBeatsPerMinute() < 60) {
 				createDemoSong();
-				markDirty();
 				ConductorMod.logger.info("created demo data (no bpm)");
 			}
 		} else {
 			createDemoSong();
-			markDirty();
 			ConductorMod.logger.info("created demo data (no tags)");
 		}
 		updatePlayStatus(wasPlaying);
@@ -154,7 +152,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			//TODO: Resolve SequencerSet from sequencer
 			sequencerSet = new SequencerSet(world, sequencerSetId);
 		}
-		sequencer.setCurrentInterval(0);
+
 		sequencerSet.addSequencer(sequencer);
 
 		sequencerSet.updateBpm();
