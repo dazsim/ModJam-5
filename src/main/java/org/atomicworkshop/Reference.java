@@ -42,6 +42,7 @@ public final class Reference
 		public static String pendingPatternIndex = "pendingPattern";
 		public static String pattern = "pattern";
 		public static String sequence = "sequence";
+		public static String hasCard = "hasCard";
 	}
 
 	private Reference() { }

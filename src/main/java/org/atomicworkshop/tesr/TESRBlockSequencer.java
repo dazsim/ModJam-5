@@ -1,6 +1,9 @@
 package org.atomicworkshop.tesr;
 
 import net.minecraft.item.EnumDyeColor;
+
+import org.atomicworkshop.Reference.Items;
+import org.atomicworkshop.libraries.ItemLibrary;
 import org.atomicworkshop.sequencing.Pattern;
 import org.atomicworkshop.sequencing.Sequencer;
 import org.atomicworkshop.tiles.TileEntitySequencer;
@@ -76,7 +79,8 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 	            EntityItem enabledItemInactiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.BROWN.getMetadata()));
 	            EntityItem disabledItemActiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.GRAY.getMetadata()));
 	            EntityItem enabledItemActiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.ORANGE.getMetadata()));
-
+	            
+	            EntityItem punchCard = new EntityItem(getWorld(),0.0D,0.0D,0.0D,new ItemStack(ItemLibrary.punchCardBlank,1,0)); 
                 bpm = te.sequencer.getBeatsPerMinute();
                 Pattern p = te.sequencer.getCurrentPattern();
 
@@ -140,9 +144,18 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 
                         GlStateManager.enableLighting();
                         GlStateManager.popMatrix();
-                    }
-                }
-                GlStateManager.popMatrix();
+                    } //inner loop
+                } //outer loop
+		        //System.out.println("status : "+te.getHasCard());
+		        if (te.getHasCard()==true)
+		        {
+			        GlStateManager.translate(0.74,0.01,0.08);
+			        GlStateManager.scale(0.175, 0.175, 0.175);
+			        GlStateManager.rotate(90.0f,1.0f,0.0f,0.0f);
+			        itemRenderer.renderItem(punchCard.getItem(), ItemCameraTransforms.TransformType.FIXED);
+			        //System.out.println("rendered");
+		        }
+		        GlStateManager.popMatrix();
             }
             GlStateManager.translate(0.0, 0.935, 0.11);
         	String s = ""+bpm;
@@ -155,7 +168,7 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
         	fontrenderer.drawString(s, 0-fontrenderer.getStringWidth(s) / 2, 0, 0xFFFFFF);
         	
             GlStateManager.popMatrix();
-
+            
 			//render 
 		
 	}
