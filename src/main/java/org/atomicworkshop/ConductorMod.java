@@ -8,7 +8,12 @@ import org.apache.logging.log4j.Logger;
 
 //FIXME: (Steven) Look up how to do version constraints again.
 @SuppressWarnings("MethodMayBeStatic")
-@Mod(modid = Reference.MOD_ID, name = Reference.NAME, version = Reference.VERSION)
+@Mod(
+        modid = Reference.MOD_ID,
+        name = Reference.NAME,
+        version = Reference.VERSION,
+        dependencies = "required-after:forge@[14.23.2.2611,)",
+        acceptedMinecraftVersions = "[1.12.2,1.13)")
 public class ConductorMod
 {
     public static Logger logger;
