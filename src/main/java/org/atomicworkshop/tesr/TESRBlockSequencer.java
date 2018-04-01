@@ -95,11 +95,12 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
         			            {
         			            	itemRenderer.renderItem(entityitem.getItem(), ItemCameraTransforms.TransformType.FIXED);
         			            }
-        			            System.out.println("QUARTZ");
+        			            //System.out.println("QUARTZ");
         			            //RenderHelper.disableStandardItemLighting();
         			            GlStateManager.popAttrib();
         			            
         			            GlStateManager.enableLighting();
+        			            GlStateManager.popMatrix();
         				}
         				GlStateManager.popMatrix();
         				
