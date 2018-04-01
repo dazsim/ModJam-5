@@ -2,8 +2,10 @@ package org.atomicworkshop.handlers;
 
 import org.atomicworkshop.Reference;
 import org.atomicworkshop.Reference.Blocks;
+import org.atomicworkshop.Reference.Items;
 import org.atomicworkshop.Reference.TileEntities;
 import org.atomicworkshop.blocks.BlockSequencer;
+import org.atomicworkshop.items.ItemPunchCardBlank;
 import org.atomicworkshop.libraries.BlockLibrary;
 import org.atomicworkshop.libraries.ItemLibrary;
 import org.atomicworkshop.tiles.TileEntitySequencer;
@@ -37,15 +39,22 @@ public final class RegistrationHandler
 		final IForgeRegistry<Item> registry = registryEvent.getRegistry();
 
 		registerItemFromBlock(registry, BlockLibrary.sequencer);
-		//TODO: Register Items here
-		// punchcardblank and punchcard
-		// HOWDO???
-		//register(new (Item)ItemLibrary.itemPunchCardBlank());
+
+		registerItem(registry, new ItemPunchCardBlank(), Items.punchcardblank);
 	}
 
 	private static void registerBlock(IForgeRegistry<Block> registry, Block block, ResourceLocation registryName)
 	{
 		registry.register(block
+				.setRegistryName(registryName)
+				.setCreativeTab(Reference.CreativeTab)
+				.setUnlocalizedName(registryName.toString())
+		);
+	}
+
+	private static void registerItem(IForgeRegistry<Item> registry, Item item, ResourceLocation registryName)
+	{
+		registry.register(item
 				.setRegistryName(registryName)
 				.setCreativeTab(Reference.CreativeTab)
 				.setUnlocalizedName(registryName.toString())

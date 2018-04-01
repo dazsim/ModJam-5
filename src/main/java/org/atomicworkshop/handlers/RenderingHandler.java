@@ -26,7 +26,7 @@ public class RenderingHandler
 				new ModelResourceLocation(Blocks.sequencer, "inventory")
 		);
 		ModelLoader.setCustomModelResourceLocation(
-				ItemLibrary.itemPunchCardBlank,
+				ItemLibrary.punchCardBlank,
 				0,
 				new ModelResourceLocation(Items.punchcardblank, "inventory")
 		);
