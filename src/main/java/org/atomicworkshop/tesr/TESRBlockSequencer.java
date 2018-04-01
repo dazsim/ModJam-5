@@ -54,6 +54,7 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
         	fontrenderer.drawString(s, 0-fontrenderer.getStringWidth(s) / 2, 0, 0);
         	
             GlStateManager.popMatrix();
+
 			//render 
 		
 	}

@@ -59,6 +59,19 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		if (sequencerSetId.equals(UUID.fromString("00000000-0000-0000-0000-000000000000"))) {
 			sequencerSetId = UUID.randomUUID();
 		}
+
+		if (sequencer == null) {
+			sequencer = new Sequencer(world, pos);
+		}
+
+		NBTTagCompound compoundTag = compound.getCompoundTag(NBT.sequence);
+		if (!compoundTag.hasNoTags())
+		{
+			sequencer.readFromNBT(compoundTag);
+		} else {
+			createDemoSong();
+			sendUpdates();
+		}
 	}
 
 	@Override
@@ -68,6 +81,11 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 
 		compound.setBoolean(NBT.isPlaying, isPlaying);
 		compound.setUniqueId(NBT.songId, sequencerSetId);
+
+		if (sequencer != null)
+		{
+			compound.setTag(NBT.sequence, sequencer.writeToNBT());
+		}
 
 		return compound;
 	}
@@ -134,10 +152,12 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 	}
 
 	private void sendUpdates() {
+		if (world == null || pos == null) return;
+
 		world.markBlockRangeForRenderUpdate(pos, pos);
 		final IBlockState state = world.getBlockState(pos);
 		world.notifyBlockUpdate(pos, state, state, 3);
-		world.scheduleBlockUpdate(pos, getBlockType(),0,0);
+		world.scheduleBlockUpdate(pos, getBlockType(), 0, 0);
 		markDirty();
 	}
 
