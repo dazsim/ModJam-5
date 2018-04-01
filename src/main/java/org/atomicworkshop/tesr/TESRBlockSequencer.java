@@ -1,5 +1,6 @@
 package org.atomicworkshop.tesr;
 
+import net.minecraft.item.EnumDyeColor;
 import org.atomicworkshop.sequencing.Pattern;
 import org.atomicworkshop.sequencing.Sequencer;
 import org.atomicworkshop.tiles.TileEntitySequencer;
@@ -65,11 +66,18 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 
             if (te.sequencer != null)
             {
+
+
             	//not current interval rows.
-		        EntityItem disabledItemInactiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, 8));
+		        EntityItem disabledItemInactiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.SILVER.getMetadata()));
 		        EntityItem enabledItemInactiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, 12));
-	            EntityItem disabledItemActiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, 0));
+		        EntityItem disabledItemActiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.WHITE.getMetadata()));
 	            EntityItem enabledItemActiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, 5));
+
+	            EntityItem disabledItemInactiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.BLACK.getMetadata()));
+	            EntityItem enabledItemInactiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, 12));
+	            EntityItem disabledItemActiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.GRAY.getMetadata()));
+	            EntityItem enabledItemActiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, 5));
 
                 bpm = te.sequencer.getBeatsPerMinute();
                 Pattern p = te.sequencer.getCurrentPattern();
@@ -80,22 +88,39 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 		        {
 			        boolean[] rawPatternData = p.getRawPatternData(loop2);
 
-			        final EntityItem disabledItem;
-			        final EntityItem enabledItem;
-
-			        if (te.sequencer.getCurrentInterval() == loop2)
-			        {
-				        disabledItem = disabledItemActiveInterval;
-				        enabledItem = enabledItemActiveInterval;
-
-			        } else {
-						disabledItem = disabledItemInactiveInterval;
-				        enabledItem = enabledItemInactiveInterval;
-			        }
+			        int currentInterval = te.sequencer.getCurrentInterval();
 
                     //outer loop. reset after every outer loop.
                     for (int loop1=0;loop1<24;loop1++)
 			        {
+				        final EntityItem disabledItem;
+				        final EntityItem enabledItem;
+
+			        	if (loop1 == 0 || loop1 == 2 || loop1 == 4 || loop1 == 7 || loop1 == 9 || loop1 == 12 ||
+						        loop1 == 14 || loop1 == 16 || loop1 == 19 || loop1 == 21 || loop1 == 24) {
+			        		//Use sharp colours.
+					        if (currentInterval == loop2)
+					        {
+						        disabledItem = disabledItemActiveIntervalSharp;
+						        enabledItem = enabledItemActiveIntervalSharp;
+
+					        } else {
+						        disabledItem = disabledItemInactiveIntervalSharp;
+						        enabledItem = enabledItemInactiveIntervalSharp;
+					        }
+				        } else {
+			        		//Use non-sharp colours.
+					        if (currentInterval == loop2)
+					        {
+						        disabledItem = disabledItemActiveInterval;
+						        enabledItem = enabledItemActiveInterval;
+
+					        } else {
+						        disabledItem = disabledItemInactiveInterval;
+						        enabledItem = enabledItemInactiveInterval;
+					        }
+				        }
+
 				        GlStateManager.pushMatrix();
 				        GlStateManager.disableLighting();
 
