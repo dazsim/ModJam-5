@@ -154,6 +154,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			//TODO: Resolve SequencerSet from sequencer
 			sequencerSet = new SequencerSet(world, sequencerSetId);
 		}
+		sequencer.setCurrentInterval(0);
 		sequencerSet.addSequencer(sequencer);
 
 		sequencerSet.updateBpm();
@@ -180,6 +181,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 
 	public void stopPlaying()
 	{
+		sequencer.setCurrentInterval(-1);
 		MusicPlayer.stopPlaying(new SequencerSet(world, sequencerSetId));
 		world.addBlockEvent(pos, getBlockType(), IS_PLAYING, 0);
 	}

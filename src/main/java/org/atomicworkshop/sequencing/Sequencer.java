@@ -28,6 +28,7 @@ public class Sequencer
 	private int pendingPatternIndex;
 	private int currentPatternIndex;
 	private int currentInterval = -1;
+	private int noteBlockSearch;
 
 	public Sequencer(World world, BlockPos blockPos)
 	{
@@ -207,5 +208,29 @@ public class Sequencer
 	public void setCurrentInterval(int currentInterval)
 	{
 		this.currentInterval = currentInterval;
+	}
+
+	public int incrementNoteBlockNumber()
+	{
+		++noteBlockSearch;
+		if (noteBlockSearch >= currentAdjacentNoteBlocks.size()) {
+			noteBlockSearch %= currentAdjacentNoteBlocks.size();
+		}
+		return noteBlockSearch;
+	}
+
+	public void incrementInterval()
+	{
+		++currentInterval;
+		if (currentInterval >= 16) {
+			currentInterval = 0;
+			//Setting the noteBlockSearch to 0 here ensures that the sounds played per pattern are deterministic
+			//for a given pattern
+			noteBlockSearch = 0;
+		}
+
+		if ((currentInterval & 3) == 0) {
+			updatePendingPattern();
+		}
 	}
 }

@@ -27,6 +27,7 @@ public final class MusicPlayer
 			PlayingSequence e = new PlayingSequence(sequencerSet);
 			final long currentTimeMillis = System.nanoTime() / 1000000;
 			e.setNextIntervalMillis(currentTimeMillis + (250 / (e.getBeatsPerMinute() / 60)));
+
 			playingSequences.add(e);
 		}
 	}

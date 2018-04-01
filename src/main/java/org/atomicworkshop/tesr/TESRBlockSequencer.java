@@ -66,18 +66,16 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 
             if (te.sequencer != null)
             {
-
-
             	//not current interval rows.
 		        EntityItem disabledItemInactiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.SILVER.getMetadata()));
-		        EntityItem enabledItemInactiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, 12));
+		        EntityItem enabledItemInactiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.BROWN.getMetadata()));
 		        EntityItem disabledItemActiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.WHITE.getMetadata()));
-	            EntityItem enabledItemActiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, 5));
+	            EntityItem enabledItemActiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.YELLOW.getMetadata()));
 
 	            EntityItem disabledItemInactiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.BLACK.getMetadata()));
-	            EntityItem enabledItemInactiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, 12));
+	            EntityItem enabledItemInactiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.BROWN.getMetadata()));
 	            EntityItem disabledItemActiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.GRAY.getMetadata()));
-	            EntityItem enabledItemActiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, 5));
+	            EntityItem enabledItemActiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.ORANGE.getMetadata()));
 
                 bpm = te.sequencer.getBeatsPerMinute();
                 Pattern p = te.sequencer.getCurrentPattern();

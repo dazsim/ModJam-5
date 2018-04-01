@@ -14,9 +14,6 @@ class PlayingSequence
 {
 	private final SequencerSet sequencerSet;
 	private long nextIntervalMilliseconds;
-	private int interval = -1;
-
-	private int noteBlockSearch;
 
 
 	PlayingSequence(SequencerSet sequencerSet)
@@ -41,36 +38,24 @@ class PlayingSequence
 
 	void playNextInterval()
 	{
-		++interval;
-		if (interval >= 16) {
-			interval = 0;
-			//Setting the noteBlockSearch to 0 here ensures that the sounds played per pattern are deterministic
-			//for a given pattern
-			noteBlockSearch = 0;
-		}
-
 		for (final Sequencer sequencer : sequencerSet)
 		{
-			playSequencerSet(sequencer);
+			sequencer.incrementInterval();
+
+			playSequencer(sequencer);
 		}
 	}
 
-	private void playSequencerSet(Sequencer sequencer)
+	private void playSequencer(Sequencer sequencer)
 	{
-		if ((interval & 3) == 0) {
-			sequencer.updatePendingPattern();
-		}
-
 		final ImmutableList<AdjacentNoteBlock> availableNoteBlocks = sequencer.getAvailableNoteBlocks();
 		if (availableNoteBlocks.isEmpty()) return;
 
 		final Pattern currentPattern = sequencer.getCurrentPattern();
-		for (final Byte pitchToPlay : currentPattern.getPitchesAtInterval(interval))
+		for (final Byte pitchToPlay : currentPattern.getPitchesAtInterval(sequencer.getCurrentInterval()))
 		{
-			++noteBlockSearch;
-			if (noteBlockSearch >= availableNoteBlocks.size()) {
-				noteBlockSearch %= availableNoteBlocks.size();
-			}
+			final int noteBlockSearch = sequencer.incrementNoteBlockNumber();
+
 			final AdjacentNoteBlock noteBlock = availableNoteBlocks.get(noteBlockSearch);
 
 			playNote(sequencer, noteBlock, pitchToPlay);
