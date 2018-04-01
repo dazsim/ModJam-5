@@ -1,5 +1,7 @@
 package org.atomicworkshop.sequencing;
 
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -27,6 +29,13 @@ public class Pattern
 	public Iterable<Byte> getPitchesAtInterval(int interval)
 	{
 		return () -> new PitchIterator(patternData[interval]);
+	}
+
+	@SideOnly(Side.CLIENT)
+	public boolean[] getRawPatternData(int interval)
+	{
+		return patternData[interval];
+
 	}
 
 	private static class PitchIterator implements Iterator<Byte>

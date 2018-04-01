@@ -65,9 +65,12 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
         		
         		if (te.sequencer instanceof Sequencer && te.sequencer!=null)
         		{
-        			
+			        EntityItem disabledItem = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, 0));
+			        EntityItem enabledItem = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, 4));
+
         			bpm = te.sequencer.getBeatsPerMinute();
         			Pattern p = te.sequencer.getCurrentPattern();
+
         			GlStateManager.pushMatrix();
         			GlStateManager.translate(-0.03,0.8,-0.13);
         			for (int loop1=0;loop1<24;loop1++)
@@ -77,9 +80,11 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
         				//outer loop. reset after every outer loop.
         				for (int loop2=0;loop2<16;loop2++)
         				{
-        					GlStateManager.translate(0.0,-0.050,0.008);
-        					   EntityItem entityitem = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.QUARTZ_BLOCK));
-        			            entityitem.getItem().setCount(1);
+					        boolean[] rawPatternData = p.getRawPatternData(loop2);
+
+					        GlStateManager.translate(0.0,-0.050,0.008);
+
+        			            enabledItem.getItem().setCount(1);
         			            
         			            GlStateManager.pushMatrix();
         			            GlStateManager.disableLighting();
@@ -90,11 +95,14 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
         			            GlStateManager.depthMask(true);
         			            GlStateManager.pushAttrib();
         			            //RenderHelper.enableStandardItemLighting();
-        			            final boolean[][] pData = new boolean[16][25];
+
         			            //fill our local copy of pData with pattern so we can then iterate thru it and check which buttons are lit
-        			            {
-        			            	itemRenderer.renderItem(entityitem.getItem(), ItemCameraTransforms.TransformType.FIXED);
-        			            }
+					        boolean isEnabled = rawPatternData[loop1];
+					        if (isEnabled) {
+        			            	itemRenderer.renderItem(enabledItem.getItem(), ItemCameraTransforms.TransformType.FIXED);
+        			            } else {
+						        itemRenderer.renderItem(disabledItem.getItem(), ItemCameraTransforms.TransformType.FIXED);
+					        }
         			            //System.out.println("QUARTZ");
         			            //RenderHelper.disableStandardItemLighting();
         			            GlStateManager.popAttrib();
