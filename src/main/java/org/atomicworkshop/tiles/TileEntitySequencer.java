@@ -61,6 +61,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 	public void readFromNBT(NBTTagCompound compound)
 	{
 		super.readFromNBT(compound);
+		boolean wasPlaying = isPlaying;
 		isPlaying = compound.getBoolean(NBT.isPlaying);
 
 		sequencerSetId = compound.getUniqueId(NBT.songId);
@@ -87,6 +88,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			markDirty();
 			ConductorMod.logger.info("created demo data (no tags)");
 		}
+		updatePlayStatus(wasPlaying);
 	}
 
 	@Override
@@ -141,6 +143,8 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 
 	private void startPlaying()
 	{
+		if (world == null || pos == null || !world.isRemote) return;
+
 		//TODO: Find Synchronizer and get the Sequencer set for it.
 		final SequencerSet sequencerSet;
 
