@@ -104,12 +104,15 @@ class PlayingSequence
 
 	private static SoundEvent getInstrument(int eventId)
 	{
+		
+		
 		if (eventId < 0 || eventId >= BlockNote.INSTRUMENTS.size())
 		{
 			eventId = 0;
 		}
 
 		return BlockNote.INSTRUMENTS.get(eventId);
+		
 	}
 
 	SequencerSet getSequencerSet()

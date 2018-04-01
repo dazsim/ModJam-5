@@ -75,7 +75,7 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
                 Pattern p = te.sequencer.getCurrentPattern();
 
                 GlStateManager.pushMatrix();
-                GlStateManager.translate(-0.78,0.0,-0.06);
+                GlStateManager.translate(-0.74,0.082,0.06);
 		        for (int loop2=0;loop2<16;loop2++)
 		        {
 			        boolean[] rawPatternData = p.getRawPatternData(loop2);
@@ -121,7 +121,7 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
                 }
                 GlStateManager.popMatrix();
             }
-
+            GlStateManager.translate(0.0, 0.935, 0.11);
         	String s = ""+bpm;
         	//System.out.println(f);
 

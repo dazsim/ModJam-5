@@ -18,6 +18,10 @@ public final class Reference
 		private Blocks() { }
 	}
 
+	public static final class Items {
+		public static final ResourceLocation punchcardblank = resource("punchcardblank");
+		private Items() { }
+	}
 	public static final class TileEntities {
 		public static final String sequencer = tileEntityName("sequencer");
 

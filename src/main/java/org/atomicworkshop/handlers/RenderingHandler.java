@@ -2,6 +2,7 @@ package org.atomicworkshop.handlers;
 
 import net.minecraftforge.fml.relauncher.Side;
 import org.atomicworkshop.Reference.Blocks;
+import org.atomicworkshop.Reference.Items;
 import org.atomicworkshop.libraries.ItemLibrary;
 import org.atomicworkshop.tesr.TESRBlockSequencer;
 import org.atomicworkshop.tiles.TileEntitySequencer;
@@ -23,6 +24,11 @@ public class RenderingHandler
 				ItemLibrary.sequencer,
 				0,
 				new ModelResourceLocation(Blocks.sequencer, "inventory")
+		);
+		ModelLoader.setCustomModelResourceLocation(
+				ItemLibrary.itemPunchCardBlank,
+				0,
+				new ModelResourceLocation(Items.punchcardblank, "inventory")
 		);
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntitySequencer.class, new TESRBlockSequencer());
 	}

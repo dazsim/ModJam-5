@@ -359,5 +359,9 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			return XYLOPHONE;
 		}
 		return PIANO;
+		
 	}
+	
+	
+
 }
