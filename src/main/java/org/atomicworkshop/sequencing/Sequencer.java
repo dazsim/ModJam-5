@@ -27,6 +27,7 @@ public class Sequencer
 	private int beatsPerMinute;
 	private int pendingPatternIndex;
 	private int currentPatternIndex;
+	private int currentInterval = -1;
 
 	public Sequencer(World world, BlockPos blockPos)
 	{
@@ -196,5 +197,15 @@ public class Sequencer
 		tagCompound.setTag(NBT.pattern, patternList);
 
 		return tagCompound;
+	}
+
+	public int getCurrentInterval()
+	{
+		return currentInterval;
+	}
+
+	public void setCurrentInterval(int currentInterval)
+	{
+		this.currentInterval = currentInterval;
 	}
 }
