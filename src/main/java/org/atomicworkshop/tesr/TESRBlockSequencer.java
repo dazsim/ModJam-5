@@ -4,10 +4,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
@@ -33,6 +31,8 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 
 	private final ItemStack punchCard = new ItemStack(ItemLibrary.punchCardBlank,1,0);
 
+	private final float disabledButtonHeight = 0.015f;
+
 	@Override
 	public void render(
 			TileEntitySequencer te,
@@ -42,54 +42,94 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 			float alpha) {
 
 		if (te == null) return;
-		final RenderItem itemRenderer = mc.getRenderItem();
-		final int facing = te.getBlockMetadata();
-		//render buttons
-		//render cards
-		//render BPM
-		GlStateManager.pushMatrix();
-
-
-        GlStateManager.translate(x, y, z);
-        //Adjust Origin for rotations.
-        GlStateManager.translate(0.5, 0.5, 0.5);
-		//Rotate according to facing
-        GlStateManager.rotate(-90*(facing) ,0.0f,1.0f,0.0f);
-        //Tilt plane
-		//TODO: Calculate angle accurately rather than eyeballing it.
-        GlStateManager.rotate(23, 1.0f, 0, 0);
-        //Return origin
-		GlStateManager.translate(-0.5, -0.2, -0.5);
-
 		final Sequencer sequencer = te.sequencer;
 		if (sequencer == null) return;
 
+		final int facing = te.getBlockMetadata();
 
+		GlStateManager.pushMatrix();
+		{
+			GlStateManager.translate(x, y, z);
+			//Adjust Origin for rotations.
+			GlStateManager.translate(0.5, 0.5, 0.5);
+			//Rotate according to facing
+			GlStateManager.rotate(-90 * (facing), 0.0f, 1.0f, 0.0f);
+			//Tilt plane
+			//TODO: Calculate angle accurately rather than eyeballing it.
+			GlStateManager.rotate(23, 1.0f, 0, 0);
+			//Return origin
+			GlStateManager.translate(-0.5, -0.2, -0.5);
+			//Scale the UI so that it is made up of roughly 28 squares.
+			final float scale = 1 / 28.0f;
+			GlStateManager.scale(scale, scale, scale);
+			//Three squares of space along the top/left hand side, giving roughly 7 blocks of space on the right hand side.
+			GlStateManager.translate(3, 0, 3.5);
 
-		//TODO: Replace EntityItem with ItemStack?
-		//not current interval rows.
+			drawBPM(sequencer.getBeatsPerMinute());
 
+			GlStateManager.pushAttrib();
+			GlStateManager.disableLighting();
+			GlStateManager.depthMask(true);
 
+			renderSequence(sequencer);
+			renderPatternButtons(sequencer);
+			if (te.getHasCard())
+			{
+				renderCard();
+			}
 
+			GlStateManager.enableLighting();
+			GlStateManager.popAttrib();
+		}
+        GlStateManager.popMatrix();
+	}
+
+	private void renderPatternButtons(Sequencer sequencer)
+	{
+		final RenderItem itemRenderer = mc.getRenderItem();
+		final int currentPatternIndex = sequencer.getCurrentPatternIndex();
+		final int pendingPatternIndex = sequencer.getPendingPatternIndex();
+
+		GlStateManager.pushMatrix();
+		{
+			GlStateManager.translate(18.5, 0, 12);
+			for (int patternIndex = 0; patternIndex < 8; patternIndex++)
+			{
+				final int patternButtonX = patternIndex & 3;
+				final int patternButtonY = (patternIndex & 4) >> 2;
+
+				final boolean isEnabled = patternIndex == pendingPatternIndex;
+				final boolean isCurrent = patternIndex == currentPatternIndex;
+
+				GlStateManager.pushMatrix();
+				{
+					GlStateManager.translate(patternButtonX, isEnabled ? 0.0f : disabledButtonHeight, patternButtonY);
+
+					if (isCurrent)
+					{
+						itemRenderer.renderItem(enabledItemActiveInterval, TransformType.FIXED);
+					} else if (isEnabled)
+					{
+						itemRenderer.renderItem(enabledItemInactiveInterval, TransformType.FIXED);
+					} else
+					{
+						itemRenderer.renderItem(disabledItemInactiveInterval, TransformType.FIXED);
+					}
+				}
+				GlStateManager.popMatrix();
+			}
+		}
+		GlStateManager.popMatrix();
+	}
+
+	private void renderSequence(Sequencer sequencer)
+	{
+		final RenderItem itemRenderer = mc.getRenderItem();
 		final Pattern p = sequencer.getCurrentPattern();
-		final int currentInterval = sequencer.getCurrentInterval();
 
-
-
-		//GlStateManager.pushMatrix();
-		float scale = 1/28.0f;
-		//Scale the UI so that it is made up of roughly 32 squares.
-		GlStateManager.scale(scale, scale, scale);
-		//Three squares of space along the top/left hand side, giving roughly 7 blocks of space on the right hand side.
-		GlStateManager.translate(3, 0, 3.5);
-
-		drawBPM(sequencer.getBeatsPerMinute());
-
-		GlStateManager.pushAttrib();
-		GlStateManager.disableLighting();
-		GlStateManager.depthMask(true);
 
 		GlStateManager.pushMatrix(); // Matrix for pattern data
+
 		for (int interval=0;interval<16;interval++)
 		{
 			final boolean[] rawPatternData = p.getRawPatternData(interval);
@@ -99,101 +139,55 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 			{
 				final boolean isEnabled = rawPatternData[pitch];
 
-				final ItemStack disabledItem;
-				final ItemStack enabledItem;
-
-			    if (isSharpPitch(pitch)) {
-			        //Use sharp colours.
-					if (currentInterval == interval)
-					{
-						disabledItem = disabledItemActiveIntervalSharp;
-						enabledItem = enabledItemActiveIntervalSharp;
-					} else {
-						disabledItem = disabledItemInactiveIntervalSharp;
-						enabledItem = enabledItemInactiveIntervalSharp;
-					}
-				} else {
-			        //Use non-sharp colours.
-					if (currentInterval == interval)
-					{
-						disabledItem = disabledItemActiveInterval;
-						enabledItem = enabledItemActiveInterval;
-
-					} else {
-						disabledItem = disabledItemInactiveInterval;
-						enabledItem = enabledItemInactiveInterval;
-					}
-				}
+				final ItemStack renderItem = getSequenceButtonColour(sequencer, interval, pitch, isEnabled);
 
 				GlStateManager.pushMatrix(); // Matrix for an individual button on the pattern sequence data
 
 				GlStateManager.translate(
 						interval,
-						isEnabled ? -0.0f : 0.015f,
+						isEnabled ? 0.0f : disabledButtonHeight,
 						(25 - pitch)
 				);
 
-				if (isEnabled) {
-				    itemRenderer.renderItem(enabledItem, TransformType.FIXED);
-				} else {
-					itemRenderer.renderItem(disabledItem, TransformType.FIXED);
-				}
+				itemRenderer.renderItem(renderItem, TransformType.FIXED);
 
 	            GlStateManager.popMatrix(); // Matrix for an individual button on the pattern sequence data
 	        }
 	    }
+
 		GlStateManager.popMatrix(); // Matrix for pattern data
-
-		//Render Pattern buttons
-		final int currentPatternIndex = sequencer.getCurrentPatternIndex();
-		final int pendingPatternIndex = sequencer.getPendingPatternIndex();
-
-		GlStateManager.pushMatrix();
-		GlStateManager.translate(18.5, 0, 12);
-		for (int patternIndex = 0; patternIndex < 8; patternIndex++)
-		{
-			final int patternButtonX = patternIndex & 3;
-			final int patternButtonY = (patternIndex & 4) >> 2;
-
-			final boolean isEnabled = patternIndex == pendingPatternIndex;
-			final boolean isCurrent = patternIndex == currentPatternIndex;
-
-			GlStateManager.pushMatrix();
-
-			GlStateManager.translate(patternButtonX, isEnabled ? -0.0f : 0.015f, patternButtonY);
-
-			if (isCurrent) {
-				itemRenderer.renderItem(enabledItemActiveInterval, TransformType.FIXED);
-			} else if (isEnabled) {
-				itemRenderer.renderItem(enabledItemInactiveInterval, TransformType.FIXED);
-		    } else {
-				itemRenderer.renderItem(disabledItemInactiveInterval, TransformType.FIXED);
-			}
-
-			GlStateManager.popMatrix();
-
-		}
-		GlStateManager.popMatrix();
-
-		if (te.getHasCard())
-		{
-			renderCard(itemRenderer, punchCard);
-		}
-
-		GlStateManager.enableLighting();
-		GlStateManager.popAttrib();
-
-        GlStateManager.popMatrix();
-
-		//render
-
 	}
 
-	private void renderCard(RenderItem itemRenderer, ItemStack punchCard) {
+	private ItemStack getSequenceButtonColour(Sequencer sequencer, int interval, int pitch, boolean isEnabled)
+	{
+		final int currentInterval = sequencer.getCurrentInterval();
+
+		if (isSharpPitch(pitch)) {
+		    //Use sharp colours.
+			if (currentInterval == interval)
+			{
+				return isEnabled ? enabledItemActiveIntervalSharp : disabledItemActiveIntervalSharp;
+			} else {
+				return isEnabled ? enabledItemInactiveIntervalSharp : disabledItemInactiveIntervalSharp;
+			}
+		} else {
+	        //Use non-sharp colours.
+			if (currentInterval == interval) {
+				return isEnabled ? enabledItemActiveInterval : disabledItemActiveInterval;
+			} else {
+				return isEnabled ? enabledItemInactiveInterval : disabledItemInactiveInterval;
+			}
+		}
+	}
+
+	private void renderCard() {
+		final RenderItem itemRenderer = mc.getRenderItem();
+		final float cardScale = 5.0f;
+
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(20.25, 0, 25);
-		float cardScale = 5f;
 		GlStateManager.scale(cardScale, cardScale, cardScale);
+
 		itemRenderer.renderItem(punchCard, TransformType.FIXED);
 
 		GlStateManager.popMatrix();
@@ -201,15 +195,16 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 
 	private void drawBPM(int bpm) {
 		final FontRenderer fontrenderer = getFontRenderer();
-		final float textScale = 0.30f;//0.015625F * f1;
-		final String bpmText = String.valueOf(bpm);
+		final float textScale = 0.30f;
 
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(20, 0.09, 1.5);
 		GlStateManager.rotate(-90, 1, 0, 0);
 		GlStateManager.scale(textScale, -textScale, textScale);
 
+		final String bpmText = String.valueOf(bpm);
 		fontrenderer.drawString(bpmText, -fontrenderer.getStringWidth(bpmText) / 2, 0, 0xFFFFFF);
+
 		GlStateManager.popMatrix();
 	}
 
