@@ -1,8 +1,32 @@
 package org.atomicworkshop.tiles;
 
+import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.BASSDRUM;
+import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.BASSGUITAR;
+import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.BELL;
+import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.CHIME;
+import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.CLICKS;
+import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.FLUTE;
+import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.GUITAR;
+import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.PIANO;
+import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.SNARE;
+import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.XYLOPHONE;
+
+import java.util.UUID;
+
+import javax.annotation.Nullable;
+
+import org.atomicworkshop.ConductorMod;
+import org.atomicworkshop.Reference.NBT;
+import org.atomicworkshop.items.ItemPunchCardWritten;
+import org.atomicworkshop.sequencing.MusicPlayer;
+import org.atomicworkshop.sequencing.Pattern;
+import org.atomicworkshop.sequencing.Sequencer;
+import org.atomicworkshop.sequencing.SequencerSet;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,16 +38,6 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.NoteBlockEvent.Instrument;
-import org.atomicworkshop.ConductorMod;
-import org.atomicworkshop.Reference.NBT;
-import org.atomicworkshop.sequencing.MusicPlayer;
-import org.atomicworkshop.sequencing.Pattern;
-import org.atomicworkshop.sequencing.Sequencer;
-import org.atomicworkshop.sequencing.SequencerSet;
-import javax.annotation.Nullable;
-import java.util.UUID;
-
-import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.*;
 
 public class TileEntitySequencer extends TileEntity implements ITickable
 {
@@ -39,6 +53,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 
 	private UUID sequencerSetId;
 	//TODO: fix privacy later, right now the TESR needs access
+	
 	public Sequencer sequencer = null;
 	private boolean isPlaying;
 
@@ -384,16 +399,28 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 	public void loadFromCard(ItemStack heldItemStack)
 	{
 		//FIXME: Implement this
+		//this.readFromNBT(heldItemStack.getTagCompound());
+		if (heldItemStack.getTagCompound()!=null)
+		{
+			this.writeToNBT(heldItemStack.getTagCompound());
+		}
 	}
 
-	public void saveToCard() {
-
+	public ItemStack saveToCard() {
+		ItemStack i = new ItemStack(new ItemPunchCardWritten(),1);
+		i.setTagCompound(this.getTileData());
+		
+		return i;
 	}
 
-	public boolean checkPlayerInteraction(double x, double z)
+	public boolean checkPlayerInteraction(double x, double z,EntityPlayer playerIn)
 	{
 		//if (world.isRemote) return false;
-
+		//back up input coordinates
+		double backX,backZ;
+		
+		backX = x;
+		backZ = z;
 
 		//x = 1-x;
 		//z = 1-z;
@@ -428,7 +455,85 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			}
 			return true;
 		}
-
+		//did not click any buttons on pattern array
+		//check coords for ejecting a card.
+		if (this.hasCard)
+		{
+			if ((backX>=0.7192042839004351 && backX<=0.9325510942881259) && (backZ>=0.8448828111319173 && backZ<=0.9298803321497289))
+			{
+				ConductorMod.logger.info("Eject Card");
+				ItemStack i = saveToCard();
+				playerIn.addItemStackToInventory(i);
+				
+				this.hasCard=false;
+				if (!world.isRemote)
+				{
+					sendUpdates();
+				}
+				return true;
+			}
+		}
+		//check coords for setting bank
+		if ((backX>=0.7582737759610318 && backX<=0.8919838353273448) && (backZ>=0.45915143708791994 && backZ<=0.5098249754671347))
+		{
+			double bankWidth = 0.8919838353273448 - 0.7582737759610318;
+			double bankHeight = 0.5098249754671347 - 0.45915143708791994;
+			double offX = backX - 0.7582737759610318;
+			double offZ = backZ - 0.45915143708791994;
+			if (offX < (bankWidth/4))
+			{
+				if (offZ < (bankHeight/2))
+				{
+					//set to 0
+					sequencer.setPendingPatternIndex(0);
+					return true;
+				} else
+				{
+					//set to 4
+					sequencer.setPendingPatternIndex(4);
+					return true;
+				}
+			}
+			if (offX < (bankWidth/2))
+			{
+				if (offZ < (bankHeight/2))
+				{
+					//set to 1
+					sequencer.setPendingPatternIndex(1);
+					return true;
+				} else
+				{
+					//set to 5
+					sequencer.setPendingPatternIndex(5);
+					return true;
+				}
+			}
+			if (offX < ((bankWidth*3)/4))
+			{
+				if (offZ < (bankHeight/2))
+				{
+					//set to 2
+					sequencer.setPendingPatternIndex(2);
+					return true;
+				} else
+				{
+					//set to 6
+					sequencer.setPendingPatternIndex(6);
+					return true;
+				}
+			}
+			if (offZ < (bankHeight/2))
+			{
+				//set to 3
+				sequencer.setPendingPatternIndex(3);
+				return true;
+			} else
+			{
+				//set to 7
+				sequencer.setPendingPatternIndex(7);
+				return true;
+			}
+		}
 		return false;
 	}
 }
