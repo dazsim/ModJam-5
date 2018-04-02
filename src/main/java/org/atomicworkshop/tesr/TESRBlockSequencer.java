@@ -40,28 +40,39 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 
         final FontRenderer fontrenderer = getFontRenderer();
         GlStateManager.translate(x, y, z);
-        GlStateManager.rotate(270.0f+90.0f*(4-facing),0.0f,1.0f,0.0f);
+        //Adjust Origin for rotations.
+        GlStateManager.translate(0.5, 0.5, 0.5);
+		//Rotate according to facing
+        GlStateManager.rotate(-90*(facing) ,0.0f,1.0f,0.0f);
+        //Tilt plane
+		//TODO: Calculate angle accurately rather than eyeballing it.
+        GlStateManager.rotate(23, 1.0f, 0, 0);
+        //Return origin
+		GlStateManager.translate(-0.5, -0.2, -0.5);
 
-        GlStateManager.translate(0.8, 0.5, 0.8);
-        GlStateManager.rotate(90.0f, 0.0f, 1.0f, 0.0f);
-        GlStateManager.rotate(-68.0f, 1.0f,0.0f,0.0f);
-        GlStateManager.translate(0.7, -0.2, -0.45);
-        if (facing==0)
-        {
-            GlStateManager.translate(0.9, -0.1, 0.23);
-        }
-        if (facing==1)
-        {
-            GlStateManager.translate(0.9,0.8,-0.25);
-        }
-        if (facing==2)
-        {
-            GlStateManager.translate(-0.07, 0.8, -0.32);
-        }
-        if (facing==3)
-        {
-            GlStateManager.translate(-0.07, -0.05, 0.18);
-        }
+		//GlStateManager.translate(-0.7, 0, -0.5);
+		//
+
+//        GlStateManager.translate(0.8, 0.5, 0.8);
+//        GlStateManager.rotate(90.0f, 0.0f, 1.0f, 0.0f);
+//        GlStateManager.rotate(-68.0f, 1.0f,0.0f,0.0f);
+//        GlStateManager.translate(0.7, -0.2, -0.45);
+//        if (facing==0)
+//        {
+//            GlStateManager.translate(0.9, -0.1, 0.23);
+//        }
+//        if (facing==1)
+//        {
+//            GlStateManager.translate(0.9,0.8,-0.25);
+//        }
+//        if (facing==2)
+//        {
+//            GlStateManager.translate(-0.07, 0.8, -0.32);
+//        }
+//        if (facing==3)
+//        {
+//            GlStateManager.translate(-0.07, -0.05, 0.18);
+//        }
 
 		int bpm = 120;
 		final Sequencer sequencer = te.sequencer;
@@ -87,8 +98,19 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 		GlStateManager.pushAttrib();
 		GlStateManager.disableLighting();
 
+		/*GlStateManager.pushMatrix();
+		GlStateManager.scale(0.05F, 0.05F, 0.05F);
+		itemRenderer.renderItem(enabledItemActiveInterval.getItem(), TransformType.FIXED);
+		GlStateManager.popMatrix();*/
+
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(-0.74,0.082,0.06);
+		GlStateManager.scale(1/32.0f, 1/32.0f, 1/32.0f);
+		GlStateManager.translate(3, 0, 3);
+		GlStateManager.pushMatrix();
+
+
+
+		//GlStateManager.translate(-0.74,0.082,0.06);
 		for (int interval=0;interval<16;interval++)
 		{
 			final boolean[] rawPatternData = p.getRawPatternData(interval);
@@ -128,11 +150,15 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 
 				GlStateManager.pushMatrix();
 
-				GlStateManager.translate((interval * 0.9f) / 24.0f, (pitch * 0.6f) / 16.0f, isEnabled ? -0.0f : 0.015f);
+				GlStateManager.translate(
+						interval,
+						isEnabled ? -0.0f : 0.015f,
+						(25 - pitch)
+				);
 
-	            GlStateManager.rotate(180.0f,1.0f,0.0f,0.0f);
-	            GlStateManager.rotate(180.0f,0.0f,0.0f,1.0f);
-	            GlStateManager.scale(0.05F, 0.05F, 0.05F);
+	            //GlStateManager.rotate(180.0f,1.0f,0.0f,0.0f);
+	            //GlStateManager.rotate(180.0f,0.0f,0.0f,1.0f);
+				//GlStateManager.scale(0.05F, 0.05F, 0.05F);
 	            GlStateManager.depthMask(true);
 
 
@@ -147,24 +173,12 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 	    }
 		GlStateManager.popMatrix();
 
-		if (te.getHasCard())
-		{
-			GlStateManager.pushMatrix();
-
-			GlStateManager.translate(0.02f,.1f,0.0);
-			GlStateManager.scale(0.175, 0.175, 0.175);
-			GlStateManager.rotate(90.0f,1.0f,0.0f,0.0f);
-			itemRenderer.renderItem(punchCard.getItem(), TransformType.FIXED);
-
-			GlStateManager.popMatrix();
-		}
-
 		//Render Pattern buttons
 		final int currentPatternIndex = sequencer.getCurrentPatternIndex();
 		final int pendingPatternIndex = sequencer.getPendingPatternIndex();
 
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(-0.05,0.4,0.06);
+		//GlStateManager.translate(-0.05,0.4,0.06);
 		for (int patternIndex = 0; patternIndex < 8; patternIndex++)
 		{
 			final int patternButtonX = patternIndex & 3;
@@ -175,10 +189,10 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 
 			GlStateManager.pushMatrix();
 
-			GlStateManager.translate((patternButtonX * 0.9f) / 24.0f, (patternButtonY * 0.6f) / 16.0f, isEnabled ? -0.0f : 0.015f);
+			GlStateManager.translate(18 + patternButtonX, 12 + patternButtonY, isEnabled ? -0.0f : 0.015f);
 
-			GlStateManager.rotate(180.0f,1.0f,0.0f,0.0f);
-			GlStateManager.rotate(180.0f,0.0f,0.0f,1.0f);
+			//GlStateManager.rotate(180.0f,1.0f,0.0f,0.0f);
+			//GlStateManager.rotate(180.0f,0.0f,0.0f,1.0f);
 			GlStateManager.scale(0.05F, 0.05F, 0.05F);
 			GlStateManager.depthMask(true);
 
@@ -194,10 +208,24 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 
 		}
 		GlStateManager.popMatrix();
+		GlStateManager.popMatrix();
+
+		if (te.getHasCard())
+		{
+			GlStateManager.pushMatrix();
+
+			//GlStateManager.translate(0.02f,.1f,0.0);
+			GlStateManager.scale(0.175, 0.175, 0.175);
+			//GlStateManager.rotate(90.0f,1.0f,0.0f,0.0f);
+			itemRenderer.renderItem(punchCard.getItem(), TransformType.FIXED);
+
+			GlStateManager.popMatrix();
+		}
+
 		GlStateManager.enableLighting();
 		GlStateManager.popAttrib();
 
-		GlStateManager.translate(0.0, 0.935, 0.11);
+		//GlStateManager.translate(0.0, 0.935, 0.11);
         final String s = String.valueOf(bpm);
         //System.out.println(f);
 
