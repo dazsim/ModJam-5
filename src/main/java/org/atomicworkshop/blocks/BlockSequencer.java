@@ -173,7 +173,7 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 			if (hand == EnumHand.OFF_HAND) return false;
 			final Vec3d hitVec = calculateSlopeHit(pos, state.getValue(FACING), playerIn);
 			if (hitVec == null) return false;
-			return teSequencer.checkPlayerInteraction(hitVec.x, hitVec.z);
+			return teSequencer.checkPlayerInteraction(hitVec.x, hitVec.z, playerIn); 
 		}
 
 	    if (heldItem instanceof ItemPunchCardBlank) {

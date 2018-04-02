@@ -73,6 +73,7 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 
 			renderSequence(sequencer);
 			renderPatternButtons(sequencer);
+			renderBPMButtons(sequencer);
 			if (te.getHasCard())
 			{
 				renderCard();
@@ -121,7 +122,66 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 		}
 		GlStateManager.popMatrix();
 	}
+	private void renderBPMButtons(Sequencer sequencer)
+	{
+		//0.7045204265288701,0.21970650094097977
+		//0.9327918869342732,0.2705630830397361
+		final RenderItem itemRenderer = mc.getRenderItem();
+		final int bpm = sequencer.getBeatsPerMinute();
+		
+		final FontRenderer fontrenderer = getFontRenderer();
+		final float textScale = 0.05f;
 
+		
+		
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(17.8, 0, 5.3);
+		GlStateManager.scale(2.7, 2.0, 2.7);
+		itemRenderer.renderItem(enabledItemInactiveInterval, TransformType.FIXED);
+		
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(0, 0.3, -0.2);
+		GlStateManager.rotate(-90, 1, 0, 0);
+		GlStateManager.scale(textScale, -textScale, textScale);
+		final String minus10 = "<<";
+		fontrenderer.drawString(minus10, -fontrenderer.getStringWidth(minus10) / 2, 0, 0xFFFFFF);
+		GlStateManager.popMatrix();
+		
+		GlStateManager.translate(0.6, 0, 0);
+		itemRenderer.renderItem(enabledItemInactiveInterval, TransformType.FIXED);
+		
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(0, 0.3, -0.2);
+		GlStateManager.rotate(-90, 1, 0, 0);
+		GlStateManager.scale(textScale, -textScale, textScale);
+		final String minus1 = "<";
+		fontrenderer.drawString(minus1, -fontrenderer.getStringWidth(minus1) / 2, 0, 0xFFFFFF);
+		GlStateManager.popMatrix();
+		
+		GlStateManager.translate(0.6, 0, 0);
+		itemRenderer.renderItem(enabledItemInactiveInterval, TransformType.FIXED);
+		
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(0, 0.3, -0.2);
+		GlStateManager.rotate(-90, 1, 0, 0);
+		GlStateManager.scale(textScale, -textScale, textScale);
+		final String plus1 = ">";
+		fontrenderer.drawString(plus1, -fontrenderer.getStringWidth(plus1) / 2, 0, 0xFFFFFF);
+		GlStateManager.popMatrix();
+		
+		GlStateManager.translate(0.6, 0, 0);
+		itemRenderer.renderItem(enabledItemInactiveInterval, TransformType.FIXED);
+		
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(0, 0.3, -0.2);
+		GlStateManager.rotate(-90, 1, 0, 0);
+		GlStateManager.scale(textScale, -textScale, textScale);
+		final String plus10 = ">>";
+		fontrenderer.drawString(plus10, -fontrenderer.getStringWidth(plus10) / 2, 0, 0xFFFFFF);
+		GlStateManager.popMatrix();
+		
+		GlStateManager.popMatrix();
+	}
 	private void renderSequence(Sequencer sequencer)
 	{
 		final RenderItem itemRenderer = mc.getRenderItem();
