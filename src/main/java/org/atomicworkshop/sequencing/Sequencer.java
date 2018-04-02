@@ -46,6 +46,8 @@ public class Sequencer
 		{
 			patterns[i] = new Pattern();
 		}
+
+		beatsPerMinute = 120;
 	}
 
 	public void setAdjacentNoteBlock(EnumFacing direction, Instrument sound)

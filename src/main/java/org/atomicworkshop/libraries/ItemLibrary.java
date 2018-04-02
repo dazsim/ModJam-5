@@ -14,24 +14,21 @@ import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 @ObjectHolder(Reference.MOD_ID)
 public class ItemLibrary
 {
-	public class itemPunchCardBlank {
-
-	}
 	@Nonnull
 	public static final ItemBlock sequencer;
 
 	@ObjectHolder("punchcardblank")
+	@Nonnull
 	public static final ItemPunchCardBlank punchCardBlank;
+
 	@ObjectHolder("punchcardwritten")
+	@Nonnull
 	public static final ItemPunchCardWritten punchCardWritten;
-	
-	public static final Item itemPunchCard;
-	//public static final Item itemPunchCardWritten;
+
 	//Trick IntelliJ/Eclipse into thinking that sequencer won't be null
 	static {
 		sequencer = null;
 		punchCardBlank = null;
-		itemPunchCard = null;
 		punchCardWritten = null;
 	}
 }

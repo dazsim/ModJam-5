@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
@@ -229,61 +230,61 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		
 		if (world == null) return;
 
-		sequencer = new Sequencer(world, pos);
-		sequencer.setDesiredBPM(120);
-
-		final int pattern = world.rand.nextInt(4);
-		final Pattern demoPattern = new Pattern();
-		switch (pattern)
-		{
-			case 0:
-				demoPattern.setPitchAtInternal(0, 6);
-				demoPattern.setPitchAtInternal(1, 10);
-				demoPattern.setPitchAtInternal(2, 13);
-
-				demoPattern.setPitchAtInternal(4, 8);
-				demoPattern.setPitchAtInternal(5, 11);
-				demoPattern.setPitchAtInternal(6, 15);
-
-				demoPattern.setPitchAtInternal(8, 10);
-				demoPattern.setPitchAtInternal(9, 13);
-				demoPattern.setPitchAtInternal(10, 17);
-
-				demoPattern.setPitchAtInternal(12, 11);
-				demoPattern.setPitchAtInternal(13, 15);
-				demoPattern.setPitchAtInternal(14, 18);
-
-				break;
-			case 1:
-				demoPattern.setPitchAtInternal(0, 6);
-				demoPattern.setPitchAtInternal(8, 6);
-
-				break;
-			case 2:
-				demoPattern.setPitchAtInternal(4, 6);
-				demoPattern.setPitchAtInternal(12, 6);
-
-				break;
-			case 3:
-				demoPattern.setPitchAtInternal(1, 14);
-				demoPattern.setPitchAtInternal(2, 18);
-				demoPattern.setPitchAtInternal(3, 5);
-
-				demoPattern.setPitchAtInternal(5, 14);
-				demoPattern.setPitchAtInternal(6, 18);
-				demoPattern.setPitchAtInternal(7, 5);
-
-				demoPattern.setPitchAtInternal(9, 16);
-				demoPattern.setPitchAtInternal(10, 18);
-				demoPattern.setPitchAtInternal(11, 5);
-
-				demoPattern.setPitchAtInternal(13, 14);
-				demoPattern.setPitchAtInternal(14, 18);
-				demoPattern.setPitchAtInternal(15, 5);
-				break;
-		}
-
-		sequencer.setPattern(0, demoPattern);
+//		sequencer = new Sequencer(world, pos);
+//		sequencer.setDesiredBPM(120);
+//
+//		final int pattern = world.rand.nextInt(4);
+//		final Pattern demoPattern = new Pattern();
+//		switch (pattern)
+//		{
+//			case 0:
+//				demoPattern.setPitchAtInternal(0, 6);
+//				demoPattern.setPitchAtInternal(1, 10);
+//				demoPattern.setPitchAtInternal(2, 13);
+//
+//				demoPattern.setPitchAtInternal(4, 8);
+//				demoPattern.setPitchAtInternal(5, 11);
+//				demoPattern.setPitchAtInternal(6, 15);
+//
+//				demoPattern.setPitchAtInternal(8, 10);
+//				demoPattern.setPitchAtInternal(9, 13);
+//				demoPattern.setPitchAtInternal(10, 17);
+//
+//				demoPattern.setPitchAtInternal(12, 11);
+//				demoPattern.setPitchAtInternal(13, 15);
+//				demoPattern.setPitchAtInternal(14, 18);
+//
+//				break;
+//			case 1:
+//				demoPattern.setPitchAtInternal(0, 6);
+//				demoPattern.setPitchAtInternal(8, 6);
+//
+//				break;
+//			case 2:
+//				demoPattern.setPitchAtInternal(4, 6);
+//				demoPattern.setPitchAtInternal(12, 6);
+//
+//				break;
+//			case 3:
+//				demoPattern.setPitchAtInternal(1, 14);
+//				demoPattern.setPitchAtInternal(2, 18);
+//				demoPattern.setPitchAtInternal(3, 5);
+//
+//				demoPattern.setPitchAtInternal(5, 14);
+//				demoPattern.setPitchAtInternal(6, 18);
+//				demoPattern.setPitchAtInternal(7, 5);
+//
+//				demoPattern.setPitchAtInternal(9, 16);
+//				demoPattern.setPitchAtInternal(10, 18);
+//				demoPattern.setPitchAtInternal(11, 5);
+//
+//				demoPattern.setPitchAtInternal(13, 14);
+//				demoPattern.setPitchAtInternal(14, 18);
+//				demoPattern.setPitchAtInternal(15, 5);
+//				break;
+//		}
+//
+//		sequencer.setPattern(0, demoPattern);
 	}
 
 
@@ -377,7 +378,51 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		return PIANO;
 		
 	}
-	
-	
 
+
+	public void loadFromCard(ItemStack heldItemStack)
+	{
+		//FIXME: Implement this
+	}
+
+	public void saveToCard() {
+
+	}
+
+	public boolean checkPlayerInteraction(double x, double z)
+	{
+		//if (world.isRemote) return false;
+
+
+		//x = 1-x;
+		//z = 1-z;
+		if (x < 0 || x > 1 || z < 0 || z > 1) return false;
+
+		ConductorMod.logger.info("adjusted hitlocation {},{}", x, z);
+		//Scale to button grid
+		x *= 28; x -= 2.5;
+		z *= 28; z -= 0.5;
+
+		ConductorMod.logger.info("checking player interaction at scaled {},{}", x, z);
+
+		if (x >= 0 && x < 16 && z >= 0 && z < 25) {
+			if (sequencer == null) {
+				sequencer = new Sequencer(world, pos);
+			}
+
+			//Hit a sequence button
+			final Pattern currentPattern = sequencer.getCurrentPattern();
+
+			final int pitch = 25 - (int)z;
+			final int interval = (int)x;
+
+			ConductorMod.logger.info("Inverting pitch {} at interval {}", pitch, interval);
+
+			currentPattern.invertPitchAtInternal(interval, pitch);
+			sendUpdates();
+			return true;
+		}
+
+		return false;
+	}
 }
