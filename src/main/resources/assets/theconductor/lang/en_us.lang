@@ -2,4 +2,5 @@ itemGroup.theconductor.tab_label=The Conductor
 
 tile.theconductor:sequencer.name=Sequencer
 item.theconductor:punchcardblank.name=Blank Punch Card
+item.theconductor:punchcardwritten.name=Written Punch Card
 item.theconductor:punchcard.name=Punch Card

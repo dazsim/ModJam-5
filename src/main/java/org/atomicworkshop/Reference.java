@@ -20,6 +20,7 @@ public final class Reference
 
 	public static final class Items {
 		public static final ResourceLocation punchcardblank = resource("punchcardblank");
+		public static final ResourceLocation punchcardwritten = resource("punchcardwritten");
 
 		private Items() { }
 	}
@@ -42,6 +43,7 @@ public final class Reference
 		public static String pendingPatternIndex = "pendingPattern";
 		public static String pattern = "pattern";
 		public static String sequence = "sequence";
+		public static String hasCard = "hasCard";
 	}
 
 	private Reference() { }

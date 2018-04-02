@@ -6,13 +6,23 @@ import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import org.atomicworkshop.ConductorMod;
+import org.atomicworkshop.libraries.CollisionMaths;
+
+import org.atomicworkshop.items.ItemPunchCardBlank;
+import org.atomicworkshop.libraries.ItemLibrary.itemPunchCardBlank;
 import org.atomicworkshop.tiles.TileEntitySequencer;
 import javax.annotation.Nullable;
 
@@ -35,14 +45,8 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	}
 
 	@Override
+	@Deprecated
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
-	{
-		return new AxisAlignedBB(0, 0, 0, 1, 0.5, 1);
-	}
-
-	@Nullable
-	@Override
-	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
 	{
 		return new AxisAlignedBB(0, 0, 0, 1, 0.5, 1);
 	}
@@ -86,9 +90,9 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	@Override
 	public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
 	{
-		TileEntity tileEntity = worldIn.getTileEntity(pos);
+		final TileEntity tileEntity = worldIn.getTileEntity(pos);
 		if (tileEntity instanceof TileEntitySequencer) {
-			TileEntitySequencer teSequencer = (TileEntitySequencer)tileEntity;
+			final TileEntitySequencer teSequencer = (TileEntitySequencer)tileEntity;
 			teSequencer.stopPlaying();
 		}
 
@@ -115,6 +119,7 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	}
 
 	@Override
+	@Deprecated
 	public boolean isOpaqueCube(IBlockState state)
 	{
 		return false;
@@ -130,11 +135,93 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 		return tileEntity.receiveClientEvent(id, param);
 	}
 
+	private Vec3d calculateSlopeHit(BlockPos pos, EntityPlayer playerIn)
+	{
+		final Vec3d headPosition = CollisionMaths.getPlayerHeadPosition(playerIn);
+		final Vec3d lookVector = CollisionMaths.getPlayerLookVector(playerIn);
+
+		//TODO: rotate Origin according to block direction
+		final Vec3d planeOrigin = new Vec3d(pos.getX(), pos.getY() + 1/16.0f, pos.getZ());
+		final Vec3d topCorner = new Vec3d(pos.getX() + 15.75f / 16.0f, pos.getY() + 7.5f / 16.0f, pos.getZ());
+		final Vec3d bottomCorner = new Vec3d(pos.getX(), pos.getY() + 1/16.0f, pos.getZ() + 1);
+
+		final Vec3d u = bottomCorner.subtract(planeOrigin);
+		final Vec3d v = topCorner.subtract(planeOrigin);
+		final Vec3d planeNormal = u.crossProduct(v);
+
+		final Vec3d vector3d = CollisionMaths.intersectionLinePlane(headPosition, lookVector, planeOrigin, planeNormal);
+
+		if (vector3d == null) {
+			ConductorMod.logger.info("player missed");
+			return null;
+		} else
+		{
+			final Vec3d hitVector = vector3d.subtract(pos.getX(), pos.getY(), pos.getZ());
+			ConductorMod.logger.info("player clicked at {},{},{}", hitVector.x, hitVector.y, hitVector.z);
+			return hitVector;
+		}
+	}
+
 	private TileEntitySequencer getTileEntity(IBlockAccess world, BlockPos pos) {
-		TileEntity tileEntity = world.getTileEntity(pos);
+		final TileEntity tileEntity = world.getTileEntity(pos);
 		if (tileEntity instanceof TileEntitySequencer) {
 			return (TileEntitySequencer)tileEntity;
 		}
 		return null;
 	}
+
+	@Override
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+    {
+		/*
+		 * This is where we handle interaction with the Sequencer
+		 * Insert card on right click with card in hand
+		 * right click card area in order to remove card
+		 * right click buttons to toggle
+		 * right click BPM controls to change BPM
+		 * 
+		 */
+		System.out.println("Sequencer Clicked");
+		if (playerIn.getActiveHand()!=null)
+		{
+			if ((Item)(playerIn.getHeldItem(playerIn.getActiveHand()).getItem()) instanceof ItemPunchCardBlank)
+			{
+				//you just inserted a blank card into sequencer. load the sequence onto it?
+				//TODO: more features
+				System.out.println("punch card blank in hand");
+				TileEntitySequencer tes = (TileEntitySequencer) worldIn.getTileEntity(pos);
+				System.out.println("status : "+tes.getHasCard());
+				if (tes.getHasCard())
+				{
+					//do nothing
+					System.out.println("Already has Card");
+					return true;
+				}
+				else
+				{
+					//insert card
+					tes.setHasCard(true);
+					//remove 1 card from hand
+					//player.getHeldItem(playerIn.getActiveHand())
+					tes.markDirty();
+					if (playerIn.getActiveItemStack()!=null)
+					{
+							playerIn.inventory.decrStackSize(playerIn.inventory.currentItem, 1);
+							if (playerIn.inventory.getCurrentItem().getCount()==0)
+							{
+								playerIn.inventory.setInventorySlotContents(playerIn.inventory.currentItem, ItemStack.EMPTY);
+							}
+							
+							System.out.println("Deleted Stack");
+						
+						//playerIn.getActiveItemStack().setCount(playerIn.getActiveItemStack().getCount()-1);
+						
+						System.out.println("Card Inserted"+playerIn.getActiveItemStack().getCount());
+						return true;
+					}
+				}
+			}
+		}	
+		return false;
+    }
 }

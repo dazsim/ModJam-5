@@ -6,6 +6,7 @@ import org.atomicworkshop.Reference.Items;
 import org.atomicworkshop.Reference.TileEntities;
 import org.atomicworkshop.blocks.BlockSequencer;
 import org.atomicworkshop.items.ItemPunchCardBlank;
+import org.atomicworkshop.items.ItemPunchCardWritten;
 import org.atomicworkshop.libraries.BlockLibrary;
 import org.atomicworkshop.libraries.ItemLibrary;
 import org.atomicworkshop.tiles.TileEntitySequencer;
@@ -41,6 +42,8 @@ public final class RegistrationHandler
 		registerItemFromBlock(registry, BlockLibrary.sequencer);
 
 		registerItem(registry, new ItemPunchCardBlank(), Items.punchcardblank);
+		registerItem(registry, new ItemPunchCardWritten(), Items.punchcardwritten);
+		
 	}
 
 	private static void registerBlock(IForgeRegistry<Block> registry, Block block, ResourceLocation registryName)
