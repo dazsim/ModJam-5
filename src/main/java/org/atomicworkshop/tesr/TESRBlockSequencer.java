@@ -32,13 +32,12 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 		if (te == null) return;
 		final RenderItem itemRenderer = mc.getRenderItem();
 		final int facing = te.getBlockMetadata();
-		//f == orientation
 		//render buttons
 		//render cards
 		//render BPM
 		GlStateManager.pushMatrix();
 
-        final FontRenderer fontrenderer = getFontRenderer();
+
         GlStateManager.translate(x, y, z);
         //Adjust Origin for rotations.
         GlStateManager.translate(0.5, 0.5, 0.5);
@@ -50,33 +49,10 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
         //Return origin
 		GlStateManager.translate(-0.5, -0.2, -0.5);
 
-		//GlStateManager.translate(-0.7, 0, -0.5);
-		//
-
-//        GlStateManager.translate(0.8, 0.5, 0.8);
-//        GlStateManager.rotate(90.0f, 0.0f, 1.0f, 0.0f);
-//        GlStateManager.rotate(-68.0f, 1.0f,0.0f,0.0f);
-//        GlStateManager.translate(0.7, -0.2, -0.45);
-//        if (facing==0)
-//        {
-//            GlStateManager.translate(0.9, -0.1, 0.23);
-//        }
-//        if (facing==1)
-//        {
-//            GlStateManager.translate(0.9,0.8,-0.25);
-//        }
-//        if (facing==2)
-//        {
-//            GlStateManager.translate(-0.07, 0.8, -0.32);
-//        }
-//        if (facing==3)
-//        {
-//            GlStateManager.translate(-0.07, -0.05, 0.18);
-//        }
-
-		int bpm = 120;
 		final Sequencer sequencer = te.sequencer;
 		if (sequencer == null) return;
+
+
 
 		//TODO: Replace EntityItem with ItemStack?
 		//not current interval rows.
@@ -91,31 +67,30 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 		final EntityItem enabledItemActiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.ORANGE.getMetadata()));
 		EntityItem punchCard = new EntityItem(getWorld(),0.0D,0.0D,0.0D,new ItemStack(ItemLibrary.punchCardBlank,1,0));
 
-		bpm = sequencer.getBeatsPerMinute();
-		final Pattern p = sequencer.getCurrentPattern();
 
+		final Pattern p = sequencer.getCurrentPattern();
+		final int currentInterval = sequencer.getCurrentInterval();
+
+
+
+		//GlStateManager.pushMatrix();
+		float scale = 1/28.0f;
+		//Scale the UI so that it is made up of roughly 32 squares.
+		GlStateManager.scale(scale, scale, scale);
+		//Three squares of space along the top/left hand side, giving roughly 7 blocks of space on the right hand side.
+		GlStateManager.translate(3, 0, 3.5);
+
+		drawBPM(sequencer.getBeatsPerMinute());
 
 		GlStateManager.pushAttrib();
 		GlStateManager.disableLighting();
+		GlStateManager.depthMask(true);
 
-		/*GlStateManager.pushMatrix();
-		GlStateManager.scale(0.05F, 0.05F, 0.05F);
-		itemRenderer.renderItem(enabledItemActiveInterval.getItem(), TransformType.FIXED);
-		GlStateManager.popMatrix();*/
-
-		GlStateManager.pushMatrix();
-		GlStateManager.scale(1/32.0f, 1/32.0f, 1/32.0f);
-		GlStateManager.translate(3, 0, 3);
-		GlStateManager.pushMatrix();
-
-
-
-		//GlStateManager.translate(-0.74,0.082,0.06);
+		GlStateManager.pushMatrix(); // Matrix for pattern data
 		for (int interval=0;interval<16;interval++)
 		{
 			final boolean[] rawPatternData = p.getRawPatternData(interval);
 
-			final int currentInterval = sequencer.getCurrentInterval();
 
 	        //outer loop. reset after every outer loop.
 	        for (int pitch=0;pitch<24;pitch++)
@@ -148,7 +123,7 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 					}
 				}
 
-				GlStateManager.pushMatrix();
+				GlStateManager.pushMatrix(); // Matrix for an individual button on the pattern sequence data
 
 				GlStateManager.translate(
 						interval,
@@ -156,45 +131,34 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 						(25 - pitch)
 				);
 
-	            //GlStateManager.rotate(180.0f,1.0f,0.0f,0.0f);
-	            //GlStateManager.rotate(180.0f,0.0f,0.0f,1.0f);
-				//GlStateManager.scale(0.05F, 0.05F, 0.05F);
-	            GlStateManager.depthMask(true);
-
-
 				if (isEnabled) {
 				    itemRenderer.renderItem(enabledItem.getItem(), TransformType.FIXED);
 				} else {
 					itemRenderer.renderItem(disabledItem.getItem(), TransformType.FIXED);
 				}
 
-	            GlStateManager.popMatrix();
+	            GlStateManager.popMatrix(); // Matrix for an individual button on the pattern sequence data
 	        }
 	    }
-		GlStateManager.popMatrix();
+		GlStateManager.popMatrix(); // Matrix for pattern data
 
 		//Render Pattern buttons
 		final int currentPatternIndex = sequencer.getCurrentPatternIndex();
 		final int pendingPatternIndex = sequencer.getPendingPatternIndex();
 
 		GlStateManager.pushMatrix();
-		//GlStateManager.translate(-0.05,0.4,0.06);
+		GlStateManager.translate(18.5, 0, 12);
 		for (int patternIndex = 0; patternIndex < 8; patternIndex++)
 		{
 			final int patternButtonX = patternIndex & 3;
-			final int patternButtonY = 1 - (patternIndex & 4) >> 2;
+			final int patternButtonY = (patternIndex & 4) >> 2;
 
 			final boolean isEnabled = patternIndex == pendingPatternIndex;
 			final boolean isCurrent = patternIndex == currentPatternIndex;
 
 			GlStateManager.pushMatrix();
 
-			GlStateManager.translate(18 + patternButtonX, 12 + patternButtonY, isEnabled ? -0.0f : 0.015f);
-
-			//GlStateManager.rotate(180.0f,1.0f,0.0f,0.0f);
-			//GlStateManager.rotate(180.0f,0.0f,0.0f,1.0f);
-			GlStateManager.scale(0.05F, 0.05F, 0.05F);
-			GlStateManager.depthMask(true);
+			GlStateManager.translate(patternButtonX, isEnabled ? -0.0f : 0.015f, patternButtonY);
 
 			if (isCurrent) {
 				itemRenderer.renderItem(enabledItemActiveInterval.getItem(), TransformType.FIXED);
@@ -208,39 +172,43 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 
 		}
 		GlStateManager.popMatrix();
-		GlStateManager.popMatrix();
 
 		if (te.getHasCard())
 		{
-			GlStateManager.pushMatrix();
-
-			//GlStateManager.translate(0.02f,.1f,0.0);
-			GlStateManager.scale(0.175, 0.175, 0.175);
-			//GlStateManager.rotate(90.0f,1.0f,0.0f,0.0f);
-			itemRenderer.renderItem(punchCard.getItem(), TransformType.FIXED);
-
-			GlStateManager.popMatrix();
+			renderCard(itemRenderer, punchCard);
 		}
 
 		GlStateManager.enableLighting();
 		GlStateManager.popAttrib();
 
-		//GlStateManager.translate(0.0, 0.935, 0.11);
-        final String s = String.valueOf(bpm);
-        //System.out.println(f);
-
-		final float f1 = 0.6666667F;
-		final float textScale = 0.015625F * f1;
-		GlStateManager.scale(textScale, -textScale, textScale);
-        GlStateManager.glNormal3f(0.0F, 0.0F, -1.0F * textScale);
-        GlStateManager.depthMask(false);
-
-        fontrenderer.drawString(s, 0-fontrenderer.getStringWidth(s) / 2, 0, 0xFFFFFF);
-
         GlStateManager.popMatrix();
 
 		//render
 		
+	}
+
+	private void renderCard(RenderItem itemRenderer, EntityItem punchCard) {
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(20.25, 0, 25);
+		float cardScale = 5f;
+		GlStateManager.scale(cardScale, cardScale, cardScale);
+		itemRenderer.renderItem(punchCard.getItem(), TransformType.FIXED);
+
+		GlStateManager.popMatrix();
+	}
+
+	private void drawBPM(int bpm) {
+		final FontRenderer fontrenderer = getFontRenderer();
+		final float textScale = 0.30f;//0.015625F * f1;
+		final String bpmText = String.valueOf(bpm);
+
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(20, 0.09, 1.5);
+		GlStateManager.rotate(-90, 1, 0, 0);
+		GlStateManager.scale(textScale, -textScale, textScale);
+
+		fontrenderer.drawString(bpmText, -fontrenderer.getStringWidth(bpmText) / 2, 0, 0xFFFFFF);
+		GlStateManager.popMatrix();
 	}
 
 	@SuppressWarnings("OverlyComplexBooleanExpression")
