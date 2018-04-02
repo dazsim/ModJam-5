@@ -29,7 +29,8 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 
 	private static final int IS_PLAYING = 0;
 	private static final int CHANGE_PATTERN = 1;
-
+	private boolean hasCard = false;
+	
 	public TileEntitySequencer()
 	{
 		sequencerSetId = UUID.randomUUID();
@@ -44,7 +45,15 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 	{
 		return false;
 	}
-
+	public boolean getHasCard()
+	{
+		return hasCard;
+	}
+	public void setHasCard(boolean iHasCard)
+	{
+		hasCard = iHasCard;
+		sendUpdates();
+	}
 	@Override
 	public void onChunkUnload()
 	{
@@ -63,7 +72,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		super.readFromNBT(compound);
 		boolean wasPlaying = isPlaying;
 		isPlaying = compound.getBoolean(NBT.isPlaying);
-
+		hasCard = compound.getBoolean(NBT.hasCard);
 		sequencerSetId = compound.getUniqueId(NBT.songId);
 		if (sequencerSetId.equals(UUID.fromString("00000000-0000-0000-0000-000000000000"))) {
 			sequencerSetId = UUID.randomUUID();
@@ -97,8 +106,9 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		super.writeToNBT(compound);
 
 		compound.setBoolean(NBT.isPlaying, isPlaying);
+		compound.setBoolean(NBT.hasCard, hasCard);
 		compound.setUniqueId(NBT.songId, sequencerSetId);
-
+		
 		if (sequencer != null)
 		{
 			compound.setTag(NBT.sequence, sequencer.writeToNBT());
@@ -212,6 +222,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			sequencer.setPendingPatternIndex(type);
 			return true;
 		}
+		
 		return false;
 	}
 

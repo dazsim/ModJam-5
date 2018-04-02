@@ -2,7 +2,7 @@
 	"__comment": "Designed by Workshopcraft with Cubik Studio - https://cubik.studio",
 	"textures": {
 		"particle": "blocks/e_particle",
-		"texture": "blocks/texture"
+		"texture": "theconductor:blocks/texture"
 	},
 	"elements": [ 	 
 		{
