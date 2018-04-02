@@ -168,13 +168,11 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 
 		final Vec3d vector3d = CollisionMaths.intersectionLinePlane(headPosition, lookVector, planeOrigin, planeNormal);
 
-		final Vec3d hitVector = vector3d.subtract(pos.getX(), pos.getY(), pos.getZ());
-
 		if (vector3d == null) {
 			ConductorMod.logger.info("player missed");
 		} else
 		{
-			ConductorMod.logger.info("player clicked at {},{},{}", hitVector.x, hitVector.y, hitVector.z);
+			ConductorMod.logger.info("player clicked at {},{},{}", vector3d.x, vector3d.y, vector3d.z);
 		}
 
 		return true;
