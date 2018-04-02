@@ -18,6 +18,7 @@ public final class CollisionMaths {
 		final float yawSine = MathHelper.sin((float)(-playerYaw * (Math.PI / 180) - Math.PI));
 		final float pitchCosine = -MathHelper.cos((float)(-playerPitch * (Math.PI / 180)));
 		final float pitchSine = MathHelper.sin((float)(-playerPitch * (Math.PI / 180)));
+
 		final float lookX = yawSine * pitchCosine;
 		final float lookZ = yawCosine * pitchCosine;
 		final float playerReach = (float)playerIn.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
@@ -27,7 +28,7 @@ public final class CollisionMaths {
 				pitchSine * playerReach,
 				lookZ * playerReach
 		);
-		return headPosition.add(lookVector);
+		return lookVector;
 	}
 
 	public static Vec3d getPlayerHeadPosition(EntityPlayer playerIn)

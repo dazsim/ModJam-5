@@ -40,14 +40,8 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	}
 
 	@Override
+	@Deprecated
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
-	{
-		return new AxisAlignedBB(0, 0, 0, 1, 0.5, 1);
-	}
-
-	@Nullable
-	@Override
-	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
 	{
 		return new AxisAlignedBB(0, 0, 0, 1, 0.5, 1);
 	}
@@ -120,6 +114,7 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	}
 
 	@Override
+	@Deprecated
 	public boolean isOpaqueCube(IBlockState state)
 	{
 		return false;
@@ -147,24 +142,16 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
 		final Vec3d headPosition = CollisionMaths.getPlayerHeadPosition(playerIn);
-		final Vec3d lookVector = CollisionMaths.getPlayerLookVector(playerIn, headPosition).normalize();
+		Vec3d lookVector = CollisionMaths.getPlayerLookVector(playerIn, headPosition);
 
 		//TODO: rotate Origin according to block direction
 		final Vec3d planeOrigin = new Vec3d(pos.getX(), pos.getY() + 1/16.0f, pos.getZ());
+		final Vec3d topCorner = new Vec3d(pos.getX() + 15.75f / 16.0f, pos.getY() + 7.5f / 16.0f, pos.getZ());
+		final Vec3d bottomCorner = new Vec3d(pos.getX(), pos.getY() + 1/16.0f, pos.getZ() + 1);
 
-		final Vec3d topCorner = new Vec3d(pos.getX(), pos.getY() + 7.5f / 16.0f, pos.getZ() + 15.75f / 16.0f);
-
-		final Vec3d bottomCorner = new Vec3d(pos.getX() + 1, pos.getY() + 1/16.0f, pos.getZ());
-
-
-		final Vec3d u = topCorner.subtract(planeOrigin);
-		final Vec3d v = bottomCorner.subtract(planeOrigin);
-
-		final Vec3d planeNormal = new Vec3d(
-			(u.y * v.z) - (u.z * v.y),
-			(u.z * v.x) - (u.x * v.z),
-			(u.x * v.y) - (u.y * v.x)
-		).normalize();
+		final Vec3d u = bottomCorner.subtract(planeOrigin);
+		final Vec3d v = topCorner.subtract(planeOrigin);
+		final Vec3d planeNormal = u.crossProduct(v).normalize();
 
 		final Vec3d vector3d = CollisionMaths.intersectionLinePlane(headPosition, lookVector, planeOrigin, planeNormal);
 
