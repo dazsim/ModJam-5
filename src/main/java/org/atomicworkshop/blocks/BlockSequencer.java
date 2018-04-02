@@ -5,6 +5,7 @@ import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.Vector3d;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
@@ -12,8 +13,11 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import org.atomicworkshop.ConductorMod;
+import org.atomicworkshop.libraries.CollisionMaths;
 import org.atomicworkshop.tiles.TileEntitySequencer;
 import javax.annotation.Nullable;
 
@@ -87,9 +91,9 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	@Override
 	public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
 	{
-		TileEntity tileEntity = worldIn.getTileEntity(pos);
+		final TileEntity tileEntity = worldIn.getTileEntity(pos);
 		if (tileEntity instanceof TileEntitySequencer) {
-			TileEntitySequencer teSequencer = (TileEntitySequencer)tileEntity;
+			final TileEntitySequencer teSequencer = (TileEntitySequencer)tileEntity;
 			teSequencer.stopPlaying();
 		}
 
@@ -132,18 +136,58 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	}
 
 	private TileEntitySequencer getTileEntity(IBlockAccess world, BlockPos pos) {
-		TileEntity tileEntity = world.getTileEntity(pos);
+		final TileEntity tileEntity = world.getTileEntity(pos);
 		if (tileEntity instanceof TileEntitySequencer) {
 			return (TileEntitySequencer)tileEntity;
 		}
 		return null;
 	}
+
+	@Override
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	{
+		final Vector3d headPosition = CollisionMaths.getPlayerHeadPosition(playerIn);
+		final Vector3d lookVector = CollisionMaths.getPlayerLookVector(playerIn, headPosition);
+
+		//TODO: rotate Origin according to block direction
+		final Vector3d planeOrigin = new Vector3d();
+		planeOrigin.x = pos.getX();
+		planeOrigin.y = pos.getY() + 1/16.0f;
+		planeOrigin.z = pos.getZ();
+
+		final Vector3d topCorner = new Vector3d();
+		topCorner.x = pos.getX();
+		topCorner.y = pos.getY() + 7.5f/16.0f;
+		topCorner.z = pos.getZ() + 15.75f/16.0f;
+
+		final Vector3d bottomCorner = new Vector3d();
+		bottomCorner.x = pos.getX() + 1;
+		bottomCorner.y = pos.getY() + 1/16.0f;
+		bottomCorner.z = pos.getZ();
+
+		final Vector3d planeNormal = new Vector3d();
+		final Vector3d u = CollisionMaths.subVector3d(topCorner, planeOrigin);
+		final Vector3d v = CollisionMaths.subVector3d(bottomCorner, planeOrigin);
+
+		planeNormal.x = (u.y * v.z) - (u.z * v.y);
+		planeNormal.y = (u.z * v.x) - (u.x * v.z);
+		planeNormal.z = (u.x * v.y) - (u.y * v.x);
+
+		final Vector3d vector3d = CollisionMaths.intersectionLinePlane(headPosition, lookVector, planeOrigin, planeNormal);
+
+		if (vector3d == null) {
+			ConductorMod.logger.info("player missed");
+		} else
+		{
+			ConductorMod.logger.info("player clicked at {},{},{}", vector3d.x - pos.getX(), vector3d.y- pos.getY(), vector3d.z- pos.getZ());
+		}
+
+		return true;
+	}
+
 	@Override
 	public void onBlockClicked(World worldIn, BlockPos pos, EntityPlayer playerIn)
     {
-		/*
-		 * This is where we handle interaction with the Sequencer
-		 */
-		
+
     }
 }

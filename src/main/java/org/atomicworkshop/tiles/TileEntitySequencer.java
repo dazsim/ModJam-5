@@ -181,9 +181,14 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 
 	public void stopPlaying()
 	{
-		sequencer.setCurrentInterval(-1);
+		if (sequencer != null)
+		{
+			sequencer.setCurrentInterval(-1);
+		}
+
 		MusicPlayer.stopPlaying(new SequencerSet(world, sequencerSetId));
 		world.addBlockEvent(pos, getBlockType(), IS_PLAYING, 0);
+
 	}
 
 	public void notifyPowered(boolean powered)
