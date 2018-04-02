@@ -20,7 +20,19 @@ import org.atomicworkshop.tiles.TileEntitySequencer;
 public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequencer>
 {
 	private static final Minecraft mc = Minecraft.getMinecraft();
-	
+
+	private final ItemStack disabledItemInactiveInterval = new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.SILVER.getMetadata());
+	private final ItemStack enabledItemInactiveInterval = new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.BROWN.getMetadata());
+	private final ItemStack disabledItemActiveInterval = new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.WHITE.getMetadata());
+	private final ItemStack enabledItemActiveInterval = new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.YELLOW.getMetadata());
+
+	private final ItemStack disabledItemInactiveIntervalSharp = new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.BLACK.getMetadata());
+	private final ItemStack enabledItemInactiveIntervalSharp = new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.BROWN.getMetadata());
+	private final ItemStack disabledItemActiveIntervalSharp = new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.GRAY.getMetadata());
+	private final ItemStack enabledItemActiveIntervalSharp = new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.ORANGE.getMetadata());
+
+	private final ItemStack punchCard = new ItemStack(ItemLibrary.punchCardBlank,1,0);
+
 	@Override
 	public void render(
 			TileEntitySequencer te,
@@ -56,16 +68,7 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 
 		//TODO: Replace EntityItem with ItemStack?
 		//not current interval rows.
-		final EntityItem disabledItemInactiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.SILVER.getMetadata()));
-		final EntityItem enabledItemInactiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.BROWN.getMetadata()));
-		final EntityItem disabledItemActiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.WHITE.getMetadata()));
-		final EntityItem enabledItemActiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.YELLOW.getMetadata()));
 
-		final EntityItem disabledItemInactiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.BLACK.getMetadata()));
-		final EntityItem enabledItemInactiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.BROWN.getMetadata()));
-		final EntityItem disabledItemActiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.GRAY.getMetadata()));
-		final EntityItem enabledItemActiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.ORANGE.getMetadata()));
-		EntityItem punchCard = new EntityItem(getWorld(),0.0D,0.0D,0.0D,new ItemStack(ItemLibrary.punchCardBlank,1,0));
 
 
 		final Pattern p = sequencer.getCurrentPattern();
@@ -91,14 +94,13 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 		{
 			final boolean[] rawPatternData = p.getRawPatternData(interval);
 
-
 	        //outer loop. reset after every outer loop.
 	        for (int pitch=0;pitch<24;pitch++)
 			{
 				final boolean isEnabled = rawPatternData[pitch];
 
-				final EntityItem disabledItem;
-				final EntityItem enabledItem;
+				final ItemStack disabledItem;
+				final ItemStack enabledItem;
 
 			    if (isSharpPitch(pitch)) {
 			        //Use sharp colours.
@@ -132,9 +134,9 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 				);
 
 				if (isEnabled) {
-				    itemRenderer.renderItem(enabledItem.getItem(), TransformType.FIXED);
+				    itemRenderer.renderItem(enabledItem, TransformType.FIXED);
 				} else {
-					itemRenderer.renderItem(disabledItem.getItem(), TransformType.FIXED);
+					itemRenderer.renderItem(disabledItem, TransformType.FIXED);
 				}
 
 	            GlStateManager.popMatrix(); // Matrix for an individual button on the pattern sequence data
@@ -161,11 +163,11 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 			GlStateManager.translate(patternButtonX, isEnabled ? -0.0f : 0.015f, patternButtonY);
 
 			if (isCurrent) {
-				itemRenderer.renderItem(enabledItemActiveInterval.getItem(), TransformType.FIXED);
+				itemRenderer.renderItem(enabledItemActiveInterval, TransformType.FIXED);
 			} else if (isEnabled) {
-				itemRenderer.renderItem(enabledItemInactiveInterval.getItem(), TransformType.FIXED);
+				itemRenderer.renderItem(enabledItemInactiveInterval, TransformType.FIXED);
 		    } else {
-				itemRenderer.renderItem(disabledItemInactiveInterval.getItem(), TransformType.FIXED);
+				itemRenderer.renderItem(disabledItemInactiveInterval, TransformType.FIXED);
 			}
 
 			GlStateManager.popMatrix();
@@ -184,15 +186,15 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
         GlStateManager.popMatrix();
 
 		//render
-		
+
 	}
 
-	private void renderCard(RenderItem itemRenderer, EntityItem punchCard) {
+	private void renderCard(RenderItem itemRenderer, ItemStack punchCard) {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(20.25, 0, 25);
 		float cardScale = 5f;
 		GlStateManager.scale(cardScale, cardScale, cardScale);
-		itemRenderer.renderItem(punchCard.getItem(), TransformType.FIXED);
+		itemRenderer.renderItem(punchCard, TransformType.FIXED);
 
 		GlStateManager.popMatrix();
 	}
