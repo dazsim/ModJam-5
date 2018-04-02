@@ -215,8 +215,8 @@ public class Sequencer
 	public int incrementNoteBlockNumber()
 	{
 		++noteBlockSearch;
-		if (noteBlockSearch >= currentAdjacentNoteBlocks.size()) {
-			noteBlockSearch %= currentAdjacentNoteBlocks.size();
+		while (noteBlockSearch >= currentAdjacentNoteBlocks.size()) {
+			noteBlockSearch -= currentAdjacentNoteBlocks.size();
 		}
 		return noteBlockSearch;
 	}

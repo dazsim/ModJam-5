@@ -87,6 +87,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		if (!compoundTag.hasNoTags())
 		{
 			sequencer.readFromNBT(compoundTag);
+			ConductorMod.logger.info("compoundTag: {}", compoundTag);
 			ConductorMod.logger.info("read from NBT");
 			if (sequencer.getBeatsPerMinute() < 60) {
 				createDemoSong();
@@ -399,13 +400,15 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		if (x < 0 || x > 1 || z < 0 || z > 1) return false;
 
 		ConductorMod.logger.info("adjusted hitlocation {},{}", x, z);
-		//Scale to button grid
+		//Scale to button grid, these may not be exact because we're using item rendering instead of generating quads.
+		//Minecraft probably applies additional scaling/transforms when rendering the item (they appear to be centered,
+		//rather than top-left aligned as the code implies)
 		x *= 28; x -= 2.5;
-		z *= 28; z -= 0.5;
+		z *= 29; z -= 0.5;
 
 		ConductorMod.logger.info("checking player interaction at scaled {},{}", x, z);
 
-		if (x >= 0 && x < 16 && z >= 0 && z < 25) {
+		if (x >= 0 && x < 16 && z >= 0 && z < 26) {
 			if (sequencer == null) {
 				sequencer = new Sequencer(world, pos);
 			}
@@ -416,10 +419,13 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			final int pitch = 25 - (int)z;
 			final int interval = (int)x;
 
-			ConductorMod.logger.info("Inverting pitch {} at interval {}", pitch, interval);
+			boolean isEnabled = currentPattern.invertPitchAtInternal(interval, pitch);
 
-			currentPattern.invertPitchAtInternal(interval, pitch);
-			sendUpdates();
+			ConductorMod.logger.info("Inverting pitch {} at interval {} - {}", pitch, interval, isEnabled);
+			if (!world.isRemote)
+			{
+				sendUpdates();
+			}
 			return true;
 		}
 

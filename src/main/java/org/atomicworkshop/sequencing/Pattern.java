@@ -14,8 +14,8 @@ public class Pattern
 		if (pitch > 24) {
 			pitch %= 25;
 		}
-		if (interval >= 12) {
-			interval %= 12;
+		if (interval >= 16) {
+			interval %= 16;
 		}
 
 		patternData[interval][pitch] = true;
@@ -25,23 +25,25 @@ public class Pattern
 		if (pitch > 24) {
 			pitch %= 25;
 		}
-		if (interval >= 12) {
-			interval %= 12;
+		if (interval >= 16) {
+			interval %= 16;
 		}
 
 		patternData[interval][pitch] = false;
 	}
 
-	public void invertPitchAtInternal(int interval, int pitch)
+	public boolean invertPitchAtInternal(int interval, int pitch)
 	{
-		if (pitch > 24) {
-			pitch %= 25;
+		while (pitch > 24) {
+			pitch -= 25;
 		}
-		if (interval >= 12) {
-			interval %= 12;
+		while (interval >= 16) {
+			interval -= 16;
 		}
 
-		patternData[interval][pitch] = !patternData[interval][pitch];
+		boolean newValue = !patternData[interval][pitch];
+		patternData[interval][pitch] = newValue;
+		return newValue;
 	}
 
 	public Iterable<Byte> getPitchesAtInterval(int interval)
