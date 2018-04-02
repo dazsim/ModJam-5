@@ -4,12 +4,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
+import org.atomicworkshop.libraries.ItemLibrary;
 import org.atomicworkshop.sequencing.Pattern;
 import org.atomicworkshop.sequencing.Sequencer;
 import org.atomicworkshop.tiles.TileEntitySequencer;
@@ -63,137 +65,139 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 
 		int bpm = 120;
 		final Sequencer sequencer = te.sequencer;
-		if (sequencer != null)
-        {
-        	//TODO: Replace EntityItem with ItemStack?
-            //not current interval rows.
-	        final EntityItem disabledItemInactiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.SILVER.getMetadata()));
-	        final EntityItem enabledItemInactiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.BROWN.getMetadata()));
-	        final EntityItem disabledItemActiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.WHITE.getMetadata()));
-            final EntityItem enabledItemActiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.YELLOW.getMetadata()));
+		if (sequencer == null) return;
 
-            final EntityItem disabledItemInactiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.BLACK.getMetadata()));
-            final EntityItem enabledItemInactiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.BROWN.getMetadata()));
-            final EntityItem disabledItemActiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.GRAY.getMetadata()));
-            final EntityItem enabledItemActiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.ORANGE.getMetadata()));
-	            EntityItem punchCard = new EntityItem(getWorld(),0.0D,0.0D,0.0D,new ItemStack(ItemLibrary.punchCardBlank,1,0)); 
+		//TODO: Replace EntityItem with ItemStack?
+		//not current interval rows.
+		final EntityItem disabledItemInactiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.SILVER.getMetadata()));
+		final EntityItem enabledItemInactiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.BROWN.getMetadata()));
+		final EntityItem disabledItemActiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.WHITE.getMetadata()));
+		final EntityItem enabledItemActiveInterval = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.YELLOW.getMetadata()));
 
-            bpm = sequencer.getBeatsPerMinute();
-            final Pattern p = sequencer.getCurrentPattern();
+		final EntityItem disabledItemInactiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.BLACK.getMetadata()));
+		final EntityItem enabledItemInactiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.BROWN.getMetadata()));
+		final EntityItem disabledItemActiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.GRAY.getMetadata()));
+		final EntityItem enabledItemActiveIntervalSharp = new EntityItem(getWorld(), 0.0D, 0.0D, 0.0D, new ItemStack(Blocks.CONCRETE, 1, EnumDyeColor.ORANGE.getMetadata()));
+		EntityItem punchCard = new EntityItem(getWorld(),0.0D,0.0D,0.0D,new ItemStack(ItemLibrary.punchCardBlank,1,0));
 
-
-
-            GlStateManager.pushAttrib();
-            GlStateManager.disableLighting();
-
-            GlStateManager.pushMatrix();
-            GlStateManager.translate(-0.74,0.082,0.06);
-	        for (int interval=0;interval<16;interval++)
-	        {
-		        final boolean[] rawPatternData = p.getRawPatternData(interval);
-
-		        final int currentInterval = sequencer.getCurrentInterval();
-
-                //outer loop. reset after every outer loop.
-                for (int pitch=0;pitch<24;pitch++)
-		        {
-			        final boolean isEnabled = rawPatternData[pitch];
-
-			        final EntityItem disabledItem;
-			        final EntityItem enabledItem;
-
-		            if (isSharpPitch(pitch)) {
-		                //Use sharp colours.
-				        if (currentInterval == interval)
-				        {
-					        disabledItem = disabledItemActiveIntervalSharp;
-					        enabledItem = enabledItemActiveIntervalSharp;
-				        } else {
-					        disabledItem = disabledItemInactiveIntervalSharp;
-					        enabledItem = enabledItemInactiveIntervalSharp;
-				        }
-			        } else {
-		                //Use non-sharp colours.
-				        if (currentInterval == interval)
-				        {
-					        disabledItem = disabledItemActiveInterval;
-					        enabledItem = enabledItemActiveInterval;
-
-				        } else {
-					        disabledItem = disabledItemInactiveInterval;
-					        enabledItem = enabledItemInactiveInterval;
-				        }
-			        }
-
-			        GlStateManager.pushMatrix();
-
-			        GlStateManager.translate((interval * 0.9f) / 24.0f, (pitch * 0.6f) / 16.0f, isEnabled ? -0.0f : 0.015f);
-
-                    GlStateManager.rotate(180.0f,1.0f,0.0f,0.0f);
-                    GlStateManager.rotate(180.0f,0.0f,0.0f,1.0f);
-                    GlStateManager.scale(0.05F, 0.05F, 0.05F);
-                    GlStateManager.depthMask(true);
+		bpm = sequencer.getBeatsPerMinute();
+		final Pattern p = sequencer.getCurrentPattern();
 
 
-			        if (isEnabled) {
-			            itemRenderer.renderItem(enabledItem.getItem(), TransformType.FIXED);
-			        } else {
-				        itemRenderer.renderItem(disabledItem.getItem(), TransformType.FIXED);
-			        }
+		GlStateManager.pushAttrib();
+		GlStateManager.disableLighting();
 
-                    GlStateManager.popMatrix();
-                }
-		        if (te.getHasCard()==true)
-		        {
-			        GlStateManager.translate(0.74,0.01,0.08);
-			        GlStateManager.scale(0.175, 0.175, 0.175);
-			        GlStateManager.rotate(90.0f,1.0f,0.0f,0.0f);
-			        itemRenderer.renderItem(punchCard.getItem(), ItemCameraTransforms.TransformType.FIXED);
-			        //System.out.println("rendered");
-		        }
-            }
-	        GlStateManager.popMatrix();
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(-0.74,0.082,0.06);
+		for (int interval=0;interval<16;interval++)
+		{
+			final boolean[] rawPatternData = p.getRawPatternData(interval);
 
-            //Render Pattern buttons
-	        final int currentPatternIndex = sequencer.getCurrentPatternIndex();
-	        final int pendingPatternIndex = sequencer.getPendingPatternIndex();
+			final int currentInterval = sequencer.getCurrentInterval();
 
-	        GlStateManager.pushMatrix();
-	        GlStateManager.translate(-0.05,0.4,0.06);
-	        for (int patternIndex = 0; patternIndex < 8; patternIndex++)
-	        {
-	        	final int patternButtonX = patternIndex & 3;
-	        	final int patternButtonY = 1 - (patternIndex & 4) >> 2;
+	        //outer loop. reset after every outer loop.
+	        for (int pitch=0;pitch<24;pitch++)
+			{
+				final boolean isEnabled = rawPatternData[pitch];
 
-	        	final boolean isEnabled = patternIndex == pendingPatternIndex;
-		        final boolean isCurrent = patternIndex == currentPatternIndex;
+				final EntityItem disabledItem;
+				final EntityItem enabledItem;
 
-		        GlStateManager.pushMatrix();
+			    if (isSharpPitch(pitch)) {
+			        //Use sharp colours.
+					if (currentInterval == interval)
+					{
+						disabledItem = disabledItemActiveIntervalSharp;
+						enabledItem = enabledItemActiveIntervalSharp;
+					} else {
+						disabledItem = disabledItemInactiveIntervalSharp;
+						enabledItem = enabledItemInactiveIntervalSharp;
+					}
+				} else {
+			        //Use non-sharp colours.
+					if (currentInterval == interval)
+					{
+						disabledItem = disabledItemActiveInterval;
+						enabledItem = enabledItemActiveInterval;
 
-		        GlStateManager.translate((patternButtonX * 0.9f) / 24.0f, (patternButtonY * 0.6f) / 16.0f, isEnabled ? -0.0f : 0.015f);
+					} else {
+						disabledItem = disabledItemInactiveInterval;
+						enabledItem = enabledItemInactiveInterval;
+					}
+				}
 
-		        GlStateManager.rotate(180.0f,1.0f,0.0f,0.0f);
-		        GlStateManager.rotate(180.0f,0.0f,0.0f,1.0f);
-		        GlStateManager.scale(0.05F, 0.05F, 0.05F);
-		        GlStateManager.depthMask(true);
+				GlStateManager.pushMatrix();
 
-		        if (isCurrent) {
-			        itemRenderer.renderItem(enabledItemActiveInterval.getItem(), TransformType.FIXED);
-		        } else if (isEnabled) {
-			        itemRenderer.renderItem(enabledItemInactiveInterval.getItem(), TransformType.FIXED);
-	            } else {
-			        itemRenderer.renderItem(disabledItemInactiveInterval.getItem(), TransformType.FIXED);
-		        }
+				GlStateManager.translate((interval * 0.9f) / 24.0f, (pitch * 0.6f) / 16.0f, isEnabled ? -0.0f : 0.015f);
 
-		        GlStateManager.popMatrix();
+	            GlStateManager.rotate(180.0f,1.0f,0.0f,0.0f);
+	            GlStateManager.rotate(180.0f,0.0f,0.0f,1.0f);
+	            GlStateManager.scale(0.05F, 0.05F, 0.05F);
+	            GlStateManager.depthMask(true);
 
+
+				if (isEnabled) {
+				    itemRenderer.renderItem(enabledItem.getItem(), TransformType.FIXED);
+				} else {
+					itemRenderer.renderItem(disabledItem.getItem(), TransformType.FIXED);
+				}
+
+	            GlStateManager.popMatrix();
 	        }
-	        GlStateManager.popMatrix();
-            GlStateManager.enableLighting();
-	        GlStateManager.popAttrib();
+	    }
+		GlStateManager.popMatrix();
 
-        }
-        GlStateManager.translate(0.0, 0.935, 0.11);
+		if (te.getHasCard())
+		{
+			GlStateManager.pushMatrix();
+
+			GlStateManager.translate(0.02f,.1f,0.0);
+			GlStateManager.scale(0.175, 0.175, 0.175);
+			GlStateManager.rotate(90.0f,1.0f,0.0f,0.0f);
+			itemRenderer.renderItem(punchCard.getItem(), TransformType.FIXED);
+
+			GlStateManager.popMatrix();
+		}
+
+		//Render Pattern buttons
+		final int currentPatternIndex = sequencer.getCurrentPatternIndex();
+		final int pendingPatternIndex = sequencer.getPendingPatternIndex();
+
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(-0.05,0.4,0.06);
+		for (int patternIndex = 0; patternIndex < 8; patternIndex++)
+		{
+			final int patternButtonX = patternIndex & 3;
+			final int patternButtonY = 1 - (patternIndex & 4) >> 2;
+
+			final boolean isEnabled = patternIndex == pendingPatternIndex;
+			final boolean isCurrent = patternIndex == currentPatternIndex;
+
+			GlStateManager.pushMatrix();
+
+			GlStateManager.translate((patternButtonX * 0.9f) / 24.0f, (patternButtonY * 0.6f) / 16.0f, isEnabled ? -0.0f : 0.015f);
+
+			GlStateManager.rotate(180.0f,1.0f,0.0f,0.0f);
+			GlStateManager.rotate(180.0f,0.0f,0.0f,1.0f);
+			GlStateManager.scale(0.05F, 0.05F, 0.05F);
+			GlStateManager.depthMask(true);
+
+			if (isCurrent) {
+				itemRenderer.renderItem(enabledItemActiveInterval.getItem(), TransformType.FIXED);
+			} else if (isEnabled) {
+				itemRenderer.renderItem(enabledItemInactiveInterval.getItem(), TransformType.FIXED);
+		    } else {
+				itemRenderer.renderItem(disabledItemInactiveInterval.getItem(), TransformType.FIXED);
+			}
+
+			GlStateManager.popMatrix();
+
+		}
+		GlStateManager.popMatrix();
+		GlStateManager.enableLighting();
+		GlStateManager.popAttrib();
+
+		GlStateManager.translate(0.0, 0.935, 0.11);
         final String s = String.valueOf(bpm);
         //System.out.println(f);
 
