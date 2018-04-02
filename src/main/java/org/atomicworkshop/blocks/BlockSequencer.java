@@ -5,7 +5,6 @@ import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.Vector3d;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
@@ -130,19 +129,10 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 		return tileEntity.receiveClientEvent(id, param);
 	}
 
-	private TileEntitySequencer getTileEntity(IBlockAccess world, BlockPos pos) {
-		final TileEntity tileEntity = world.getTileEntity(pos);
-		if (tileEntity instanceof TileEntitySequencer) {
-			return (TileEntitySequencer)tileEntity;
-		}
-		return null;
-	}
-
-	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	private Vec3d calculateSlopeHit(BlockPos pos, EntityPlayer playerIn)
 	{
 		final Vec3d headPosition = CollisionMaths.getPlayerHeadPosition(playerIn);
-		Vec3d lookVector = CollisionMaths.getPlayerLookVector(playerIn, headPosition);
+		final Vec3d lookVector = CollisionMaths.getPlayerLookVector(playerIn);
 
 		//TODO: rotate Origin according to block direction
 		final Vec3d planeOrigin = new Vec3d(pos.getX(), pos.getY() + 1/16.0f, pos.getZ());
@@ -151,18 +141,27 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 
 		final Vec3d u = bottomCorner.subtract(planeOrigin);
 		final Vec3d v = topCorner.subtract(planeOrigin);
-		final Vec3d planeNormal = u.crossProduct(v).normalize();
+		final Vec3d planeNormal = u.crossProduct(v);
 
 		final Vec3d vector3d = CollisionMaths.intersectionLinePlane(headPosition, lookVector, planeOrigin, planeNormal);
 
 		if (vector3d == null) {
 			ConductorMod.logger.info("player missed");
+			return null;
 		} else
 		{
-			ConductorMod.logger.info("player clicked at {},{},{}", vector3d.x, vector3d.y, vector3d.z);
+			final Vec3d hitVector = vector3d.subtract(pos.getX(), pos.getY(), pos.getZ());
+			ConductorMod.logger.info("player clicked at {},{},{}", hitVector.x, hitVector.y, hitVector.z);
+			return hitVector;
 		}
+	}
 
-		return true;
+	private TileEntitySequencer getTileEntity(IBlockAccess world, BlockPos pos) {
+		final TileEntity tileEntity = world.getTileEntity(pos);
+		if (tileEntity instanceof TileEntitySequencer) {
+			return (TileEntitySequencer)tileEntity;
+		}
+		return null;
 	}
 
 	@Override
