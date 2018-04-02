@@ -52,19 +52,19 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
         	GlStateManager.translate(0.7, -0.2, -0.45);
         	if (facing==0)
         	{
-        		GlStateManager.translate(0.9, -0.1, 0.23);
+        		GlStateManager.translate(0.935, -0.136, 0.06); 
         	}
         	if (facing==1)
         	{
-        		GlStateManager.translate(0.9,0.8,-0.25);
+        		GlStateManager.translate(0.94,0.79,-0.32); //fixed
         	}
         	if (facing==2)
         	{
-        		GlStateManager.translate(-0.07, 0.8, -0.32);
+        		GlStateManager.translate(-0.07, 0.8, -0.32);//fixed
         	}
         	if (facing==3)
         	{
-        		GlStateManager.translate(-0.07, -0.05, 0.18);
+        		GlStateManager.translate(-0.065, -0.13, 0.07);//fixed
         	}
 
             if (te.sequencer != null)

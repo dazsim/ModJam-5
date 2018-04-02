@@ -8,6 +8,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -177,9 +178,21 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 					//remove 1 card from hand
 					//player.getHeldItem(playerIn.getActiveHand())
 					tes.markDirty();
-					
-					System.out.println("Card Inserted");
-					return true;
+					if (playerIn.getActiveItemStack()!=null)
+					{
+							playerIn.inventory.decrStackSize(playerIn.inventory.currentItem, 1);
+							if (playerIn.inventory.getCurrentItem().getCount()==0)
+							{
+								playerIn.inventory.setInventorySlotContents(playerIn.inventory.currentItem, ItemStack.EMPTY);
+							}
+							
+							System.out.println("Deleted Stack");
+						
+						//playerIn.getActiveItemStack().setCount(playerIn.getActiveItemStack().getCount()-1);
+						
+						System.out.println("Card Inserted"+playerIn.getActiveItemStack().getCount());
+						return true;
+					}
 				}
 			}
 		}	
