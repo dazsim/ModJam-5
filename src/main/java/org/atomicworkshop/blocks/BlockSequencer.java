@@ -146,40 +146,35 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
-		final Vector3d headPosition = CollisionMaths.getPlayerHeadPosition(playerIn);
-		final Vector3d lookVector = CollisionMaths.getPlayerLookVector(playerIn, headPosition);
+		final Vec3d headPosition = CollisionMaths.getPlayerHeadPosition(playerIn);
+		final Vec3d lookVector = CollisionMaths.getPlayerLookVector(playerIn, headPosition).normalize();
 
 		//TODO: rotate Origin according to block direction
-		final Vector3d planeOrigin = new Vector3d();
-		planeOrigin.x = pos.getX();
-		planeOrigin.y = pos.getY() + 1/16.0f;
-		planeOrigin.z = pos.getZ();
+		final Vec3d planeOrigin = new Vec3d(pos.getX(), pos.getY() + 1/16.0f, pos.getZ());
 
-		final Vector3d topCorner = new Vector3d();
-		topCorner.x = pos.getX();
-		topCorner.y = pos.getY() + 7.5f/16.0f;
-		topCorner.z = pos.getZ() + 15.75f/16.0f;
+		final Vec3d topCorner = new Vec3d(pos.getX(), pos.getY() + 7.5f / 16.0f, pos.getZ() + 15.75f / 16.0f);
 
-		final Vector3d bottomCorner = new Vector3d();
-		bottomCorner.x = pos.getX() + 1;
-		bottomCorner.y = pos.getY() + 1/16.0f;
-		bottomCorner.z = pos.getZ();
+		final Vec3d bottomCorner = new Vec3d(pos.getX() + 1, pos.getY() + 1/16.0f, pos.getZ());
 
-		final Vector3d planeNormal = new Vector3d();
-		final Vector3d u = CollisionMaths.subVector3d(topCorner, planeOrigin);
-		final Vector3d v = CollisionMaths.subVector3d(bottomCorner, planeOrigin);
 
-		planeNormal.x = (u.y * v.z) - (u.z * v.y);
-		planeNormal.y = (u.z * v.x) - (u.x * v.z);
-		planeNormal.z = (u.x * v.y) - (u.y * v.x);
+		final Vec3d u = topCorner.subtract(planeOrigin);
+		final Vec3d v = bottomCorner.subtract(planeOrigin);
 
-		final Vector3d vector3d = CollisionMaths.intersectionLinePlane(headPosition, lookVector, planeOrigin, planeNormal);
+		final Vec3d planeNormal = new Vec3d(
+			(u.y * v.z) - (u.z * v.y),
+			(u.z * v.x) - (u.x * v.z),
+			(u.x * v.y) - (u.y * v.x)
+		).normalize();
+
+		final Vec3d vector3d = CollisionMaths.intersectionLinePlane(headPosition, lookVector, planeOrigin, planeNormal);
+
+		final Vec3d hitVector = vector3d.subtract(pos.getX(), pos.getY(), pos.getZ());
 
 		if (vector3d == null) {
 			ConductorMod.logger.info("player missed");
 		} else
 		{
-			ConductorMod.logger.info("player clicked at {},{},{}", vector3d.x - pos.getX(), vector3d.y- pos.getY(), vector3d.z- pos.getZ());
+			ConductorMod.logger.info("player clicked at {},{},{}", hitVector.x, hitVector.y, hitVector.z);
 		}
 
 		return true;
