@@ -18,6 +18,7 @@ import javax.annotation.Nullable;
 import org.atomicworkshop.ConductorMod;
 import org.atomicworkshop.Reference.NBT;
 import org.atomicworkshop.items.ItemPunchCardWritten;
+import org.atomicworkshop.libraries.ItemLibrary;
 import org.atomicworkshop.sequencing.MusicPlayer;
 import org.atomicworkshop.sequencing.Pattern;
 import org.atomicworkshop.sequencing.Sequencer;
@@ -26,6 +27,7 @@ import org.atomicworkshop.sequencing.SequencerSet;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -404,10 +406,14 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		{
 			this.writeToNBT(heldItemStack.getTagCompound());
 		}
+		if (!world.isRemote)
+		{
+			sendUpdates();
+		}
 	}
 
 	public ItemStack saveToCard() {
-		ItemStack i = new ItemStack(new ItemPunchCardWritten(),1);
+		ItemStack i = new ItemStack(ItemLibrary.punchCardWritten,1);
 		i.setTagCompound(this.getTileData());
 		
 		return i;
@@ -463,8 +469,12 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			{
 				ConductorMod.logger.info("Eject Card");
 				ItemStack i = saveToCard();
-				playerIn.addItemStackToInventory(i);
 				
+				//splayerIn.addItemStackToInventory(i);
+				if (!world.isRemote)
+				{
+					playerIn.entityDropItem(i, 0.5f);
+				}
 				this.hasCard=false;
 				if (!world.isRemote)
 				{
@@ -473,6 +483,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 				return true;
 			}
 		}
+		
 		//check coords for setting bank
 		if ((backX>=0.7582737759610318 && backX<=0.8919838353273448) && (backZ>=0.45915143708791994 && backZ<=0.5098249754671347))
 		{
@@ -480,58 +491,130 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			double bankHeight = 0.5098249754671347 - 0.45915143708791994;
 			double offX = backX - 0.7582737759610318;
 			double offZ = backZ - 0.45915143708791994;
+			int index = 0;
 			if (offX < (bankWidth/4))
 			{
 				if (offZ < (bankHeight/2))
 				{
 					//set to 0
-					sequencer.setPendingPatternIndex(0);
-					return true;
+					index = 0;
+					
 				} else
 				{
 					//set to 4
-					sequencer.setPendingPatternIndex(4);
-					return true;
+					index = 4;
+					
 				}
-			}
+			} else
 			if (offX < (bankWidth/2))
 			{
 				if (offZ < (bankHeight/2))
 				{
 					//set to 1
-					sequencer.setPendingPatternIndex(1);
-					return true;
+					index = 1;
 				} else
 				{
 					//set to 5
-					sequencer.setPendingPatternIndex(5);
-					return true;
+					index = 5;
 				}
-			}
+			} else
 			if (offX < ((bankWidth*3)/4))
 			{
 				if (offZ < (bankHeight/2))
 				{
 					//set to 2
-					sequencer.setPendingPatternIndex(2);
-					return true;
+					index = 2;
 				} else
 				{
 					//set to 6
-					sequencer.setPendingPatternIndex(6);
-					return true;
+					index=6;
 				}
-			}
+			} else
 			if (offZ < (bankHeight/2))
 			{
 				//set to 3
-				sequencer.setPendingPatternIndex(3);
-				return true;
+				index=3;
 			} else
 			{
 				//set to 7
-				sequencer.setPendingPatternIndex(7);
-				return true;
+				index=7;
+			}
+			if (isPlaying)
+			{
+				sequencer.setPendingPatternIndex(index);
+				
+				
+			} else
+			{
+				sequencer.setCurrentPatternIndex(index);
+				sequencer.setPendingPatternIndex(index);
+				
+				
+			}
+			if (!world.isRemote)
+			{
+				sendUpdates();
+			}
+			return true;
+		}
+		//0.7045204265288701,0.21970650094097977
+		//0.9327918869342732,0.2705630830397361
+		//BPM UI buttons
+		if ((backX>=0.7045204265288701 && backX<=0.9327918869342732) && (backZ>=0.21970650094097977 && backZ<=0.2705630830397361))
+		{
+			double bpmUIWidth = 0.9327918869342732 - 0.7045204265288701;
+			double offX = backX - 0.7045204265288701;
+			if (offX<=(bpmUIWidth/4))
+			{
+				//-10
+				if (sequencer.getBeatsPerMinute()>10)
+				{
+					sequencer.setDesiredBPM(sequencer.getBeatsPerMinute()-10);
+					if (!world.isRemote)
+					{
+						sendUpdates();
+					}
+					return true;
+				}
+				
+			} else
+			if (offX<=(bpmUIWidth/2))
+			{
+				//-1
+				if (sequencer.getBeatsPerMinute()>1)
+				{
+					sequencer.setDesiredBPM(sequencer.getBeatsPerMinute()-1);
+					if (!world.isRemote)
+					{
+						sendUpdates();
+					}
+					return true;
+				}
+			} else
+			if (offX<=(bpmUIWidth*3)/4)
+			{
+				//+1
+				if (sequencer.getBeatsPerMinute()<240)
+				{
+					sequencer.setDesiredBPM(sequencer.getBeatsPerMinute()+1);
+					if (!world.isRemote)
+					{
+						sendUpdates();
+					}
+					return true;
+				}
+			} else
+			{
+				//+10
+				if (sequencer.getBeatsPerMinute()<230)
+				{
+					sequencer.setDesiredBPM(sequencer.getBeatsPerMinute()+10);
+					if (!world.isRemote)
+					{
+						sendUpdates();
+					}
+					return true;
+				}
 			}
 		}
 		return false;

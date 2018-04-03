@@ -196,6 +196,7 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 		    } else {
 		    	teSequencer.loadFromCard(heldItemStack);
 		    	heldItemStack.shrink(1);
+		    	teSequencer.setHasCard(true);
 		    	return true;
 		    }
 	    }
