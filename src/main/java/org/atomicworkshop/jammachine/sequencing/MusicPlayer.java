@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import java.util.List;
+import java.util.UUID;
 
 @EventBusSubscriber
 public final class MusicPlayer
@@ -21,6 +22,7 @@ public final class MusicPlayer
 		if (sequencerSet == null) return;
 		sequencerSet.updateBpm();
 		if (sequencerSet.getBeatsPerMinute() == 0) return;
+		final long currentTimeMillis = System.nanoTime() / 1000000;
 
 		synchronized(sequenceLock) {
 			for (final PlayingSequence playingSequence : playingSequences)
@@ -28,8 +30,8 @@ public final class MusicPlayer
 				if (playingSequence.getSequencerSet().getId().equals(sequencerSet.getId())) return;
 			}
 
-			PlayingSequence e = new PlayingSequence(sequencerSet);
-			final long currentTimeMillis = System.nanoTime() / 1000000;
+			final PlayingSequence e = new PlayingSequence(sequencerSet);
+
 			e.setNextIntervalMillis(currentTimeMillis + (250 / (e.getBeatsPerMinute() / 60)));
 
 			for (final Sequencer sequencer : sequencerSet)
@@ -42,17 +44,17 @@ public final class MusicPlayer
 		}
 	}
 
-	public static void stopPlaying(SequencerSet sequencerSet) {
-		if (sequencerSet == null) return;
+	public static void stopPlaying(UUID sequencerSetId) {
+		if (sequencerSetId == null) return;
 		synchronized (sequenceLock) {
-			playingSequences.removeIf(playingSequence -> playingSequence.getSequencerSet().getId().equals(sequencerSet.getId()));
+			playingSequences.removeIf(playingSequence -> playingSequence.getSequencerSet().getId().equals(sequencerSetId));
 		}
 	}
 
 	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent clientTickEvent) {
 		if (clientTickEvent.phase != Phase.START) return;
-		Minecraft minecraft = Minecraft.getMinecraft();
+		final Minecraft minecraft = Minecraft.getMinecraft();
 		if (minecraft.isGamePaused()) return;
 		if (minecraft.world == null) {
 			synchronized (sequenceLock) {
@@ -81,14 +83,57 @@ public final class MusicPlayer
 		}
 	}
 
+
+	private static final List<Sequencer> trackedSequencers = Lists.newArrayList();
+	private static final List<JamController> trackedControllers = Lists.newArrayList();
+	private static final Object trackingLock = new Object();
+
 	public static void stopTrackingSequencerAt(World worldIn, BlockPos pos)
 	{
-
+		synchronized (trackingLock)
+		{
+			trackedSequencers.removeIf(sequencer ->
+					sequencer.getWorld().provider.getDimension() == worldIn.provider.getDimension() &&
+							pos.equals(sequencer.getBlockPos()));
+		}
 	}
 
 	public static void stopTrackingControllerAt(World worldIn, BlockPos pos)
 	{
-		
+		synchronized (trackingLock)
+		{
+			trackedControllers.removeIf(controller ->
+					controller.getWorld().provider.getDimension() == worldIn.provider.getDimension() &&
+							pos.equals(controller.getPos()));
+		}
+	}
+
+	public static void startTracking(JamController controller)
+	{
+		synchronized (trackingLock)
+		{
+			for (final JamController trackedController : trackedControllers)
+			{
+				if (trackedController.getId().equals(controller.getId())) {
+					return;
+				}
+			}
+			trackedControllers.add(controller);
+		}
+	}
+
+	public static void startTracking(Sequencer sequencer)
+	{
+		synchronized (trackingLock)
+		{
+			for (final Sequencer trackedSequencer : trackedSequencers)
+			{
+				if (trackedSequencer.getId().equals(sequencer.getId())) {
+					return;
+				}
+			}
+			trackedSequencers.add(sequencer);
+		}
 	}
 }
 

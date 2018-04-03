@@ -2,6 +2,7 @@ package org.atomicworkshop.jammachine;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.util.ResourceLocation;
+import java.util.UUID;
 
 @SuppressWarnings("UtilityClass")
 public final class Reference
@@ -11,6 +12,7 @@ public final class Reference
 	public static final String VERSION = "1.0";
 	public static final String TabLabel = MOD_ID + ".tab_label";
 	public static final CreativeTabs CreativeTab = new JamMachineTab();
+	public static final UUID EMPTY_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
 	public static final class Blocks {
 		public static final ResourceLocation sequencer = resource("sequencer");
@@ -41,6 +43,7 @@ public final class Reference
 	public static final class NBT {
 		public static final String isPlaying = "isPlaying";
 		public static String songId = "songId";
+		public static String sequencerId = "sequencerId";
 		public static String beatsPerMinute = "bpm";
 		public static String currentPatternIndex = "currentPattern";
 		public static String pendingPatternIndex = "pendingPattern";

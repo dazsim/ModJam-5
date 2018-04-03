@@ -8,10 +8,12 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import org.atomicworkshop.jammachine.JamMachineMod;
+import org.atomicworkshop.jammachine.Reference;
 import org.atomicworkshop.jammachine.Reference.NBT;
+import org.atomicworkshop.jammachine.sequencing.ControllerPattern;
+import org.atomicworkshop.jammachine.sequencing.JamController;
 import org.atomicworkshop.jammachine.sequencing.MusicPlayer;
 import org.atomicworkshop.jammachine.sequencing.Sequencer;
-import org.atomicworkshop.jammachine.sequencing.SequencerSet;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
@@ -25,13 +27,13 @@ public class TileEntityController extends TileEntity
     private boolean hasCard = false;
 
     private UUID sequencerSetId;
-    private SequencerSet sequencerSet = null;
+    private JamController jamController = null;
     private boolean isPlaying;
 
     private int displayedSection = 0;
 
-    private Sequencer selectedSequencerA = null;
-    private Sequencer selectedSequencerB = null;
+    private ControllerPattern selectedSequencerA = null;
+    private ControllerPattern selectedSequencerB = null;
 
 
     public TileEntityController()
@@ -55,27 +57,19 @@ public class TileEntityController extends TileEntity
     public void readFromNBT(NBTTagCompound compound)
     {
         JamMachineMod.logger.info("read from NBT");
+
         super.readFromNBT(compound);
 
-        boolean wasPlaying = isPlaying;
+        final boolean wasPlaying = isPlaying;
         isPlaying = compound.getBoolean(NBT.isPlaying);
         hasCard = compound.getBoolean(NBT.hasCard);
-        sequencerSetId = compound.getUniqueId(NBT.songId);
-        if (sequencerSetId.equals(UUID.fromString("00000000-0000-0000-0000-000000000000"))) {
-            sequencerSetId = UUID.randomUUID();
+
+        if (jamController == null) {
+            jamController = new JamController(world, pos);
+            MusicPlayer.startTracking(jamController);
         }
 
-        if (sequencerSet == null) {
-            sequencerSet = new SequencerSet(world, UUID.randomUUID());
-        }
-
-        final NBTTagCompound compoundTag = compound.getCompoundTag(NBT.sequence);
-        if (!compoundTag.hasNoTags())
-        {
-            sequencerSet.readFromNBT(compoundTag);
-            JamMachineMod.logger.info("compoundTag: {}", compoundTag);
-
-        }
+        readCustomDataFromNBT(compound);
 
         updatePlayStatus(wasPlaying);
     }
@@ -91,12 +85,29 @@ public class TileEntityController extends TileEntity
         compound.setBoolean(NBT.hasCard, hasCard);
         compound.setUniqueId(NBT.songId, sequencerSetId);
 
-        if (sequencerSet != null)
-        {
-            compound.setTag(NBT.sequence, sequencerSet.writeToNBT());
-        }
+        writeCustomDataToNBT(compound);
+
         return compound;
     }
+
+    private void writeCustomDataToNBT(NBTTagCompound compound)
+    {
+        if (jamController != null)
+        {
+            compound.setTag(NBT.sequence, jamController.writeToNBT());
+        }
+    }
+
+    private void readCustomDataFromNBT(NBTTagCompound compound)
+    {
+        final NBTTagCompound compoundTag = compound.getCompoundTag(NBT.sequence);
+        if (!compoundTag.hasNoTags())
+        {
+            jamController.readFromNBT(compoundTag);
+            JamMachineMod.logger.info("compoundTag: {}", compoundTag);
+        }
+    }
+
 
     @Nullable
     @Override
@@ -135,12 +146,12 @@ public class TileEntityController extends TileEntity
     {
         if (world == null || pos == null || !world.isRemote) return;
 
-        sequencerSet.updateBpm();
+        jamController.updateBpm();
 
         boolean updateBlock = false;
         for (final EnumFacing horizontal : EnumFacing.HORIZONTALS)
         {
-            for (final Sequencer sequencer : sequencerSet)
+            for (final Sequencer sequencer : jamController)
             {
                 updateBlock |= sequencer.verifyNoteBlockFacing(horizontal);
             }
@@ -150,7 +161,7 @@ public class TileEntityController extends TileEntity
             sendUpdates();
         }
 
-        MusicPlayer.playSong(sequencerSet);
+        MusicPlayer.playSong(jamController);
 
         world.addBlockEvent(pos, getBlockType(), IS_PLAYING, 1);
     }
@@ -167,9 +178,11 @@ public class TileEntityController extends TileEntity
 
     public void stopPlaying()
     {
-        MusicPlayer.stopPlaying(new SequencerSet(world, sequencerSetId));
-        world.addBlockEvent(pos, getBlockType(), IS_PLAYING, 0);
+        if (jamController != null) {
+            MusicPlayer.stopPlaying(jamController.getId());
+        }
 
+        world.addBlockEvent(pos, getBlockType(), IS_PLAYING, 0);
     }
 
     public void notifyPowered(boolean powered)

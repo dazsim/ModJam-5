@@ -6,6 +6,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import org.atomicworkshop.jammachine.JamMachineMod;
 
+import javax.naming.ldap.Control;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
@@ -16,27 +17,13 @@ public class SequencerSet implements Iterable<Sequencer>
 {
 	private int beatsPerMinute;
 	private List<Sequencer> sequencers = Lists.newArrayList();
+	private List<ControllerPattern> sections = Lists.newArrayList();
 	private final Object listLock = new Object();
-	private final World world;
 	private final UUID id;
 
-	public SequencerSet(World world, UUID id)
+	public SequencerSet(UUID id)
 	{
-		this.world = world;
 		this.id = id;
-	}
-
-	public void addSequencer(Sequencer sequencer)
-	{
-
-		if (sequencer.getWorld().provider.getDimension() != world.provider.getDimension()) {
-			JamMachineMod.logger.warn("SequencerSet world {} vs Sequencer world {}");
-		}
-		synchronized (listLock) {
-			List<Sequencer> sequencers = Lists.newArrayList(this.sequencers);
-			sequencers.add(sequencer);
-			this.sequencers = sequencers;
-		}
 	}
 
 	public void updateBpm()
@@ -47,7 +34,6 @@ public class SequencerSet implements Iterable<Sequencer>
 				beatsPerMinute = Math.max(sequencer.getBeatsPerMinute(), beatsPerMinute);
 			}
 		}
-
 	}
 
 	public long getBeatsPerMinute()
@@ -76,6 +62,15 @@ public class SequencerSet implements Iterable<Sequencer>
 	public UUID getId()
 	{
 		return id;
+	}
+
+	public void addSequencer(Sequencer sequencer)
+	{
+		synchronized (listLock) {
+			List<Sequencer> sequencers = Lists.newArrayList(this.sequencers);
+			sequencers.add(sequencer);
+			this.sequencers = sequencers;
+		}
 	}
 
 	public void removingSequencer(Sequencer sequencer) {

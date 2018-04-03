@@ -12,10 +12,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.world.NoteBlockEvent.Instrument;
+import org.atomicworkshop.jammachine.Reference;
 import org.atomicworkshop.jammachine.Reference.NBT;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.*;
 
@@ -25,6 +27,7 @@ public class Sequencer
 	private final BlockPos blockPos;
 	private final Pattern[] patterns;
 	private final AdjacentNoteBlock[] adjacentNoteBlocks;
+	private UUID id;
 	private ImmutableList<AdjacentNoteBlock> currentAdjacentNoteBlocks = ImmutableList.of();
 	private int beatsPerMinute;
 	private int pendingPatternIndex;
@@ -50,6 +53,8 @@ public class Sequencer
 		}
 
 		beatsPerMinute = 120;
+
+		id = UUID.randomUUID();
 	}
 
 	private void setAdjacentNoteBlock(EnumFacing direction, Instrument sound)
@@ -73,6 +78,10 @@ public class Sequencer
 	BlockPos getBlockPos()
 	{
 		return blockPos;
+	}
+
+	public UUID getId() {
+		return id;
 	}
 
 	public void setDesiredBPM(int beatsPerMinute)
@@ -133,6 +142,10 @@ public class Sequencer
 
 	public void readFromNBT(NBTTagCompound compound)
 	{
+		id = compound.getUniqueId(NBT.sequencerId);
+		if (id.equals(Reference.EMPTY_UUID)) {
+			id = UUID.randomUUID();
+		}
 		beatsPerMinute = compound.getInteger(NBT.beatsPerMinute);
 
 		currentPatternIndex = compound.getInteger(NBT.currentPatternIndex);
@@ -166,7 +179,7 @@ public class Sequencer
 	public NBTTagCompound writeToNBT()
 	{
 		final NBTTagCompound tagCompound = new NBTTagCompound();
-
+		tagCompound.setUniqueId(NBT.sequencerId, id);
 		tagCompound.setInteger(NBT.beatsPerMinute, beatsPerMinute);
 		tagCompound.setInteger(NBT.currentPatternIndex, currentPatternIndex);
 		tagCompound.setInteger(NBT.pendingPatternIndex, pendingPatternIndex);
