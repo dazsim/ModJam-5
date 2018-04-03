@@ -42,7 +42,7 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 			float alpha) {
 
 		if (te == null) return;
-		final Sequencer sequencer = te.sequencer;
+		final Sequencer sequencer = te.getSequencer();
 		if (sequencer == null) return;
 
 		final int facing = te.getBlockMetadata();

@@ -9,7 +9,6 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.atomicworkshop.jammachine.JamMachineMod;
 import org.atomicworkshop.jammachine.Reference;
@@ -38,7 +37,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 	//TODO: fix privacy later, right now the TESR needs access
 	//FIXME: If breaking sequencer, write last state and drop it as item into the world.
 
-	public Sequencer sequencer = null;
+	private Sequencer sequencer = null;
 	private boolean isPlaying;
 
 	private boolean hasController()
@@ -83,11 +82,6 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			sequencerSetId = UUID.randomUUID();
 		}
 
-		if (sequencer == null) {
-			sequencer = new Sequencer(world, pos);
-			MusicPlayer.startTracking(sequencer);
-		}
-
 		readCustomDataFromNBT(compound);
 
 		updatePlayStatus(wasPlaying);
@@ -98,6 +92,11 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		final NBTTagCompound compoundTag = compound.getCompoundTag(NBT.sequence);
 		if (!compoundTag.hasNoTags())
 		{
+			if (sequencer == null) {
+				sequencer = new Sequencer(world, pos);
+				MusicPlayer.startTracking(sequencer);
+			}
+
 			sequencer.readFromNBT(compoundTag);
 			JamMachineMod.logger.info("compoundTag: {}", compoundTag);
 
@@ -470,5 +469,14 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			}
 		}
 		return false;
+	}
+
+	public Sequencer getSequencer()
+	{
+		if (sequencer == null && world != null && pos != null) {
+			sequencer = new Sequencer(world, pos);
+		}
+
+		return sequencer;
 	}
 }
