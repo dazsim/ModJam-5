@@ -23,8 +23,8 @@ public class Sequencer
 {
 	private final World world;
 	private final BlockPos blockPos;
-	private Pattern[] patterns;
-	private AdjacentNoteBlock[] adjacentNoteBlocks;
+	private final Pattern[] patterns;
+	private final AdjacentNoteBlock[] adjacentNoteBlocks;
 	private ImmutableList<AdjacentNoteBlock> currentAdjacentNoteBlocks = ImmutableList.of();
 	private int beatsPerMinute;
 	private int pendingPatternIndex;
@@ -52,7 +52,7 @@ public class Sequencer
 		beatsPerMinute = 120;
 	}
 
-	public void setAdjacentNoteBlock(EnumFacing direction, Instrument sound)
+	private void setAdjacentNoteBlock(EnumFacing direction, Instrument sound)
 	{
 		adjacentNoteBlocks[direction.getHorizontalIndex()].setInstrument(sound);
 		final List<AdjacentNoteBlock> availableNoteBlocks = Lists.newArrayList();
@@ -66,11 +66,11 @@ public class Sequencer
 		currentAdjacentNoteBlocks = ImmutableList.copyOf(availableNoteBlocks);
 	}
 
-	public Instrument getInstrumentFromNoteBlock(EnumFacing direction) {
+	private Instrument getInstrumentFromNoteBlock(EnumFacing direction) {
 		return adjacentNoteBlocks[direction.getHorizontalIndex()].getInstrument();
 	}
 
-	public BlockPos getBlockPos()
+	BlockPos getBlockPos()
 	{
 		return blockPos;
 	}
@@ -78,14 +78,6 @@ public class Sequencer
 	public void setDesiredBPM(int beatsPerMinute)
 	{
 		this.beatsPerMinute = beatsPerMinute;
-	}
-
-	public void setPattern(int patternIndex, Pattern pattern)
-	{
-		if (patternIndex > patterns.length) {
-			patternIndex %= patterns.length;
-		}
-		patterns[patternIndex] = pattern;
 	}
 
 	public int getBeatsPerMinute()
@@ -141,7 +133,6 @@ public class Sequencer
 
 	public void readFromNBT(NBTTagCompound compound)
 	{
-
 		beatsPerMinute = compound.getInteger(NBT.beatsPerMinute);
 
 		currentPatternIndex = compound.getInteger(NBT.currentPatternIndex);
@@ -156,7 +147,7 @@ public class Sequencer
 
 			for (int interval = 0; interval < 16; interval++)
 			{
-				byte[] pitchesAtInterval = patternNBT.getByteArray(String.valueOf(interval));
+				final byte[] pitchesAtInterval = patternNBT.getByteArray(String.valueOf(interval));
 
 				for (int i = 0; i < 25; i++)
 				{

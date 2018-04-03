@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 import org.atomicworkshop.jammachine.JamMachineMod;
 import org.atomicworkshop.jammachine.items.ItemPunchCardWritten;
 import org.atomicworkshop.jammachine.items.ItemPunchCardBlank;
+import org.atomicworkshop.jammachine.sequencing.MusicPlayer;
 import org.atomicworkshop.jammachine.tiles.TileEntitySequencer;
 import org.atomicworkshop.jammachine.util.CollisionMaths;
 import javax.annotation.Nullable;
@@ -94,6 +95,7 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 		final TileEntitySequencer teSequencer = getTileEntity(worldIn, pos);
 		if (teSequencer != null) {
 			teSequencer.stopPlaying();
+			MusicPlayer.stopTrackingSequencerAt(worldIn, pos);
 		}
 
 		super.breakBlock(worldIn, pos, state);
@@ -103,8 +105,6 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	@Deprecated
 	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
 	{
-		//if (!worldIn.isRemote) return;
-
 		boolean isPowered = false;
 		for (final EnumFacing value : EnumFacing.VALUES)
 		{

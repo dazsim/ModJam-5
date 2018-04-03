@@ -2,6 +2,8 @@ package org.atomicworkshop.jammachine.sequencing;
 
 import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -77,6 +79,16 @@ public final class MusicPlayer
 				}
 			}
 		}
+	}
+
+	public static void stopTrackingSequencerAt(World worldIn, BlockPos pos)
+	{
+
+	}
+
+	public static void stopTrackingControllerAt(World worldIn, BlockPos pos)
+	{
+		
 	}
 }
 
