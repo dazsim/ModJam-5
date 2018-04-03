@@ -1,6 +1,7 @@
 package org.atomicworkshop.jammachine.tiles;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -325,19 +326,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		{
 			if ((backX>=0.7192042839004351 && backX<=0.9325510942881259) && (backZ>=0.8448828111319173 && backZ<=0.9298803321497289))
 			{
-				JamMachineMod.logger.info("Eject Card");
-				ItemStack i = saveToCard();
-				
-				//splayerIn.addItemStackToInventory(i);
-				if (!world.isRemote)
-				{
-					playerIn.entityDropItem(i, 0.5f);
-				}
-				this.hasCard=false;
-				if (!world.isRemote)
-				{
-					sendUpdates();
-				}
+				ejectCard(playerIn.posX, playerIn.posY, playerIn.posZ);
 				return true;
 			}
 		}
@@ -469,6 +458,20 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			}
 		}
 		return false;
+	}
+
+	public void ejectCard(double x, double y, double z)
+	{
+		JamMachineMod.logger.info("Eject Card");
+		ItemStack card = saveToCard();
+
+		if (!world.isRemote)
+		{
+			EntityItem entityitem = new EntityItem(this.world, x, y + 0.5, z, card);
+			entityitem.setDefaultPickupDelay();
+			world.spawnEntity(entityitem);
+		}
+		setHasCard(false);
 	}
 
 	public Sequencer getSequencer()
