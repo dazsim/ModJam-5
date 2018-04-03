@@ -1,0 +1,19 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "transform": "forge:default-block",
+    "model": "jammachine:controller"
+    
+  },
+  "variants": {
+    "inventory": {
+      "y ": 180
+    },
+    "facing": {
+      "north": { "model": "jammachine:controller", "y": 270},
+      "south": { "model": "jammachine:controller", "y": 90},
+      "east": { "model": "jammachine:controller"},
+      "west": { "model": "jammachine:controller", "y": 180}
+    }
+  }
+}
