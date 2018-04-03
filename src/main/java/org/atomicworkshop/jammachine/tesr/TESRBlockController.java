@@ -1,5 +1,11 @@
 package org.atomicworkshop.jammachine.tesr;
 
+import org.atomicworkshop.jammachine.libraries.ItemLibrary;
+import org.atomicworkshop.jammachine.sequencing.JamController;
+import org.atomicworkshop.jammachine.sequencing.Pattern;
+import org.atomicworkshop.jammachine.sequencing.Sequencer;
+import org.atomicworkshop.jammachine.tiles.TileEntityController;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -9,13 +15,9 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
-import org.atomicworkshop.jammachine.sequencing.Pattern;
-import org.atomicworkshop.jammachine.sequencing.Sequencer;
-import org.atomicworkshop.jammachine.tiles.TileEntitySequencer;
-import org.atomicworkshop.jammachine.libraries.ItemLibrary;
 
 @SuppressWarnings("OverlyComplexMethod")
-public class TESRBlockController extends TileEntitySpecialRenderer<TileEntitySequencer>
+public class TESRBlockController extends TileEntitySpecialRenderer<TileEntityController>
 {
 	private static final Minecraft mc = Minecraft.getMinecraft();
 
@@ -35,15 +37,15 @@ public class TESRBlockController extends TileEntitySpecialRenderer<TileEntitySeq
 
 	@Override
 	public void render(
-			TileEntitySequencer te,
+			TileEntityController te,
 			double x, double y, double z,
 			float partialTicks,
 			int destroyStage,
 			float alpha) {
 
 		if (te == null) return;
-		final Sequencer sequencer = te.sequencer;
-		if (sequencer == null) return;
+		final JamController controller = te.controller;
+		if (controller == null) return;
 
 		final int facing = te.getBlockMetadata();
 
@@ -65,15 +67,15 @@ public class TESRBlockController extends TileEntitySpecialRenderer<TileEntitySeq
 			//Three squares of space along the top/left hand side, giving roughly 7 blocks of space on the right hand side.
 			GlStateManager.translate(3, 0, 3.5);
 
-			drawBPM(sequencer.getBeatsPerMinute());
+			drawBPM(controller.getBeatsPerMinute());
 
 			GlStateManager.pushAttrib();
 			GlStateManager.disableLighting();
 			GlStateManager.depthMask(true);
 
-			renderSequence(sequencer);
-			renderPatternButtons(sequencer);
-			renderBPMButtons(sequencer);
+			//renderSequence(controller);
+			//renderPatternButtons(controller);
+			renderBPMButtons(controller);
 			if (te.getHasCard())
 			{
 				renderCard();
@@ -122,12 +124,12 @@ public class TESRBlockController extends TileEntitySpecialRenderer<TileEntitySeq
 		}
 		GlStateManager.popMatrix();
 	}
-	private void renderBPMButtons(Sequencer sequencer)
+	private void renderBPMButtons(JamController controller)
 	{
 		//0.7045204265288701,0.21970650094097977
 		//0.9327918869342732,0.2705630830397361
 		final RenderItem itemRenderer = mc.getRenderItem();
-		final int bpm = sequencer.getBeatsPerMinute();
+		final int bpm = controller.getBeatsPerMinute();
 		
 		final FontRenderer fontrenderer = getFontRenderer();
 		final float textScale = 0.05f;
