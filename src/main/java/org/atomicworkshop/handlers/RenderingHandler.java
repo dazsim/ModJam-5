@@ -40,6 +40,12 @@ public class RenderingHandler
 				0,
 				new ModelResourceLocation(Items.punchcardblank, "inventory")
 		);
+		ModelLoader.setCustomModelResourceLocation(
+				ItemLibrary.punchCardWritten,
+				0,
+				new ModelResourceLocation(Items.punchcardwritten, "inventory")
+		);
+		
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntitySequencer.class, new TESRBlockSequencer());
 	}
 }

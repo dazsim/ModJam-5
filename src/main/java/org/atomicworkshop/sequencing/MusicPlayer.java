@@ -17,6 +17,8 @@ public final class MusicPlayer
 	public static void playSong(SequencerSet sequencerSet)
 	{
 		if (sequencerSet == null) return;
+		sequencerSet.updateBpm();
+		if (sequencerSet.getBeatsPerMinute() == 0) return;
 
 		synchronized(sequenceLock) {
 			for (final PlayingSequence playingSequence : playingSequences)
@@ -27,6 +29,12 @@ public final class MusicPlayer
 			PlayingSequence e = new PlayingSequence(sequencerSet);
 			final long currentTimeMillis = System.nanoTime() / 1000000;
 			e.setNextIntervalMillis(currentTimeMillis + (250 / (e.getBeatsPerMinute() / 60)));
+
+			for (final Sequencer sequencer : sequencerSet)
+			{
+				sequencer.setCurrentInterval(0);
+				sequencer.setCurrentPatternIndex(sequencer.getPendingPatternIndex());
+			}
 
 			playingSequences.add(e);
 		}
@@ -58,6 +66,9 @@ public final class MusicPlayer
 
 			for (final PlayingSequence playingSequence : playingSequences)
 			{
+				if (playingSequence.getSequencerSet().getBeatsPerMinute() == 0) {
+					continue;
+				}
 				final long nextIntervalMillis = playingSequence.getNextIntervalMillis();
 				if (currentTimeMillis >= nextIntervalMillis) {
 					final long millisToNextInterval = 250 / (playingSequence.getBeatsPerMinute() / 60);

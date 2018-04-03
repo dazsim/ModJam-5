@@ -46,6 +46,8 @@ public class Sequencer
 		{
 			patterns[i] = new Pattern();
 		}
+
+		beatsPerMinute = 120;
 	}
 
 	public void setAdjacentNoteBlock(EnumFacing direction, Instrument sound)
@@ -213,8 +215,8 @@ public class Sequencer
 	public int incrementNoteBlockNumber()
 	{
 		++noteBlockSearch;
-		if (noteBlockSearch >= currentAdjacentNoteBlocks.size()) {
-			noteBlockSearch %= currentAdjacentNoteBlocks.size();
+		while (noteBlockSearch >= currentAdjacentNoteBlocks.size()) {
+			noteBlockSearch -= currentAdjacentNoteBlocks.size();
 		}
 		return noteBlockSearch;
 	}

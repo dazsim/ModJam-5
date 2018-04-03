@@ -23,6 +23,7 @@ public final class Reference
 
 	public static final class Items {
 		public static final ResourceLocation punchcardblank = resource("punchcardblank");
+		public static final ResourceLocation punchcardwritten = resource("punchcardwritten");
 
 		private Items() { }
 	}
@@ -40,12 +41,13 @@ public final class Reference
 
 	public static final class NBT {
 		public static final String isPlaying = "isPlaying";
-		public static final String songId = "songId";
-		public static final String beatsPerMinute = "bpm";
-		public static final String currentPatternIndex = "currentPattern";
-		public static final String pendingPatternIndex = "pendingPattern";
-		public static final String pattern = "pattern";
-		public static final String sequence = "sequence";
+		public static String songId = "songId";
+		public static String beatsPerMinute = "bpm";
+		public static String currentPatternIndex = "currentPattern";
+		public static String pendingPatternIndex = "pendingPattern";
+		public static String pattern = "pattern";
+		public static String sequence = "sequence";
+		public static String hasCard = "hasCard";
 
 		private NBT() { }
 	}

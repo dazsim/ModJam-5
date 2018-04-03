@@ -3,11 +3,12 @@ package org.atomicworkshop.libraries;
 import javax.annotation.Nonnull;
 
 import org.atomicworkshop.Reference;
+import org.atomicworkshop.items.ItemPunchCardBlank;
+import org.atomicworkshop.items.ItemPunchCardWritten;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
-import org.atomicworkshop.items.ItemPunchCardBlank;
 
 @SuppressWarnings("ALL")
 @ObjectHolder(Reference.MOD_ID)
@@ -20,9 +21,13 @@ public class ItemLibrary
 	@Nonnull
 	public static final ItemBlock synchronizer;
 	@ObjectHolder("punchcardblank")
+	@Nonnull
 	public static final ItemPunchCardBlank punchCardBlank;
 
-	public static final Item itemPunchCard;
+	@ObjectHolder("punchcardwritten")
+	@Nonnull
+	public static final ItemPunchCardWritten punchCardWritten;
+
 	//Trick IntelliJ/Eclipse into thinking that sequencer won't be null
 	static {
 		sequencer = null;
@@ -30,6 +35,6 @@ public class ItemLibrary
 		synchronizer = null;
 
 		punchCardBlank = null;
-		itemPunchCard = null;
+		punchCardWritten = null;
 	}
 }
