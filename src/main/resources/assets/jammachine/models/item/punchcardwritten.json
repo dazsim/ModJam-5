@@ -1,7 +1,7 @@
 {
 	"__comment": "Designed by Workshopcraft with Cubik Studio - https://cubik.studio",
 	"textures": {
-		"particle": "blocks/e_particle",
+		"particle": "jammachine:blocks/e_particle",
 		"texture": "jammachine:blocks/texture"
 	},
 	"elements": [ 	 
@@ -317,5 +317,30 @@
 				"east": { "uv": [ 7.5, 14, 8.5, 15 ], "texture": "#texture" }
 			}
 		}
-	]
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"scale":  [ 0.35, 0.35, 0.35 ]
+		},
+		"thirdperson_lefthand": {
+			"scale":  [ 0.35, 0.35, 0.35 ]
+		},
+		"firstperson_righthand": {
+			"scale":  [ 0.35, 0.35, 0.35 ]
+		},
+		"firstperson_lefthand": {
+			"scale":  [ 0.35, 0.35, 0.35 ]
+		},
+		"gui": {
+			"scale":  [ 0.5, 0.5, 0.5 ]
+		},
+		"head": {
+			"rotation":  [ -90, 0, 0 ],
+			"translation":  [ 0, 6.9565, 0 ],
+			"scale":  [ 0.35, 0.35, 0.35 ]
+		},
+		"ground": {
+			"scale":  [ 0.35, 0.35, 0.35 ]
+		}
+	}
 }
