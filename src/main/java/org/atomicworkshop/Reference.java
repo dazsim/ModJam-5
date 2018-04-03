@@ -14,8 +14,7 @@ public final class Reference
 
 	public static final class Blocks {
 		public static final ResourceLocation sequencer = resource("sequencer");
-		public static final ResourceLocation synchronizer = resource("synchronizer");
-		public static final ResourceLocation wire = resource("wire");
+		public static final ResourceLocation controller = resource("controller");
 
 
 		private Blocks() { }
@@ -30,7 +29,7 @@ public final class Reference
 
 	public static final class TileEntities {
 		public static final String sequencer = tileEntityName("sequencer");
-		public static final String synchronizer = tileEntityName("synchronizer");
+		public static final String controller = tileEntityName("controller");
 
 		private TileEntities() { }
 

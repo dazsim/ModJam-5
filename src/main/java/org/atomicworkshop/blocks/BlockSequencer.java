@@ -5,7 +5,6 @@ import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -20,13 +19,10 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import org.atomicworkshop.ConductorMod;
 import org.atomicworkshop.items.ItemPunchCardWritten;
-import org.atomicworkshop.libraries.CollisionMaths;
+import org.atomicworkshop.util.CollisionMaths;
 import org.atomicworkshop.items.ItemPunchCardBlank;
 import org.atomicworkshop.tiles.TileEntitySequencer;
 import javax.annotation.Nullable;
-import javax.vecmath.AxisAngle4f;
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Quat4f;
 
 @SuppressWarnings("deprecation")
 public class BlockSequencer extends BlockHorizontal implements ITileEntityProvider
@@ -139,7 +135,7 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 		return tileEntity.receiveClientEvent(id, param);
 	}
 
-	private TileEntitySequencer getTileEntity(IBlockAccess world, BlockPos pos) {
+	public TileEntitySequencer getTileEntity(IBlockAccess world, BlockPos pos) {
 		final TileEntity tileEntity = world.getTileEntity(pos);
 		if (tileEntity instanceof TileEntitySequencer) {
 			return (TileEntitySequencer)tileEntity;

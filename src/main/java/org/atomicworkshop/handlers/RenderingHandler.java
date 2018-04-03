@@ -33,7 +33,7 @@ public class RenderingHandler
 		ModelLoader.setCustomModelResourceLocation(
 				ItemLibrary.synchronizer,
 				0,
-				new ModelResourceLocation(Blocks.synchronizer, "inventory")
+				new ModelResourceLocation(Blocks.controller, "inventory")
 		);
 		ModelLoader.setCustomModelResourceLocation(
 				ItemLibrary.punchCardBlank,

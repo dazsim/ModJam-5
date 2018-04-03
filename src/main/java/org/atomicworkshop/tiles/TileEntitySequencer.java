@@ -17,7 +17,6 @@ import javax.annotation.Nullable;
 
 import org.atomicworkshop.ConductorMod;
 import org.atomicworkshop.Reference.NBT;
-import org.atomicworkshop.items.ItemPunchCardWritten;
 import org.atomicworkshop.libraries.ItemLibrary;
 import org.atomicworkshop.sequencing.MusicPlayer;
 import org.atomicworkshop.sequencing.Pattern;
@@ -27,7 +26,6 @@ import org.atomicworkshop.sequencing.SequencerSet;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -55,11 +53,12 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 
 	private UUID sequencerSetId;
 	//TODO: fix privacy later, right now the TESR needs access
-	
+	//FIXME: If breaking sequencer, write last state and drop it as item into the world.
+
 	public Sequencer sequencer = null;
 	private boolean isPlaying;
 
-	private boolean hasSynchronizer()
+	private boolean hasController()
 	{
 		return false;
 	}
@@ -175,7 +174,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		//TODO: Find Synchronizer and get the Sequencer set for it.
 		final SequencerSet sequencerSet;
 
-		if (!hasSynchronizer()) {
+		if (!hasController()) {
 			sequencerSet = new SequencerSet(world, sequencerSetId);
 		} else {
 			//TODO: Resolve SequencerSet from sequencer

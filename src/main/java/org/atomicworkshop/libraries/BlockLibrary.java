@@ -1,11 +1,10 @@
 package org.atomicworkshop.libraries;
 
-import net.minecraft.block.Block;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 import org.atomicworkshop.Reference;
 import org.atomicworkshop.blocks.BlockSequencer;
-import org.atomicworkshop.blocks.BlockSynchronizer;
-import org.atomicworkshop.blocks.BlockWire;
+import org.atomicworkshop.blocks.BlockController;
+
 import javax.annotation.Nonnull;
 
 @SuppressWarnings("ALL")
@@ -17,7 +16,7 @@ public class BlockLibrary
 	@Nonnull
 	public static final BlockWire wire;
 	@Nonnull
-	public static final BlockSynchronizer synchronizer;
+	public static final BlockController synchronizer;
 
 	//Trick IntelliJ into thinking that sequencer won't be null
 	static {

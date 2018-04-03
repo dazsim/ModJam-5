@@ -5,12 +5,10 @@ import org.atomicworkshop.Reference.Blocks;
 import org.atomicworkshop.Reference.Items;
 import org.atomicworkshop.Reference.TileEntities;
 import org.atomicworkshop.blocks.BlockSequencer;
-import org.atomicworkshop.blocks.BlockSynchronizer;
-import org.atomicworkshop.blocks.BlockWire;
+import org.atomicworkshop.blocks.BlockController;
 import org.atomicworkshop.items.ItemPunchCardBlank;
 import org.atomicworkshop.items.ItemPunchCardWritten;
 import org.atomicworkshop.libraries.BlockLibrary;
-import org.atomicworkshop.libraries.ItemLibrary;
 import org.atomicworkshop.tiles.TileEntitySequencer;
 
 import net.minecraft.block.Block;
@@ -22,7 +20,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
-import org.atomicworkshop.tiles.TileEntitySynchronizer;
+import org.atomicworkshop.tiles.TileEntityController;
 
 @SuppressWarnings("SameParameterValue")
 @EventBusSubscriber
@@ -34,10 +32,10 @@ public final class RegistrationHandler
 
 		registerBlock(registry, new BlockSequencer(), Blocks.sequencer);
 		registerBlock(registry, new BlockWire(), Blocks.wire);
-		registerBlock(registry, new BlockSynchronizer(), Blocks.synchronizer);
+		registerBlock(registry, new BlockController(), Blocks.controller);
 
 		GameRegistry.registerTileEntity(TileEntitySequencer.class, TileEntities.sequencer);
-		GameRegistry.registerTileEntity(TileEntitySynchronizer.class, TileEntities.synchronizer);
+		GameRegistry.registerTileEntity(TileEntityController.class, TileEntities.controller);
 		
 	}
 

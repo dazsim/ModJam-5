@@ -10,15 +10,15 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.atomicworkshop.tiles.TileEntitySequencer;
+import org.atomicworkshop.tiles.TileEntityController;
 
 import javax.annotation.Nullable;
 
 import static net.minecraft.block.BlockHorizontal.FACING;
 
-public class BlockSynchronizer extends Block implements ITileEntityProvider
+public class BlockController extends Block implements ITileEntityProvider
 {
-	public BlockSynchronizer() {
+	public BlockController() {
 		super(new MachineMaterial());
 
 		final IBlockState defaultState = blockState.getBaseState()
@@ -59,6 +59,6 @@ public class BlockSynchronizer extends Block implements ITileEntityProvider
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta)
 	{
-		return new TileEntitySequencer();
+		return new TileEntityController();
 	}
 }

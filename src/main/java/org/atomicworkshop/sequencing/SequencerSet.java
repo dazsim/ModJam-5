@@ -1,9 +1,9 @@
 package org.atomicworkshop.sequencing;
 
 import com.google.common.collect.Lists;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.atomicworkshop.ConductorMod;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
@@ -13,7 +13,8 @@ import java.util.function.Consumer;
 public class SequencerSet implements Iterable<Sequencer>
 {
 	private int beatsPerMinute;
-	private final List<Sequencer> sequencers = Lists.newArrayList();
+	private List<Sequencer> sequencers = Lists.newArrayList();
+	private final Object listLock = new Object();
 	private final World world;
 	private final UUID id;
 
@@ -25,22 +26,26 @@ public class SequencerSet implements Iterable<Sequencer>
 
 	public void addSequencer(Sequencer sequencer)
 	{
+
 		if (sequencer.getWorld().provider.getDimension() != world.provider.getDimension()) {
 			ConductorMod.logger.warn("SequencerSet world {} vs Sequencer world {}");
 		}
-
-		sequencers.add(sequencer);
+		synchronized (listLock) {
+			List<Sequencer> sequencers = Lists.newArrayList(this.sequencers);
+			sequencers.add(sequencer);
+			this.sequencers = sequencers;
+		}
 	}
 
 	public void updateBpm()
 	{
-		for (final Sequencer sequencer : sequencers)
-		{
-			//FIXME: (Steven) solve this properly using a synchronizer block
+		for (final Sequencer sequencer : sequencers) {
+			//FIXME: (Steven) solve this properly using a controller block
 			if (sequencer.getBeatsPerMinute() > 0) {
 				beatsPerMinute = Math.max(sequencer.getBeatsPerMinute(), beatsPerMinute);
 			}
 		}
+
 	}
 
 	public long getBeatsPerMinute()
@@ -66,13 +71,16 @@ public class SequencerSet implements Iterable<Sequencer>
 		return sequencers.spliterator();
 	}
 
-	public World getWorld()
-	{
-		return world;
-	}
-
 	public UUID getId()
 	{
 		return id;
+	}
+
+	public void removingSequencer(Sequencer sequencer) {
+		synchronized (listLock) {
+			List<Sequencer> sequencers = Lists.newArrayList(this.sequencers);
+			sequencers.remove(sequencer);
+			this.sequencers = sequencers;
+		}
 	}
 }
