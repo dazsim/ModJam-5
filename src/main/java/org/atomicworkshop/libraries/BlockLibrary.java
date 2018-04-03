@@ -14,14 +14,11 @@ public class BlockLibrary
 	@Nonnull
 	public static final BlockSequencer sequencer;
 	@Nonnull
-	public static final BlockWire wire;
-	@Nonnull
 	public static final BlockController synchronizer;
 
 	//Trick IntelliJ into thinking that sequencer won't be null
 	static {
 		sequencer = null;
-		wire = null;
 		synchronizer = null;
 	}
 }

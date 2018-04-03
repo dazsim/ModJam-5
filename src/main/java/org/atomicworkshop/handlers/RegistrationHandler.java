@@ -31,7 +31,6 @@ public final class RegistrationHandler
 		final IForgeRegistry<Block> registry = registryEvent.getRegistry();
 
 		registerBlock(registry, new BlockSequencer(), Blocks.sequencer);
-		registerBlock(registry, new BlockWire(), Blocks.wire);
 		registerBlock(registry, new BlockController(), Blocks.controller);
 
 		GameRegistry.registerTileEntity(TileEntitySequencer.class, TileEntities.sequencer);
@@ -44,7 +43,6 @@ public final class RegistrationHandler
 		final IForgeRegistry<Item> registry = registryEvent.getRegistry();
 
 		registerItemFromBlock(registry, BlockLibrary.sequencer);
-		registerItemFromBlock(registry, BlockLibrary.wire);
 		registerItemFromBlock(registry, BlockLibrary.synchronizer);
 
 

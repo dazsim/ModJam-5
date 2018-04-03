@@ -26,11 +26,6 @@ public class RenderingHandler
 				new ModelResourceLocation(Blocks.sequencer, "inventory")
 		);
 		ModelLoader.setCustomModelResourceLocation(
-				ItemLibrary.wire,
-				0,
-				new ModelResourceLocation(Blocks.wire, "inventory")
-		);
-		ModelLoader.setCustomModelResourceLocation(
 				ItemLibrary.synchronizer,
 				0,
 				new ModelResourceLocation(Blocks.controller, "inventory")

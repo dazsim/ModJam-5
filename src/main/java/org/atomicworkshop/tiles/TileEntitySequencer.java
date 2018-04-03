@@ -541,14 +541,10 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			if (isPlaying)
 			{
 				sequencer.setPendingPatternIndex(index);
-				
-				
 			} else
 			{
 				sequencer.setCurrentPatternIndex(index);
 				sequencer.setPendingPatternIndex(index);
-				
-				
 			}
 			if (!world.isRemote)
 			{
