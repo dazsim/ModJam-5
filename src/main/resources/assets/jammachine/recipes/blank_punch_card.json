@@ -1,0 +1,22 @@
+{
+  "type": "forge:ore_shaped",
+  "group": "redstone",
+  "pattern": [
+    "PPP",
+    "P P",
+    "RRR"
+  ],
+  "key": {
+    "P": {
+      "type": "forge:ore_dict",
+      "ore": "paper"
+    },
+    "R": {
+      "type": "forge:ore_dict",
+      "ore": "dustRedstone"
+    }
+  },
+  "result": {
+    "item": "jammachine:punchcardblank"
+  }
+}

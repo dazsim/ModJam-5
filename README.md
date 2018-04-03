@@ -1,6 +1,6 @@
-# The Conductor
+# The Jam Machine
 
-The Conductor is a mod about improving the experience of making music in Minecraft.
+The Jam Machine is a mod about improving the experience of making music in Minecraft.
 
 ## The Sequencer
 The Sequencer is a block that can control up to three note blocks (four if you're willing to stand on one to program it).

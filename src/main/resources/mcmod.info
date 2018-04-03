@@ -1,7 +1,7 @@
 [
 {
-  "modid": "theconductor",
-  "name": "The Conductor",
+  "modid": "jammachine",
+  "name": "The Jam Machine",
   "description": "Update Me when surprise ruined.",
   "version": "${version}",
   "mcversion": "${mcversion}",
