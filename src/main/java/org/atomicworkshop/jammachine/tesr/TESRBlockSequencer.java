@@ -196,7 +196,7 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 			final boolean[] rawPatternData = p.getRawPatternData(interval);
 
 	        //outer loop. reset after every outer loop.
-	        for (int pitch=0;pitch<24;pitch++)
+	        for (int pitch=0;pitch<25;pitch++)
 			{
 				final boolean isEnabled = rawPatternData[pitch];
 
