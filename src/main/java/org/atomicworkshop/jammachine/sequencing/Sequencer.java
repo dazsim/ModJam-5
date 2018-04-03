@@ -240,7 +240,8 @@ public class Sequencer
 			marchControllerPattern = true;
 		}
 
-		if ((currentInterval & 3) == 0) {
+		if (currentInterval == 0) {
+
 			updatePendingPattern();
 		}
 

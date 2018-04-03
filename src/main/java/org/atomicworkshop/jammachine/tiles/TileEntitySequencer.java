@@ -237,6 +237,10 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		}
 		if (id == CHANGE_PATTERN) {
 			sequencer.setPendingPatternIndex(type);
+			if (!isPlaying)
+			{
+				sequencer.setCurrentPatternIndex(type);
+			}
 			return true;
 		}
 		
@@ -394,17 +398,11 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 				//set to 7
 				index=7;
 			}
-			if (isPlaying)
-			{
-				sequencer.setPendingPatternIndex(index);
-			} else
+			world.addBlockEvent(pos, getBlockType(), CHANGE_PATTERN, index);
+			sequencer.setPendingPatternIndex(index);
+			if (!isPlaying)
 			{
 				sequencer.setCurrentPatternIndex(index);
-				sequencer.setPendingPatternIndex(index);
-			}
-			if (!world.isRemote)
-			{
-				sendUpdates();
 			}
 			return true;
 		}
