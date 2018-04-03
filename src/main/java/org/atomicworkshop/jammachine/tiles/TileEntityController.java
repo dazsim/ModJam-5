@@ -1,487 +1,213 @@
 package org.atomicworkshop.jammachine.tiles;
 
-import java.util.UUID;
-
-import javax.annotation.Nullable;
-
-import org.atomicworkshop.jammachine.JamMachineMod;
-import org.atomicworkshop.jammachine.Reference;
-import org.atomicworkshop.jammachine.Reference.NBT;
-import org.atomicworkshop.jammachine.libraries.ItemLibrary;
-import org.atomicworkshop.jammachine.sequencing.JamController;
-import org.atomicworkshop.jammachine.sequencing.MusicPlayer;
-import org.atomicworkshop.jammachine.sequencing.Pattern;
-import org.atomicworkshop.jammachine.sequencing.Sequencer;
-import org.atomicworkshop.jammachine.sequencing.SequencerSet;
-
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
 import net.minecraft.world.World;
+import org.atomicworkshop.jammachine.JamMachineMod;
+import org.atomicworkshop.jammachine.Reference;
+import org.atomicworkshop.jammachine.Reference.NBT;
+import org.atomicworkshop.jammachine.sequencing.ControllerPattern;
+import org.atomicworkshop.jammachine.sequencing.JamController;
+import org.atomicworkshop.jammachine.sequencing.MusicPlayer;
+import org.atomicworkshop.jammachine.sequencing.Sequencer;
+import javax.annotation.Nullable;
+import java.util.UUID;
 
-public class TileEntityController extends TileEntity implements ITickable
+public class TileEntityController extends TileEntity
 {
+    //FIXME: If breaking sequencer, write last state and drop it as item into the world.
 
-	private static final int IS_PLAYING = 0;
-	private static final int CHANGE_PATTERN = 1;
-	private boolean hasCard = false;
-	
-	public TileEntityController()
-	{
-		sequencerSetId = UUID.randomUUID();
-	}
+    private static final int IS_PLAYING = 0;
+    private static final int CHANGE_SECTION = 2;
 
-	private UUID sequencerSetId;
-	//TODO: fix privacy later, right now the TESR needs access
-	//FIXME: If breaking sequencer, write last state and drop it as item into the world.
+    private boolean hasCard = false;
 
-	//public Sequencer sequencer = null;
-	public JamController controller =null;
-	private boolean isPlaying;
+    private UUID sequencerSetId;
+    private JamController jamController = null;
+    private boolean isPlaying;
 
-	private boolean hasController()
-	{
-		return false;
-	}
-	public boolean getHasCard()
-	{
-		return hasCard;
-	}
+    private int displayedSection = 0;
 
-	public void setHasCard(boolean iHasCard)
-	{
-		hasCard = iHasCard;
-		sendUpdates();
-	}
+    private ControllerPattern selectedSequencerA = null;
+    private ControllerPattern selectedSequencerB = null;
 
-	@Override
-	public void onChunkUnload()
-	{
-		stopPlaying();
-	}
 
-	@Override
-	protected void setWorldCreate(World worldIn)
-	{
-		setWorld(worldIn);
-	}
+    public TileEntityController()
+    {
+        sequencerSetId = UUID.randomUUID();
+    }
 
-	@Override
-	public void readFromNBT(NBTTagCompound compound)
-	{
-		JamMachineMod.logger.info("read from NBT");
-		super.readFromNBT(compound);
+    @Override
+    public void onChunkUnload()
+    {
+        stopPlaying();
+    }
 
-		final boolean wasPlaying = isPlaying;
-		isPlaying = compound.getBoolean(NBT.isPlaying);
-		hasCard = compound.getBoolean(NBT.hasCard);
-		sequencerSetId = compound.getUniqueId(NBT.songId);
+    @Override
+    protected void setWorldCreate(World worldIn)
+    {
+        setWorld(worldIn);
+    }
 
-		if (sequencerSetId.equals(Reference.EMPTY_UUID)) {
-			sequencerSetId = UUID.randomUUID();
-		}
+    @Override
+    public void readFromNBT(NBTTagCompound compound)
+    {
+        JamMachineMod.logger.info("read from NBT");
 
-		if (controller == null) {
-			controller = new JamController(world, pos);
-			MusicPlayer.startTracking(controller);
-		}
+        super.readFromNBT(compound);
 
-		readCustomDataFromNBT(compound);
+        final boolean wasPlaying = isPlaying;
+        isPlaying = compound.getBoolean(NBT.isPlaying);
+        hasCard = compound.getBoolean(NBT.hasCard);
 
-		updatePlayStatus(wasPlaying);
-	}
+        if (jamController == null) {
+            jamController = new JamController(world, pos);
+            MusicPlayer.startTracking(jamController);
+        }
 
-	private void readCustomDataFromNBT(NBTTagCompound compound)
-	{
-		final NBTTagCompound compoundTag = compound.getCompoundTag(NBT.sequence);
-		if (!compoundTag.hasNoTags())
-		{
-			controller.readFromNBT(compoundTag);
-			JamMachineMod.logger.info("compoundTag: {}", compoundTag);
+        readCustomDataFromNBT(compound);
 
-			if (controller.getBeatsPerMinute() < 60) {
-				//TODO : setDesiredBPM in controller?
-				//controller.setDesiredBPM(120);
-			}
-		}
-	}
+        updatePlayStatus(wasPlaying);
+    }
 
-	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound)
-	{
-		super.writeToNBT(compound);
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    {
+        JamMachineMod.logger.info("writing to NBT");
 
-		compound.setBoolean(NBT.isPlaying, isPlaying);
-		compound.setBoolean(NBT.hasCard, hasCard);
-		compound.setUniqueId(NBT.songId, sequencerSetId);
+        super.writeToNBT(compound);
 
-		writeCustomDataToNBT(compound);
+        compound.setBoolean(NBT.isPlaying, isPlaying);
+        compound.setBoolean(NBT.hasCard, hasCard);
+        compound.setUniqueId(NBT.songId, sequencerSetId);
 
-		JamMachineMod.logger.info("writing to NBT");
-		return compound;
-	}
+        writeCustomDataToNBT(compound);
 
-	private NBTTagCompound writeCustomDataToNBT(NBTTagCompound compound)
-	{
-		if (controller != null)
-		{
-			compound.setTag(NBT.sequence, controller.writeToNBT());
-		}
-		return compound;
-	}
+        return compound;
+    }
 
-	@Nullable
-	@Override
-	public SPacketUpdateTileEntity getUpdatePacket()
-	{
-		final NBTTagCompound updateTag = getUpdateTag();
-		return new SPacketUpdateTileEntity(pos, 0, updateTag);
-	}
+    private void writeCustomDataToNBT(NBTTagCompound compound)
+    {
+        if (jamController != null)
+        {
+            compound.setTag(NBT.sequence, jamController.writeToNBT());
+        }
+    }
 
-	@Override
-	public NBTTagCompound getUpdateTag()
-	{
-		return writeToNBT(new NBTTagCompound());
-	}
+    private void readCustomDataFromNBT(NBTTagCompound compound)
+    {
+        final NBTTagCompound compoundTag = compound.getCompoundTag(NBT.sequence);
+        if (!compoundTag.hasNoTags())
+        {
+            jamController.readFromNBT(compoundTag);
+            JamMachineMod.logger.info("compoundTag: {}", compoundTag);
+        }
+    }
 
-	@Override
-	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt)
-	{
-		super.onDataPacket(net, pkt);
-		final boolean wasPlaying = isPlaying;
-		handleUpdateTag(pkt.getNbtCompound());
 
-		updatePlayStatus(wasPlaying);
-	}
+    @Nullable
+    @Override
+    public SPacketUpdateTileEntity getUpdatePacket()
+    {
+        final NBTTagCompound updateTag = getUpdateTag();
+        return new SPacketUpdateTileEntity(pos, 0, updateTag);
+    }
 
-	private void updatePlayStatus(boolean wasPlaying)
-	{
-		if (isPlaying && !wasPlaying) {
-			startPlaying();
-		} else if (!isPlaying && wasPlaying) {
-			stopPlaying();
-		}
-	}
+    @Override
+    public NBTTagCompound getUpdateTag()
+    {
+        return writeToNBT(new NBTTagCompound());
+    }
 
-	private void startPlaying()
-	{
-		if (world == null || pos == null || !world.isRemote) return;
+    @Override
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt)
+    {
+        super.onDataPacket(net, pkt);
+        final boolean wasPlaying = isPlaying;
+        handleUpdateTag(pkt.getNbtCompound());
 
-		//TODO: Find Synchronizer and get the Sequencer set for it.
-		final SequencerSet sequencerSet;
+        updatePlayStatus(wasPlaying);
+    }
 
-		if (!hasController()) {
-			sequencerSet = new SequencerSet(sequencerSetId);
-		} else {
-			//TODO: Resolve SequencerSet from sequencer
-			sequencerSet = new SequencerSet(sequencerSetId);
-		}
-/*
-		sequencerSet.addSequencer(sequencer);
+    private void updatePlayStatus(boolean wasPlaying)
+    {
+        if (isPlaying && !wasPlaying) {
+            startPlaying();
+        } else if (!isPlaying && wasPlaying) {
+            stopPlaying();
+        }
+    }
 
-		sequencerSet.updateBpm();
+    private void startPlaying()
+    {
+        if (world == null || pos == null || !world.isRemote) return;
 
-		boolean updateBlock = false;
-		for (final EnumFacing horizontal : EnumFacing.HORIZONTALS)
-		{
-			updateBlock |= sequencer.verifyNoteBlockFacing(horizontal);
-		}
-		if (updateBlock) {
-			sendUpdates();
-		}
+        jamController.updateBpm();
 
-		MusicPlayer.playSong(sequencerSet);
-*/
-		world.addBlockEvent(pos, getBlockType(), IS_PLAYING, 1);
-	}
+        boolean updateBlock = false;
+        for (final EnumFacing horizontal : EnumFacing.HORIZONTALS)
+        {
+            for (final Sequencer sequencer : jamController)
+            {
+                updateBlock |= sequencer.verifyNoteBlockFacing(horizontal);
+            }
+        }
 
-	private void sendUpdates() {
-		if (world == null || pos == null) return;
+        if (updateBlock) {
+            sendUpdates();
+        }
 
-		world.markBlockRangeForRenderUpdate(pos, pos);
-		final IBlockState state = world.getBlockState(pos);
-		world.notifyBlockUpdate(pos, state, state, 3);
-		world.scheduleBlockUpdate(pos, getBlockType(), 0, 0);
-		markDirty();
-	}
+        MusicPlayer.playSong(jamController);
 
-	public void stopPlaying()
-	{
-		if (controller != null)
-		{
-			//controller.setCurrentInterval(-1);
-		}
+        world.addBlockEvent(pos, getBlockType(), IS_PLAYING, 1);
+    }
 
-		MusicPlayer.stopPlaying(sequencerSetId);
-		world.addBlockEvent(pos, getBlockType(), IS_PLAYING, 0);
+    private void sendUpdates() {
+        if (world == null || pos == null) return;
 
-	}
+        world.markBlockRangeForRenderUpdate(pos, pos);
+        final IBlockState state = world.getBlockState(pos);
+        world.notifyBlockUpdate(pos, state, state, 3);
+        world.scheduleBlockUpdate(pos, getBlockType(), 0, 0);
+        markDirty();
+    }
 
-	public void notifyPowered(boolean powered)
-	{
-		if (isPlaying != powered) {
-			isPlaying = powered;
-			world.addBlockEvent(pos, getBlockType(), IS_PLAYING, isPlaying ? 1 : 0);
-		}
-	}
+    public void stopPlaying()
+    {
+        if (jamController != null) {
+            MusicPlayer.stopPlaying(jamController.getId());
+        }
 
-	@Override
-	public boolean receiveClientEvent(int id, int type)
-	{
-		if (id == IS_PLAYING) {
-			final boolean wasPlaying = isPlaying;
-			isPlaying = type != 0;
-			updatePlayStatus(wasPlaying);
-			return true;
-		}
-		if (id == CHANGE_PATTERN) {
-			//FIXIT: fix this
-			//sequencer.setPendingPatternIndex(type);
-			return true;
-		}
-		
-		return false;
-	}
+        world.addBlockEvent(pos, getBlockType(), IS_PLAYING, 0);
+    }
 
-	@Override
-	public void update()
-	{
-		if (controller == null) return;
+    public void notifyPowered(boolean powered)
+    {
+        if (isPlaying != powered) {
+            isPlaying = powered;
+            world.addBlockEvent(pos, getBlockType(), IS_PLAYING, isPlaying ? 1 : 0);
+        }
+    }
 
-		final int blockToCheck = (int)(world.getTotalWorldTime() & 3);
-		final EnumFacing facing = EnumFacing.getHorizontal(blockToCheck);
+    @Override
+    public boolean receiveClientEvent(int id, int type)
+    {
+        if (id == IS_PLAYING) {
+            final boolean wasPlaying = isPlaying;
+            isPlaying = type != 0;
+            updatePlayStatus(wasPlaying);
+            return true;
+        }
 
-		//controller.verifyNoteBlockFacing(facing);
-	}
+        if (id == CHANGE_SECTION) {
+            displayedSection = type;
+            return true;
+        }
 
-	public void loadFromCard(ItemStack heldItemStack)
-	{
-		if (heldItemStack.getTagCompound()!=null)
-		{
-			readCustomDataFromNBT(heldItemStack.getTagCompound());
-		}
-		if (!world.isRemote)
-		{
-			sendUpdates();
-		}
-	}
-
-	public ItemStack saveToCard() {
-		ItemStack i = new ItemStack(ItemLibrary.punchCardWritten,1);
-		i.setTagCompound(writeCustomDataToNBT(new NBTTagCompound()));
-		
-		return i;
-	}
-
-	public boolean checkPlayerInteraction(double x, double z,EntityPlayer playerIn)
-	{
-		//if (world.isRemote) return false;
-		//back up input coordinates
-		double backX,backZ;
-		
-		backX = x;
-		backZ = z;
-
-		//x = 1-x;
-		//z = 1-z;
-		if (x < 0 || x > 1 || z < 0 || z > 1) return false;
-
-		JamMachineMod.logger.info("adjusted hitlocation {},{}", x, z);
-		//Scale to button grid, these may not be exact because we're using item rendering instead of generating quads.
-		//Minecraft probably applies additional scaling/transforms when rendering the item (they appear to be centered,
-		//rather than top-left aligned as the code implies)
-		x *= 28; x -= 2.5;
-		z *= 29; z -= 0.5;
-
-		JamMachineMod.logger.info("checking player interaction at scaled {},{}", x, z);
-
-		if (x >= 0 && x < 16 && z >= 0 && z < 26) {
-			if (controller == null) {
-				controller = new JamController(world, pos);
-				MusicPlayer.startTracking(controller);
-			}
-
-			//Hit a sequence button
-			//final Pattern currentPattern = controller.getCurrentPattern();
-
-			final int pitch = 25 - (int)z;
-			final int interval = (int)x;
-			//TODO
-			//boolean isEnabled = currentPattern.invertPitchAtInternal(interval, pitch);
-			//TODO
-			//JamMachineMod.logger.info("Inverting pitch {} at interval {} - {}", pitch, interval, isEnabled);
-			if (!world.isRemote)
-			{
-				sendUpdates();
-			}
-			return true;
-		}
-		//did not click any buttons on pattern array
-		//check coords for ejecting a card.
-		if (this.hasCard)
-		{
-			if ((backX>=0.7192042839004351 && backX<=0.9325510942881259) && (backZ>=0.8448828111319173 && backZ<=0.9298803321497289))
-			{
-				JamMachineMod.logger.info("Eject Card");
-				ItemStack i = saveToCard();
-				
-				//splayerIn.addItemStackToInventory(i);
-				if (!world.isRemote)
-				{
-					playerIn.entityDropItem(i, 0.5f);
-				}
-				this.hasCard=false;
-				if (!world.isRemote)
-				{
-					sendUpdates();
-				}
-				return true;
-			}
-		}
-		
-		//check coords for setting bank
-		if ((backX>=0.7582737759610318 && backX<=0.8919838353273448) && (backZ>=0.45915143708791994 && backZ<=0.5098249754671347))
-		{
-			double bankWidth = 0.8919838353273448 - 0.7582737759610318;
-			double bankHeight = 0.5098249754671347 - 0.45915143708791994;
-			double offX = backX - 0.7582737759610318;
-			double offZ = backZ - 0.45915143708791994;
-			int index = 0;
-			if (offX < (bankWidth/4))
-			{
-				if (offZ < (bankHeight/2))
-				{
-					//set to 0
-					index = 0;
-					
-				} else
-				{
-					//set to 4
-					index = 4;
-					
-				}
-			} else
-			if (offX < (bankWidth/2))
-			{
-				if (offZ < (bankHeight/2))
-				{
-					//set to 1
-					index = 1;
-				} else
-				{
-					//set to 5
-					index = 5;
-				}
-			} else
-			if (offX < ((bankWidth*3)/4))
-			{
-				if (offZ < (bankHeight/2))
-				{
-					//set to 2
-					index = 2;
-				} else
-				{
-					//set to 6
-					index=6;
-				}
-			} else
-			if (offZ < (bankHeight/2))
-			{
-				//set to 3
-				index=3;
-			} else
-			{
-				//set to 7
-				index=7;
-			}
-			if (isPlaying)
-			{
-				//sequencer.setPendingPatternIndex(index);
-			} else
-			{
-				//sequencer.setCurrentPatternIndex(index);
-				//sequencer.setPendingPatternIndex(index);
-			}
-			if (!world.isRemote)
-			{
-				sendUpdates();
-			}
-			return true;
-		}
-		//0.7045204265288701,0.21970650094097977
-		//0.9327918869342732,0.2705630830397361
-		//BPM UI buttons
-		if ((backX>=0.7045204265288701 && backX<=0.9327918869342732) && (backZ>=0.21970650094097977 && backZ<=0.2705630830397361))
-		{
-			double bpmUIWidth = 0.9327918869342732 - 0.7045204265288701;
-			double offX = backX - 0.7045204265288701;
-			if (offX<=(bpmUIWidth/4))
-			{
-				//-10
-				if (controller.getBeatsPerMinute()>10)
-				{
-					//TODO
-					//controller.setDesiredBPM(controller.getBeatsPerMinute()-10);
-					if (!world.isRemote)
-					{
-						sendUpdates();
-					}
-					return true;
-				}
-				
-			} else
-			if (offX<=(bpmUIWidth/2))
-			{
-				//-1
-				//TODO
-				/*
-				if (sequencer.getBeatsPerMinute()>1)
-				{
-					sequencer.setDesiredBPM(sequencer.getBeatsPerMinute()-1);
-					if (!world.isRemote)
-					{
-						sendUpdates();
-					}
-					return true;
-				}*/
-			} else
-			if (offX<=(bpmUIWidth*3)/4)
-			{
-				//+1
-				//TODO
-				/*
-				if (sequencer.getBeatsPerMinute()<240)
-				{
-					sequencer.setDesiredBPM(sequencer.getBeatsPerMinute()+1);
-					if (!world.isRemote)
-					{
-						sendUpdates();
-					}
-					return true;
-				}*/
-			} else
-			{
-				//+10
-				//TODO
-				/*
-				if (sequencer.getBeatsPerMinute()<230)
-				{
-					sequencer.setDesiredBPM(sequencer.getBeatsPerMinute()+10);
-					if (!world.isRemote)
-					{
-						sendUpdates();
-					}
-					return true;
-				}
-				*/
-			}
-		}
-		return false;
-	}
+        return false;
+    }
 }
