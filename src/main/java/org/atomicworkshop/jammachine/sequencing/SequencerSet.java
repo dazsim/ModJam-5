@@ -1,6 +1,8 @@
 package org.atomicworkshop.jammachine.sequencing;
 
 import com.google.common.collect.Lists;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import org.atomicworkshop.jammachine.JamMachineMod;
 
@@ -82,5 +84,15 @@ public class SequencerSet implements Iterable<Sequencer>
 			sequencers.remove(sequencer);
 			this.sequencers = sequencers;
 		}
+	}
+
+	public void readFromNBT(NBTTagCompound compoundTag)
+	{
+
+	}
+
+	public NBTBase writeToNBT()
+	{
+		return null;
 	}
 }

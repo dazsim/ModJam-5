@@ -185,9 +185,13 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 
 		sequencerSet.updateBpm();
 
+		boolean updateBlock = false;
 		for (final EnumFacing horizontal : EnumFacing.HORIZONTALS)
 		{
-			verifyNoteBlockFacing(horizontal);
+			updateBlock |= sequencer.verifyNoteBlockFacing(horizontal);
+		}
+		if (updateBlock) {
+			sendUpdates();
 		}
 
 		MusicPlayer.playSong(sequencerSet);
@@ -313,88 +317,10 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		final int blockToCheck = (int)(world.getTotalWorldTime() & 3);
 		final EnumFacing facing = EnumFacing.getHorizontal(blockToCheck);
 
-		verifyNoteBlockFacing(facing);
+		sequencer.verifyNoteBlockFacing(facing);
 	}
 
-	private void verifyNoteBlockFacing(EnumFacing facing)
-	{
-		final BlockPos offset = pos.offset(facing.getOpposite());
-		final IBlockState noteBlockState = world.getBlockState(offset);
 
-		@Nullable
-		final Instrument instrument;
-		if (Blocks.NOTEBLOCK.equals(noteBlockState.getBlock()))
-		{
-			final IBlockState instrumentBlockState = world.getBlockState(offset.down());
-			instrument = getInstrumentFromBlockState(instrumentBlockState);
-		} else
-		{
-			instrument = null;
-		}
-
-		final Instrument instrumentFromNoteBlock = sequencer.getInstrumentFromNoteBlock(facing);
-
-		if (instrument != instrumentFromNoteBlock) {
-			sequencer.setAdjacentNoteBlock(facing, instrument);
-			sendUpdates();
-		}
-	}
-
-	@SuppressWarnings("ObjectEquality") //Disabled because this is super close to vanilla's TileEntity stuff.
-	private static Instrument getInstrumentFromBlockState(IBlockState state)
-	{
-		//Blatantly ripped from TileEntityNote
-		final Material material = state.getMaterial();
-
-		if (material == Material.ROCK)
-		{
-			return BASSDRUM;
-		}
-
-		if (material == Material.SAND)
-		{
-			return SNARE;
-		}
-
-		if (material == Material.GLASS)
-		{
-			return CLICKS;
-		}
-
-		if (material == Material.WOOD)
-		{
-			return BASSGUITAR;
-		}
-
-		final Block block = state.getBlock();
-
-		if (block == Blocks.CLAY)
-		{
-			return FLUTE;
-		}
-
-		if (block == Blocks.GOLD_BLOCK)
-		{
-			return BELL;
-		}
-
-		if (block == Blocks.WOOL)
-		{
-			return GUITAR;
-		}
-
-		if (block == Blocks.PACKED_ICE)
-		{
-			return CHIME;
-		}
-
-		if (block == Blocks.BONE_BLOCK)
-		{
-			return XYLOPHONE;
-		}
-		return PIANO;
-		
-	}
 
 
 	public void loadFromCard(ItemStack heldItemStack)
