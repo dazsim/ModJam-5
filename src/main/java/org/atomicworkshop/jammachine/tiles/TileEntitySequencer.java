@@ -63,6 +63,12 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 	}
 
 	@Override
+	protected void setWorldCreate(World worldIn)
+	{
+		setWorld(worldIn);
+	}
+
+	@Override
 	public void readFromNBT(NBTTagCompound compound)
 	{
 		JamMachineMod.logger.info("read from NBT");
