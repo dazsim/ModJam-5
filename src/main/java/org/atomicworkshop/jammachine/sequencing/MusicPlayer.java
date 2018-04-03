@@ -16,6 +16,7 @@ public final class MusicPlayer
 {
 	private static final List<PlayingSequence> playingSequences = Lists.newArrayList();
 	private static final Object sequenceLock = new Object();
+	private static long lastUpdateIndex = Long.MIN_VALUE;
 
 	public static void playSong(SequencerSet sequencerSet)
 	{
@@ -92,6 +93,7 @@ public final class MusicPlayer
 	{
 		synchronized (trackingLock)
 		{
+			lastUpdateIndex++;
 			trackedSequencers.removeIf(sequencer ->
 					sequencer.getWorld().provider.getDimension() == worldIn.provider.getDimension() &&
 							pos.equals(sequencer.getBlockPos()));
@@ -102,6 +104,7 @@ public final class MusicPlayer
 	{
 		synchronized (trackingLock)
 		{
+			lastUpdateIndex++;
 			trackedControllers.removeIf(controller ->
 					controller.getWorld().provider.getDimension() == worldIn.provider.getDimension() &&
 							pos.equals(controller.getPos()));
@@ -112,6 +115,7 @@ public final class MusicPlayer
 	{
 		synchronized (trackingLock)
 		{
+			lastUpdateIndex++;
 			for (final JamController trackedController : trackedControllers)
 			{
 				if (trackedController.getId().equals(controller.getId())) {
@@ -126,6 +130,7 @@ public final class MusicPlayer
 	{
 		synchronized (trackingLock)
 		{
+			lastUpdateIndex++;
 			for (final Sequencer trackedSequencer : trackedSequencers)
 			{
 				if (trackedSequencer.getId().equals(sequencer.getId())) {
@@ -133,6 +138,28 @@ public final class MusicPlayer
 				}
 			}
 			trackedSequencers.add(sequencer);
+		}
+	}
+
+	public static Sequencer getSequencerById(UUID sequencerId)
+	{
+		synchronized (trackingLock)
+		{
+			for (final Sequencer trackedSequencer : trackedSequencers)
+			{
+				if (trackedSequencer.getId().equals(sequencerId)) {
+					return trackedSequencer;
+				}
+			}
+		}
+		return null;
+	}
+
+	public static long getLastUpdateIndex()
+	{
+		synchronized (trackingLock)
+		{
+			return lastUpdateIndex;
 		}
 	}
 }

@@ -8,7 +8,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import org.atomicworkshop.jammachine.JamMachineMod;
-import org.atomicworkshop.jammachine.Reference;
 import org.atomicworkshop.jammachine.Reference.NBT;
 import org.atomicworkshop.jammachine.sequencing.ControllerPattern;
 import org.atomicworkshop.jammachine.sequencing.JamController;
@@ -32,14 +31,57 @@ public class TileEntityController extends TileEntity
 
     private int displayedSection = 0;
 
-    private ControllerPattern selectedSequencerA = null;
-    private ControllerPattern selectedSequencerB = null;
+    private final ControllerPattern[] selectedSequencers = new ControllerPattern[2];
 
+    public ControllerPattern getSelectedSequence(int index) {
+        index &= 1;
+        ControllerPattern selectedSequencer = selectedSequencers[index];
+
+        if (selectedSequencer != null) {
+            return selectedSequencer;
+        }
+
+        if (jamController == null) {
+            jamController = new JamController(world, pos);
+        }
+
+        //find available sequencers.
+        jamController.findSequencers();
+
+        final int alternateIndex = 1 - index;
+        final ControllerPattern alternativeSequencer = selectedSequencers[alternateIndex];
+        for (final Sequencer sequencer : jamController)
+        {
+            if (alternativeSequencer != null && alternativeSequencer.getSequencerId().equals(sequencer.getId())) {
+                continue;
+            }
+            selectedSequencer = jamController.getControllerPatternForId(sequencer.getId());
+        }
+
+        if (selectedSequencer != null) {
+            selectedSequencers[index] = selectedSequencer;
+        }
+
+        return selectedSequencer;
+    }
 
     public TileEntityController()
     {
         sequencerSetId = UUID.randomUUID();
     }
+
+    public int getDisplayedSection()
+    {
+        return displayedSection;
+    }
+
+    public long getBeatsPerMinute() {
+        if (jamController != null) {
+            return jamController.getBeatsPerMinute();
+        }
+        return 120;
+    }
+
 
     @Override
     public void onChunkUnload()
@@ -209,5 +251,15 @@ public class TileEntityController extends TileEntity
         }
 
         return false;
+    }
+
+    public JamController getController()
+    {
+        return jamController;
+    }
+
+    public boolean hasCard()
+    {
+        return hasCard;
     }
 }

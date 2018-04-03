@@ -40,7 +40,11 @@ class PlayingSequence
 	{
 		for (final Sequencer sequencer : sequencerSet)
 		{
-			sequencer.incrementInterval();
+			if (sequencer.incrementInterval()) {
+				sequencerSet.marchInterval();
+				final int currentPatternIndexForSequencer = sequencerSet.getCurrentPatternIndexForSequencer(sequencer.getId());
+				sequencer.setCurrentPatternIndex(currentPatternIndexForSequencer);
+			}
 
 			playSequencer(sequencer);
 		}

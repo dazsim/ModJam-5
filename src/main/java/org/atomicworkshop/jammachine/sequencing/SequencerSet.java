@@ -17,7 +17,7 @@ public class SequencerSet implements Iterable<Sequencer>
 {
 	private int beatsPerMinute;
 	private List<Sequencer> sequencers = Lists.newArrayList();
-	private List<ControllerPattern> sections = Lists.newArrayList();
+
 	private final Object listLock = new Object();
 	private final UUID id;
 
@@ -89,5 +89,21 @@ public class SequencerSet implements Iterable<Sequencer>
 	public NBTBase writeToNBT()
 	{
 		return null;
+	}
+
+	public void marchInterval()
+	{
+
+	}
+
+	public int getCurrentPatternIndexForSequencer(UUID id)
+	{
+		for (final Sequencer sequencer : sequencers)
+		{
+			if (sequencer.getId().equals(id)) {
+				return sequencer.getCurrentPatternIndex();
+			}
+		}
+		return 0;
 	}
 }

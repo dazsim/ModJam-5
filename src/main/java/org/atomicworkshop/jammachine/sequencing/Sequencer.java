@@ -227,19 +227,24 @@ public class Sequencer
 		return noteBlockSearch;
 	}
 
-	public void incrementInterval()
+	public boolean incrementInterval()
 	{
+		boolean marchControllerPattern = false;
 		++currentInterval;
 		if (currentInterval >= 16) {
 			currentInterval = 0;
 			//Setting the noteBlockSearch to 0 here ensures that the sounds played per pattern are deterministic
 			//for a given pattern
 			noteBlockSearch = 0;
+
+			marchControllerPattern = true;
 		}
 
 		if ((currentInterval & 3) == 0) {
 			updatePendingPattern();
 		}
+
+		return marchControllerPattern;
 	}
 
 	public boolean verifyNoteBlockFacing(EnumFacing facing)

@@ -44,7 +44,7 @@ public class TESRBlockController extends TileEntitySpecialRenderer<TileEntityCon
 			float alpha) {
 
 		if (te == null) return;
-		final JamController controller = te.controller;
+		final JamController controller = te.getController();
 		if (controller == null) return;
 
 		final int facing = te.getBlockMetadata();
@@ -76,7 +76,7 @@ public class TESRBlockController extends TileEntitySpecialRenderer<TileEntityCon
 			//renderSequence(controller);
 			//renderPatternButtons(controller);
 			renderBPMButtons(controller);
-			if (te.getHasCard())
+			if (te.hasCard())
 			{
 				renderCard();
 			}

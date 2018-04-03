@@ -11,4 +11,22 @@ public class ControllerPattern
 	Sequencer locatedSequencer;
 	BlockPos expectedSequencerLocation;
 	List<Byte> patternAtInterval = Lists.newArrayList();
+
+	public UUID getSequencerId()
+	{
+		return sequencerId;
+	}
+
+	public byte getPatternAtInterval(int currentInterval)
+	{
+		if (currentInterval < patternAtInterval.size()) {
+			return patternAtInterval.get(currentInterval);
+		}
+		return 0;
+	}
+
+	public boolean isForLoadedSequencer(UUID id)
+	{
+		return locatedSequencer != null && locatedSequencer.getId().equals(id);
+	}
 }
