@@ -344,12 +344,14 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		}
 		
 		//check coords for setting bank
-		if ((backX>=0.7582737759610318 && backX<=0.8919838353273448) && (backZ>=0.45915143708791994 && backZ<=0.5098249754671347))
+		//0.7062424864522878,0.43397610552808197
+		//0.9593446274414177,0.5463901310950732
+		if ((backX>=0.7062424864522878 && backX<=0.9593446274414177) && (backZ>=0.43397610552808197 && backZ<=0.5463901310950732))
 		{
-			double bankWidth = 0.8919838353273448 - 0.7582737759610318;
-			double bankHeight = 0.5098249754671347 - 0.45915143708791994;
-			double offX = backX - 0.7582737759610318;
-			double offZ = backZ - 0.45915143708791994;
+			double bankWidth = 0.9593446274414177 - 0.7062424864522878;
+			double bankHeight = 0.5463901310950732 - 0.43397610552808197;
+			double offX = backX - 0.7062424864522878;
+			double offZ = backZ - 0.43397610552808197;
 			int index = 0;
 			if (offX < (bankWidth/4))
 			{
@@ -404,6 +406,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			{
 				sequencer.setCurrentPatternIndex(index);
 			}
+
 			return true;
 		}
 		//0.7045204265288701,0.21970650094097977

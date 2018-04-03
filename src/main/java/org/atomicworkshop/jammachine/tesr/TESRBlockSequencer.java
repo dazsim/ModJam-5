@@ -93,7 +93,8 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 
 		GlStateManager.pushMatrix();
 		{
-			GlStateManager.translate(18.5, 0, 12);
+			GlStateManager.translate(17.5, 0, 12);
+			GlStateManager.scale(2, 2, 2);
 			for (int patternIndex = 0; patternIndex < 8; patternIndex++)
 			{
 				final int patternButtonX = patternIndex & 3;
