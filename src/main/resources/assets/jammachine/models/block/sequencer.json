@@ -1,7 +1,7 @@
 {
 	"__comment": "Designed by Workshopcraft with Cubik Studio - https://cubik.studio",
 	"textures": {
-		"particle": "blocks/particle",
+		"particle": "jammachine:blocks/particle",
 		"texture": "jammachine:blocks/texture"
 	},
 	"elements": [ 	 
@@ -24,9 +24,8 @@
 			"to": [ 17, 7.5, 16 ],
 			"rotation": { "origin": [ 0, 7, 0 ], "axis": "z", "angle": -22.5 },
 			"faces": {
-				"down": { "uv": [ 7.5, 0, 16, 8 ], "texture": "#texture" },
+				"down": { "uv": [ 1.5, 0, 10, 8 ], "texture": "#texture" },
 				"up": { "uv": [ 0, 0, 16, 16 ], "texture": "#texture" },
-				"north": { "uv": [ 0, 0, 16, 1 ], "texture": "#texture" },
 				"south": { "uv": [ 0, 0, 16, 1 ], "texture": "#texture" },
 				"west": { "uv": [ 0, 0, 16, 1 ], "texture": "#texture" },
 				"east": { "uv": [ 0, 0, 16, 1 ], "texture": "#texture" }
