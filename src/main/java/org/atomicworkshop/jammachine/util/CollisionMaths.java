@@ -105,10 +105,10 @@ public final class CollisionMaths {
 					finalHitVector = hitVector;
 					break;
 				case WEST:
-					finalHitVector = new Vec3d(1-hitVector.x, hitVector.y, hitVector.z);
+					finalHitVector = new Vec3d(hitVector.z, hitVector.y, 1-hitVector.x);
 					break;
 				case EAST:
-					finalHitVector = new Vec3d(hitVector.x, hitVector.y, 1-hitVector.z);
+					finalHitVector = new Vec3d(1-hitVector.z, hitVector.y, hitVector.x);
 					break;
 				default:
 					finalHitVector = hitVector;
