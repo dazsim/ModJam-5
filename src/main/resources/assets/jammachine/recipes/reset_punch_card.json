@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+  {
+        "item": "jammachine:punchcardwritten",
+        "data": 0
+  }
+  ],
+  
+  "result": {
+    "item": "jammachine:punchcardblank",
+    "data" : 0
+  }
+}
