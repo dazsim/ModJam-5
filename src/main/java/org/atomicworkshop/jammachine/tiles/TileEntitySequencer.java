@@ -9,6 +9,7 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.atomicworkshop.jammachine.JamMachineMod;
 import org.atomicworkshop.jammachine.Reference;
@@ -37,7 +38,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 	//TODO: fix privacy later, right now the TESR needs access
 	//FIXME: If breaking sequencer, write last state and drop it as item into the world.
 
-	private Sequencer sequencer = null;
+	public Sequencer sequencer = null;
 	private boolean isPlaying;
 
 	private boolean hasController()
@@ -82,6 +83,11 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			sequencerSetId = UUID.randomUUID();
 		}
 
+		if (sequencer == null) {
+			sequencer = new Sequencer(world, pos);
+			MusicPlayer.startTracking(sequencer);
+		}
+
 		readCustomDataFromNBT(compound);
 
 		updatePlayStatus(wasPlaying);
@@ -92,11 +98,6 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		final NBTTagCompound compoundTag = compound.getCompoundTag(NBT.sequence);
 		if (!compoundTag.hasNoTags())
 		{
-			if (sequencer == null) {
-				sequencer = new Sequencer(world, pos);
-				MusicPlayer.startTracking(sequencer);
-			}
-
 			sequencer.readFromNBT(compoundTag);
 			JamMachineMod.logger.info("compoundTag: {}", compoundTag);
 
@@ -236,10 +237,6 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		}
 		if (id == CHANGE_PATTERN) {
 			sequencer.setPendingPatternIndex(type);
-			if (!isPlaying)
-			{
-				sequencer.setCurrentPatternIndex(type);
-			}
 			return true;
 		}
 		
@@ -343,14 +340,16 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		}
 		
 		//check coords for setting bank
-		//0.7062424864522878,0.43397610552808197
-		//0.9593446274414177,0.5463901310950732
-		if ((backX>=0.7062424864522878 && backX<=0.9593446274414177) && (backZ>=0.43397610552808197 && backZ<=0.5463901310950732))
+		if ((backX>=0.7582737759610318 && backX<=0.8919838353273448) && (backZ>=0.45915143708791994 && backZ<=0.5098249754671347))
 		{
-			double bankWidth = 0.9593446274414177 - 0.7062424864522878;
-			double bankHeight = 0.5463901310950732 - 0.43397610552808197;
-			double offX = backX - 0.7062424864522878;
-			double offZ = backZ - 0.43397610552808197;
+			if (sequencer == null) {
+				sequencer = new Sequencer(world, pos);
+				MusicPlayer.startTracking(sequencer);
+			}
+			double bankWidth = 0.8919838353273448 - 0.7582737759610318;
+			double bankHeight = 0.5098249754671347 - 0.45915143708791994;
+			double offX = backX - 0.7582737759610318;
+			double offZ = backZ - 0.45915143708791994;
 			int index = 0;
 			if (offX < (bankWidth/4))
 			{
@@ -399,13 +398,18 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 				//set to 7
 				index=7;
 			}
-			world.addBlockEvent(pos, getBlockType(), CHANGE_PATTERN, index);
-			sequencer.setPendingPatternIndex(index);
-			if (!isPlaying)
+			if (isPlaying)
+			{
+				sequencer.setPendingPatternIndex(index);
+			} else
 			{
 				sequencer.setCurrentPatternIndex(index);
+				sequencer.setPendingPatternIndex(index);
 			}
-
+			if (!world.isRemote)
+			{
+				sendUpdates();
+			}
 			return true;
 		}
 		//0.7045204265288701,0.21970650094097977
@@ -413,6 +417,10 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		//BPM UI buttons
 		if ((backX>=0.7045204265288701 && backX<=0.9327918869342732) && (backZ>=0.21970650094097977 && backZ<=0.2705630830397361))
 		{
+			if (sequencer == null) {
+				sequencer = new Sequencer(world, pos);
+				MusicPlayer.startTracking(sequencer);
+			}
 			double bpmUIWidth = 0.9327918869342732 - 0.7045204265288701;
 			double offX = backX - 0.7045204265288701;
 			if (offX<=(bpmUIWidth/4))
@@ -469,14 +477,5 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			}
 		}
 		return false;
-	}
-
-	public Sequencer getSequencer()
-	{
-		if (sequencer == null && world != null && pos != null) {
-			sequencer = new Sequencer(world, pos);
-		}
-
-		return sequencer;
 	}
 }
