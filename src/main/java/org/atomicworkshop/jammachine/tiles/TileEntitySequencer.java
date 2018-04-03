@@ -1,33 +1,7 @@
 package org.atomicworkshop.jammachine.tiles;
 
-import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.BASSDRUM;
-import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.BASSGUITAR;
-import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.BELL;
-import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.CHIME;
-import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.CLICKS;
-import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.FLUTE;
-import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.GUITAR;
-import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.PIANO;
-import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.SNARE;
-import static net.minecraftforge.event.world.NoteBlockEvent.Instrument.XYLOPHONE;
-
-import java.util.UUID;
-
-import javax.annotation.Nullable;
-
-import org.atomicworkshop.jammachine.JamMachineMod;
-import org.atomicworkshop.jammachine.Reference.NBT;
-import org.atomicworkshop.jammachine.sequencing.Pattern;
-import org.atomicworkshop.jammachine.sequencing.Sequencer;
-import org.atomicworkshop.jammachine.sequencing.SequencerSet;
-import org.atomicworkshop.jammachine.libraries.ItemLibrary;
-import org.atomicworkshop.jammachine.sequencing.MusicPlayer;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -37,7 +11,16 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.event.world.NoteBlockEvent.Instrument;
+import org.atomicworkshop.jammachine.JamMachineMod;
+import org.atomicworkshop.jammachine.Reference;
+import org.atomicworkshop.jammachine.Reference.NBT;
+import org.atomicworkshop.jammachine.libraries.ItemLibrary;
+import org.atomicworkshop.jammachine.sequencing.MusicPlayer;
+import org.atomicworkshop.jammachine.sequencing.Pattern;
+import org.atomicworkshop.jammachine.sequencing.Sequencer;
+import org.atomicworkshop.jammachine.sequencing.SequencerSet;
+import javax.annotation.Nullable;
+import java.util.UUID;
 
 public class TileEntitySequencer extends TileEntity implements ITickable
 {
@@ -66,11 +49,13 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 	{
 		return hasCard;
 	}
+
 	public void setHasCard(boolean iHasCard)
 	{
 		hasCard = iHasCard;
 		sendUpdates();
 	}
+
 	@Override
 	public void onChunkUnload()
 	{
@@ -86,34 +71,40 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 	@Override
 	public void readFromNBT(NBTTagCompound compound)
 	{
+		JamMachineMod.logger.info("read from NBT");
 		super.readFromNBT(compound);
-		boolean wasPlaying = isPlaying;
+
+		final boolean wasPlaying = isPlaying;
 		isPlaying = compound.getBoolean(NBT.isPlaying);
 		hasCard = compound.getBoolean(NBT.hasCard);
 		sequencerSetId = compound.getUniqueId(NBT.songId);
-		if (sequencerSetId.equals(UUID.fromString("00000000-0000-0000-0000-000000000000"))) {
+
+		if (sequencerSetId.equals(Reference.EMPTY_UUID)) {
 			sequencerSetId = UUID.randomUUID();
 		}
 
 		if (sequencer == null) {
 			sequencer = new Sequencer(world, pos);
+			MusicPlayer.startTracking(sequencer);
 		}
 
+		readCustomDataFromNBT(compound);
+
+		updatePlayStatus(wasPlaying);
+	}
+
+	private void readCustomDataFromNBT(NBTTagCompound compound)
+	{
 		final NBTTagCompound compoundTag = compound.getCompoundTag(NBT.sequence);
 		if (!compoundTag.hasNoTags())
 		{
 			sequencer.readFromNBT(compoundTag);
 			JamMachineMod.logger.info("compoundTag: {}", compoundTag);
-			JamMachineMod.logger.info("read from NBT");
+
 			if (sequencer.getBeatsPerMinute() < 60) {
-				createDemoSong();
-				JamMachineMod.logger.info("created demo data (no bpm)");
+				sequencer.setDesiredBPM(120);
 			}
-		} else {
-			createDemoSong();
-			JamMachineMod.logger.info("created demo data (no tags)");
 		}
-		updatePlayStatus(wasPlaying);
 	}
 
 	@Override
@@ -124,13 +115,19 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		compound.setBoolean(NBT.isPlaying, isPlaying);
 		compound.setBoolean(NBT.hasCard, hasCard);
 		compound.setUniqueId(NBT.songId, sequencerSetId);
-		
+
+		writeCustomDataToNBT(compound);
+
+		JamMachineMod.logger.info("writing to NBT");
+		return compound;
+	}
+
+	private NBTTagCompound writeCustomDataToNBT(NBTTagCompound compound)
+	{
 		if (sequencer != null)
 		{
 			compound.setTag(NBT.sequence, sequencer.writeToNBT());
 		}
-
-		JamMachineMod.logger.info("writing to NBT");
 		return compound;
 	}
 
@@ -175,19 +172,23 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		final SequencerSet sequencerSet;
 
 		if (!hasController()) {
-			sequencerSet = new SequencerSet(world, sequencerSetId);
+			sequencerSet = new SequencerSet(sequencerSetId);
 		} else {
 			//TODO: Resolve SequencerSet from sequencer
-			sequencerSet = new SequencerSet(world, sequencerSetId);
+			sequencerSet = new SequencerSet(sequencerSetId);
 		}
 
 		sequencerSet.addSequencer(sequencer);
 
 		sequencerSet.updateBpm();
 
+		boolean updateBlock = false;
 		for (final EnumFacing horizontal : EnumFacing.HORIZONTALS)
 		{
-			verifyNoteBlockFacing(horizontal);
+			updateBlock |= sequencer.verifyNoteBlockFacing(horizontal);
+		}
+		if (updateBlock) {
+			sendUpdates();
 		}
 
 		MusicPlayer.playSong(sequencerSet);
@@ -212,7 +213,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			sequencer.setCurrentInterval(-1);
 		}
 
-		MusicPlayer.stopPlaying(new SequencerSet(world, sequencerSetId));
+		MusicPlayer.stopPlaying(sequencerSetId);
 		world.addBlockEvent(pos, getBlockType(), IS_PLAYING, 0);
 
 	}
@@ -242,69 +243,6 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		return false;
 	}
 
-	private void createDemoSong()
-	{
-		
-		if (world == null) return;
-
-//		sequencer = new Sequencer(world, pos);
-//		sequencer.setDesiredBPM(120);
-//
-//		final int pattern = world.rand.nextInt(4);
-//		final Pattern demoPattern = new Pattern();
-//		switch (pattern)
-//		{
-//			case 0:
-//				demoPattern.setPitchAtInternal(0, 6);
-//				demoPattern.setPitchAtInternal(1, 10);
-//				demoPattern.setPitchAtInternal(2, 13);
-//
-//				demoPattern.setPitchAtInternal(4, 8);
-//				demoPattern.setPitchAtInternal(5, 11);
-//				demoPattern.setPitchAtInternal(6, 15);
-//
-//				demoPattern.setPitchAtInternal(8, 10);
-//				demoPattern.setPitchAtInternal(9, 13);
-//				demoPattern.setPitchAtInternal(10, 17);
-//
-//				demoPattern.setPitchAtInternal(12, 11);
-//				demoPattern.setPitchAtInternal(13, 15);
-//				demoPattern.setPitchAtInternal(14, 18);
-//
-//				break;
-//			case 1:
-//				demoPattern.setPitchAtInternal(0, 6);
-//				demoPattern.setPitchAtInternal(8, 6);
-//
-//				break;
-//			case 2:
-//				demoPattern.setPitchAtInternal(4, 6);
-//				demoPattern.setPitchAtInternal(12, 6);
-//
-//				break;
-//			case 3:
-//				demoPattern.setPitchAtInternal(1, 14);
-//				demoPattern.setPitchAtInternal(2, 18);
-//				demoPattern.setPitchAtInternal(3, 5);
-//
-//				demoPattern.setPitchAtInternal(5, 14);
-//				demoPattern.setPitchAtInternal(6, 18);
-//				demoPattern.setPitchAtInternal(7, 5);
-//
-//				demoPattern.setPitchAtInternal(9, 16);
-//				demoPattern.setPitchAtInternal(10, 18);
-//				demoPattern.setPitchAtInternal(11, 5);
-//
-//				demoPattern.setPitchAtInternal(13, 14);
-//				demoPattern.setPitchAtInternal(14, 18);
-//				demoPattern.setPitchAtInternal(15, 5);
-//				break;
-//		}
-//
-//		sequencer.setPattern(0, demoPattern);
-	}
-
-
 	@Override
 	public void update()
 	{
@@ -313,97 +251,14 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		final int blockToCheck = (int)(world.getTotalWorldTime() & 3);
 		final EnumFacing facing = EnumFacing.getHorizontal(blockToCheck);
 
-		verifyNoteBlockFacing(facing);
+		sequencer.verifyNoteBlockFacing(facing);
 	}
-
-	private void verifyNoteBlockFacing(EnumFacing facing)
-	{
-		final BlockPos offset = pos.offset(facing.getOpposite());
-		final IBlockState noteBlockState = world.getBlockState(offset);
-
-		@Nullable
-		final Instrument instrument;
-		if (Blocks.NOTEBLOCK.equals(noteBlockState.getBlock()))
-		{
-			final IBlockState instrumentBlockState = world.getBlockState(offset.down());
-			instrument = getInstrumentFromBlockState(instrumentBlockState);
-		} else
-		{
-			instrument = null;
-		}
-
-		final Instrument instrumentFromNoteBlock = sequencer.getInstrumentFromNoteBlock(facing);
-
-		if (instrument != instrumentFromNoteBlock) {
-			sequencer.setAdjacentNoteBlock(facing, instrument);
-			sendUpdates();
-		}
-	}
-
-	@SuppressWarnings("ObjectEquality") //Disabled because this is super close to vanilla's TileEntity stuff.
-	private static Instrument getInstrumentFromBlockState(IBlockState state)
-	{
-		//Blatantly ripped from TileEntityNote
-		final Material material = state.getMaterial();
-
-		if (material == Material.ROCK)
-		{
-			return BASSDRUM;
-		}
-
-		if (material == Material.SAND)
-		{
-			return SNARE;
-		}
-
-		if (material == Material.GLASS)
-		{
-			return CLICKS;
-		}
-
-		if (material == Material.WOOD)
-		{
-			return BASSGUITAR;
-		}
-
-		final Block block = state.getBlock();
-
-		if (block == Blocks.CLAY)
-		{
-			return FLUTE;
-		}
-
-		if (block == Blocks.GOLD_BLOCK)
-		{
-			return BELL;
-		}
-
-		if (block == Blocks.WOOL)
-		{
-			return GUITAR;
-		}
-
-		if (block == Blocks.PACKED_ICE)
-		{
-			return CHIME;
-		}
-
-		if (block == Blocks.BONE_BLOCK)
-		{
-			return XYLOPHONE;
-		}
-		return PIANO;
-		
-	}
-
 
 	public void loadFromCard(ItemStack heldItemStack)
 	{
-		//FIXME: Implement this
-		//this.readFromNBT(heldItemStack.getTagCompound());
 		if (heldItemStack.getTagCompound()!=null)
 		{
-			this.writeToNBT(heldItemStack.getTagCompound());
+			readCustomDataFromNBT(heldItemStack.getTagCompound());
 		}
 		if (!world.isRemote)
 		{
@@ -413,7 +268,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 
 	public ItemStack saveToCard() {
 		ItemStack i = new ItemStack(ItemLibrary.punchCardWritten,1);
-		i.setTagCompound(this.getTileData());
+		i.setTagCompound(writeCustomDataToNBT(new NBTTagCompound()));
 		
 		return i;
 	}
@@ -443,6 +298,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		if (x >= 0 && x < 16 && z >= 0 && z < 26) {
 			if (sequencer == null) {
 				sequencer = new Sequencer(world, pos);
+				MusicPlayer.startTracking(sequencer);
 			}
 
 			//Hit a sequence button

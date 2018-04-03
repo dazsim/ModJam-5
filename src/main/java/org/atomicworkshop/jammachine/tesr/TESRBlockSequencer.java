@@ -122,6 +122,7 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 		}
 		GlStateManager.popMatrix();
 	}
+
 	private void renderBPMButtons(Sequencer sequencer)
 	{
 		//0.7045204265288701,0.21970650094097977
@@ -132,8 +133,6 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 		final FontRenderer fontrenderer = getFontRenderer();
 		final float textScale = 0.05f;
 
-		
-		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(17.8, 0, 5.3);
 		GlStateManager.scale(2.7, 2.0, 2.7);
@@ -182,6 +181,7 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 		
 		GlStateManager.popMatrix();
 	}
+
 	private void renderSequence(Sequencer sequencer)
 	{
 		final RenderItem itemRenderer = mc.getRenderItem();

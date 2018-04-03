@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 import org.atomicworkshop.jammachine.JamMachineMod;
 import org.atomicworkshop.jammachine.items.ItemPunchCardWritten;
 import org.atomicworkshop.jammachine.items.ItemPunchCardBlank;
+import org.atomicworkshop.jammachine.sequencing.MusicPlayer;
 import org.atomicworkshop.jammachine.tiles.TileEntitySequencer;
 import org.atomicworkshop.jammachine.util.CollisionMaths;
 import javax.annotation.Nullable;
@@ -94,6 +95,7 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 		final TileEntitySequencer teSequencer = getTileEntity(worldIn, pos);
 		if (teSequencer != null) {
 			teSequencer.stopPlaying();
+			MusicPlayer.stopTrackingSequencerAt(worldIn, pos);
 		}
 
 		super.breakBlock(worldIn, pos, state);
@@ -103,8 +105,6 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	@Deprecated
 	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
 	{
-		//if (!worldIn.isRemote) return;
-
 		boolean isPowered = false;
 		for (final EnumFacing value : EnumFacing.VALUES)
 		{
@@ -170,7 +170,7 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 
 		if (heldItemStack.isEmpty()) {
 			if (hand == EnumHand.OFF_HAND) return false;
-			final Vec3d hitVec = calculateSlopeHit(pos, state.getValue(FACING), playerIn);
+			final Vec3d hitVec = CollisionMaths.calculateSlopeHit(pos, state.getValue(FACING), playerIn);
 			if (hitVec == null) return false;
 			return teSequencer.checkPlayerInteraction(hitVec.x, hitVec.z, playerIn); 
 		}
@@ -203,85 +203,5 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	    return false;
     }
 
-	private Vec3d calculateSlopeHit(BlockPos pos, EnumFacing blockFacing, EntityPlayer player)
-	{
-		final Vec3d headPosition = CollisionMaths.getPlayerHeadPosition(player);
-		final Vec3d lookVector = CollisionMaths.getPlayerLookVector(player);
 
-		//FIXME: rotate Origin according to block direction
-		//Steven: My brain is fried and I should be able to solve this with a matrix, but for various reasons
-		//I've decided to brute force it for the modjam release. Need to find a server-friendly Matrix4f that
-		//can work properly with Vec3d, or find another vector class that works with matrices.
-		final Vec3d planeOrigin;
-		final Vec3d bottomLeft;
-		final Vec3d bottomRightCorner;
-		switch (blockFacing)
-		{
-			case NORTH:
-				planeOrigin = new Vec3d(pos.getX() + 1, pos.getY() + 7.5f / 16.0f, pos.getZ() + 15.75f / 16.0f);
-				bottomLeft = new Vec3d(pos.getX() + 1, pos.getY() + 1 / 16.0f, pos.getZ());
-				bottomRightCorner = new Vec3d(pos.getX(), pos.getY() + 1 / 16.0f, pos.getZ());
-				break;
-			case SOUTH:
-				planeOrigin = new Vec3d(pos.getX(), pos.getY() + 7.5f / 16.0f, pos.getZ() + (1 - (15.75f / 16.0f)));
-				bottomLeft = new Vec3d(pos.getX(), pos.getY() + 1 / 16.0f, pos.getZ() + 1);
-				bottomRightCorner = new Vec3d(pos.getX() + 1, pos.getY() + 1 / 16.0f, pos.getZ() + 1);
-				break;
-			case WEST:
-				planeOrigin = new Vec3d(pos.getX() + 15.75f / 16.0f, pos.getY() + 7.5f / 16.0f, pos.getZ());
-				bottomLeft = new Vec3d(pos.getX(), pos.getY() + 1 / 16.0f, pos.getZ());
-				bottomRightCorner = new Vec3d(pos.getX(), pos.getY() + 1 / 16.0f, pos.getZ() + 1);
-				break;
-			case EAST:
-				planeOrigin = new Vec3d(pos.getX() + (1 - (15.75f / 16.0f)), pos.getY() + 7.5f / 16.0f, pos.getZ() + 1);
-				bottomLeft = new Vec3d(pos.getX() + 1, pos.getY() + 1 / 16.0f, pos.getZ() + 1);
-				bottomRightCorner = new Vec3d(pos.getX() + 1, pos.getY() + 1 / 16.0f, pos.getZ());
-				break;
-			default:
-				return null;
-		}
-
-		//build matrix to rotate
-		//GlStateManager.translate(0.5, 0.0, 0.5);
-		//GlStateManager.rotate(), 0.0f, 1.0f, 0.0f);
-		//GlStateManager.translate(-0.5, 0.0, -0.5);
-
-
-		final Vec3d u = bottomLeft.subtract(planeOrigin);
-		final Vec3d v = bottomRightCorner.subtract(planeOrigin);
-		final Vec3d planeNormal = u.crossProduct(v);
-
-		final Vec3d vector3d = CollisionMaths.intersectionLinePlane(headPosition, lookVector, planeOrigin, planeNormal);
-
-		if (vector3d == null) {
-			JamMachineMod.logger.info("player missed");
-			return null;
-		} else
-		{
-			final Vec3d hitVector = vector3d.subtract(pos.getX(), pos.getY(), pos.getZ());
-
-			final Vec3d finalHitVector;
-			//FIXME: HAAAAACCCKKKKK
-			switch (blockFacing)
-			{
-				case NORTH:
-					finalHitVector = new Vec3d(1-hitVector.x, hitVector.y, 1-hitVector.z);
-					break;
-				case SOUTH:
-					finalHitVector = hitVector;
-					break;
-				case WEST:
-					finalHitVector = new Vec3d(1-hitVector.x, hitVector.y, hitVector.z);
-					break;
-				case EAST:
-					finalHitVector = new Vec3d(hitVector.x, hitVector.y, 1-hitVector.z);
-					break;
-				default:
-					finalHitVector = hitVector;
-			}
-			JamMachineMod.logger.info("player clicked at {},{},{}", finalHitVector.x, finalHitVector.y, finalHitVector.z);
-			return finalHitVector;
-		}
-
-	}
 }
