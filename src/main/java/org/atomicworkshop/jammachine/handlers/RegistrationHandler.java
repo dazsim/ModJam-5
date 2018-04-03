@@ -5,7 +5,6 @@ import org.atomicworkshop.jammachine.Reference.Blocks;
 import org.atomicworkshop.jammachine.Reference.Items;
 import org.atomicworkshop.jammachine.Reference.TileEntities;
 import org.atomicworkshop.jammachine.blocks.BlockSequencer;
-import org.atomicworkshop.jammachine.blocks.BlockController;
 import org.atomicworkshop.jammachine.items.ItemPunchCardBlank;
 import org.atomicworkshop.jammachine.items.ItemPunchCardWritten;
 import org.atomicworkshop.jammachine.libraries.BlockLibrary;
@@ -20,7 +19,6 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
-import org.atomicworkshop.jammachine.tiles.TileEntityController;
 
 @SuppressWarnings("SameParameterValue")
 @EventBusSubscriber
@@ -46,8 +44,8 @@ public final class RegistrationHandler
 		//registerItemFromBlock(registry, BlockLibrary.controller);
 
 
-		registerItem(registry, new ItemPunchCardBlank(), Items.punchcardblank);
-		registerItem(registry, new ItemPunchCardWritten(), Items.punchcardwritten);
+		registerItem(registry, new ItemPunchCardBlank(), Items.punchcardblank, true);
+		registerItem(registry, new ItemPunchCardWritten(), Items.punchcardwritten, false);
 		
 	}
 
@@ -60,13 +58,16 @@ public final class RegistrationHandler
 		);
 	}
 
-	private static void registerItem(IForgeRegistry<Item> registry, Item item, ResourceLocation registryName)
+	private static void registerItem(IForgeRegistry<Item> registry, Item item, ResourceLocation registryName, boolean showInCreativeTab)
 	{
-		registry.register(item
-				.setRegistryName(registryName)
-				.setCreativeTab(Reference.CreativeTab)
-				.setUnlocalizedName(registryName.toString())
-		);
+		item.setRegistryName(registryName)
+			.setUnlocalizedName(registryName.toString());
+
+		if (showInCreativeTab) {
+			item.setCreativeTab(Reference.CreativeTab);
+		}
+
+		registry.register(item);
 	}
 
 	private static void registerItemFromBlock(IForgeRegistry<Item> registry, Block block)
