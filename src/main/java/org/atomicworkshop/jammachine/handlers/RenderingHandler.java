@@ -27,11 +27,11 @@ public class RenderingHandler
 				0,
 				new ModelResourceLocation(Blocks.sequencer, "inventory")
 		);
-		//ModelLoader.setCustomModelResourceLocation(
-		//		ItemLibrary.controller,
-		//		0,
-		//		new ModelResourceLocation(Blocks.controller, "inventory")
-		//);
+		ModelLoader.setCustomModelResourceLocation(
+				ItemLibrary.controller,
+				0,
+				new ModelResourceLocation(Blocks.controller, "inventory")
+		);
 		ModelLoader.setCustomModelResourceLocation(
 				ItemLibrary.punchCardBlank,
 				0,

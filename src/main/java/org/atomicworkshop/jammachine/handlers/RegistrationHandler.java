@@ -4,10 +4,12 @@ import org.atomicworkshop.jammachine.Reference;
 import org.atomicworkshop.jammachine.Reference.Blocks;
 import org.atomicworkshop.jammachine.Reference.Items;
 import org.atomicworkshop.jammachine.Reference.TileEntities;
+import org.atomicworkshop.jammachine.blocks.BlockController;
 import org.atomicworkshop.jammachine.blocks.BlockSequencer;
 import org.atomicworkshop.jammachine.items.ItemPunchCardBlank;
 import org.atomicworkshop.jammachine.items.ItemPunchCardWritten;
 import org.atomicworkshop.jammachine.libraries.BlockLibrary;
+import org.atomicworkshop.jammachine.tiles.TileEntityController;
 import org.atomicworkshop.jammachine.tiles.TileEntitySequencer;
 
 import net.minecraft.block.Block;
@@ -29,10 +31,10 @@ public final class RegistrationHandler
 		final IForgeRegistry<Block> registry = registryEvent.getRegistry();
 
 		registerBlock(registry, new BlockSequencer(), Blocks.sequencer);
-		//registerBlock(registry, new BlockController(), Blocks.controller);
+		registerBlock(registry, new BlockController(), Blocks.controller);
 
 		GameRegistry.registerTileEntity(TileEntitySequencer.class, TileEntities.sequencer);
-		//GameRegistry.registerTileEntity(TileEntityController.class, TileEntities.controller);
+		GameRegistry.registerTileEntity(TileEntityController.class, TileEntities.controller);
 		
 	}
 
@@ -41,7 +43,7 @@ public final class RegistrationHandler
 		final IForgeRegistry<Item> registry = registryEvent.getRegistry();
 
 		registerItemFromBlock(registry, BlockLibrary.sequencer);
-		//registerItemFromBlock(registry, BlockLibrary.controller);
+		registerItemFromBlock(registry, BlockLibrary.controller);
 
 
 		registerItem(registry, new ItemPunchCardBlank(), Items.punchcardblank, true);
