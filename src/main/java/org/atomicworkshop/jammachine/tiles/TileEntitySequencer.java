@@ -483,8 +483,9 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 
 	public Sequencer getSequencer()
 	{
-			sequencer = new Sequencer(world, pos);
+			
 		if (sequencer == null && world != null && pos != null) {
+			sequencer = new Sequencer(world, pos);
 		}
 
 		return sequencer;
