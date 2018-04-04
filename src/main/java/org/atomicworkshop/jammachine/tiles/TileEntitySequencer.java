@@ -329,16 +329,26 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		}
 		
 		//check coords for setting bank
-		if ((backX>=0.7582737759610318 && backX<=0.8919838353273448) && (backZ>=0.45915143708791994 && backZ<=0.5098249754671347))
+		//old
+		//0.7582737759610318,0.8919838353273448
+		//0.45915143708791994,0.5098249754671347
+		//new
+		//0.707334934013371,0.4415902484574872
+		//0.9897283611457244,0.5620629764642562
+		double x1 = 0.707334934013371;
+		double x2 = 0.9897283611457244;
+		double z1 = 0.4415902484574872;
+		double z2 = 0.5620629764642562;
+		if ((backX>=x1 && backX<=x2) && (backZ>=z1 && backZ<=z2))
 		{
 			if (sequencer == null) {
 				sequencer = new Sequencer(world, pos);
 				MusicPlayer.startTracking(sequencer);
 			}
-			double bankWidth = 0.8919838353273448 - 0.7582737759610318;
-			double bankHeight = 0.5098249754671347 - 0.45915143708791994;
-			double offX = backX - 0.7582737759610318;
-			double offZ = backZ - 0.45915143708791994;
+			double bankWidth = x2 - x1;
+			double bankHeight = z2-z1;
+			double offX = backX - x1;
+			double offZ = backZ - z1;
 			int index = 0;
 			if (offX < (bankWidth/4))
 			{

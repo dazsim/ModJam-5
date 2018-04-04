@@ -94,7 +94,10 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 	{
 		final TileEntitySequencer teSequencer = getTileEntity(worldIn, pos);
 		if (teSequencer != null) {
-			teSequencer.ejectCard(pos.getX(), pos.getY(), pos.getZ());
+			if (teSequencer.getHasCard())
+			{
+				teSequencer.ejectCard(pos.getX(), pos.getY(), pos.getZ());
+			}
 
 			teSequencer.stopPlaying();
 			MusicPlayer.stopTrackingSequencerAt(worldIn, pos);

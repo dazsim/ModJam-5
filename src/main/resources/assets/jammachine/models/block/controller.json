@@ -1,8 +1,8 @@
 {
 	"__comment": "Designed by Workshopcraft with Cubik Studio - https://cubik.studio",
 	"textures": {
-		"particle": "blocks/particle",
-		"texture": "jammachine:blocks/texture"
+		"particle": "jammachine:blocks/controller",
+		"texture": "jammachine:blocks/controller"
 	},
 	"elements": [ 	 
 		{
