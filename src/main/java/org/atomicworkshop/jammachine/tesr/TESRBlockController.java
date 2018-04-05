@@ -193,7 +193,7 @@ public class TESRBlockController extends TileEntitySpecialRenderer<TileEntityCon
 				GlStateManager.translate(
 						sequenceInterval,
 						isEnabled ? 0.0f : disabledButtonHeight,
-						(8 - pattern)
+						(pattern)
 				);
 
 				itemRenderer.renderItem(renderItem, TransformType.FIXED);
