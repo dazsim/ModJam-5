@@ -50,8 +50,9 @@ public final class Reference
 		public static String pattern = "pattern";
 		public static String sequence = "sequence";
 		public static String hasCard = "hasCard";
+		public static String name = "name";
 
-		private NBT() { }
+        private NBT() { }
 	}
 
 	private Reference() { }

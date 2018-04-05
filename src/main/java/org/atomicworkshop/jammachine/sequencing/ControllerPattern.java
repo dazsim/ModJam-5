@@ -29,4 +29,8 @@ public class ControllerPattern
 	{
 		return locatedSequencer != null && locatedSequencer.getId().equals(id);
 	}
+
+	public Sequencer getSequencer() {
+		return locatedSequencer;
+	}
 }

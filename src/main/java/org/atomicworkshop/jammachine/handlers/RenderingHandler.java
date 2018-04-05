@@ -44,6 +44,6 @@ public class RenderingHandler
 		);
 		
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntitySequencer.class, new TESRBlockSequencer());
-		//ClientRegistry.bindTileEntitySpecialRenderer(TileEntityController.class, new TESRBlockController());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityController.class, new TESRBlockController());
 	}
 }

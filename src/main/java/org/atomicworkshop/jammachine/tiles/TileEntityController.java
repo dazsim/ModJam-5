@@ -52,6 +52,7 @@ public class TileEntityController extends TileEntity
         final ControllerPattern alternativeSequencer = selectedSequencers[alternateIndex];
         for (final Sequencer sequencer : jamController)
         {
+            //Don't show the same sequencer as the other half.
             if (alternativeSequencer != null && alternativeSequencer.getSequencerId().equals(sequencer.getId())) {
                 continue;
             }
