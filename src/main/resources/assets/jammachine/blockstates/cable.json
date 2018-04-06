@@ -9,11 +9,8 @@
     "inventory": {
       "y ": 180
     },
-    "facing": {
-      "north": { "model": "jammachine:cable", "y": 270},
-      "south": { "model": "jammachine:cable", "y": 90},
-      "east": { "model": "jammachine:cable"},
-      "west": { "model": "jammachine:cable", "y": 180}
+    "normal": {
+         "model": "jammachine:cable"
     }
   }
 }

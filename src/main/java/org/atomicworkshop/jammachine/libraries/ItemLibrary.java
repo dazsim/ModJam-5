@@ -20,6 +20,9 @@ public class ItemLibrary
 	@Nonnull
 	public static final ItemBlock controller;
 
+	@Nonnull
+	public static final ItemBlock cable;
+	
 	@ObjectHolder("punchcardblank")
 	@Nonnull
 	public static final ItemPunchCardBlank punchCardBlank;
@@ -36,6 +39,7 @@ public class ItemLibrary
 	static {
 		sequencer = null;
 		controller = null;
+		cable = null;
 
 		punchCardBlank = null;
 		punchCardWritten = null;

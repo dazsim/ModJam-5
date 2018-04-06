@@ -4,11 +4,12 @@ import org.atomicworkshop.jammachine.Reference;
 import org.atomicworkshop.jammachine.Reference.Blocks;
 import org.atomicworkshop.jammachine.Reference.Items;
 import org.atomicworkshop.jammachine.Reference.TileEntities;
+import org.atomicworkshop.jammachine.blocks.BlockCable;
 import org.atomicworkshop.jammachine.blocks.BlockController;
 import org.atomicworkshop.jammachine.blocks.BlockSequencer;
+import org.atomicworkshop.jammachine.items.ItemBraidedString;
 import org.atomicworkshop.jammachine.items.ItemPunchCardBlank;
 import org.atomicworkshop.jammachine.items.ItemPunchCardWritten;
-import org.atomicworkshop.jammachine.items.ItemBraidedString;
 import org.atomicworkshop.jammachine.libraries.BlockLibrary;
 import org.atomicworkshop.jammachine.tiles.TileEntityController;
 import org.atomicworkshop.jammachine.tiles.TileEntitySequencer;
@@ -33,7 +34,7 @@ public final class RegistrationHandler
 
 		registerBlock(registry, new BlockSequencer(), Blocks.sequencer);
 		registerBlock(registry, new BlockController(), Blocks.controller);
-
+		registerBlock(registry, new BlockCable(), Blocks.cable);
 		GameRegistry.registerTileEntity(TileEntitySequencer.class, TileEntities.sequencer);
 		GameRegistry.registerTileEntity(TileEntityController.class, TileEntities.controller);
 		
@@ -45,7 +46,7 @@ public final class RegistrationHandler
 
 		registerItemFromBlock(registry, BlockLibrary.sequencer);
 		registerItemFromBlock(registry, BlockLibrary.controller);
-
+		registerItemFromBlock(registry, BlockLibrary.cable);
 
 		registerItem(registry, new ItemPunchCardBlank(), Items.punchcardblank, true);
 		registerItem(registry, new ItemPunchCardWritten(), Items.punchcardwritten, false);

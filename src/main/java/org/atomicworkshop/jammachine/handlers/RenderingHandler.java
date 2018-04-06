@@ -33,6 +33,12 @@ public class RenderingHandler
 				new ModelResourceLocation(Blocks.controller, "inventory")
 		);
 		ModelLoader.setCustomModelResourceLocation(
+				ItemLibrary.cable,
+				0,
+				new ModelResourceLocation(Blocks.cable, "inventory")
+		);
+		
+		ModelLoader.setCustomModelResourceLocation(
 				ItemLibrary.punchCardBlank,
 				0,
 				new ModelResourceLocation(Items.punchcardblank, "inventory")

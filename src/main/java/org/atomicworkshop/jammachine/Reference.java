@@ -17,7 +17,7 @@ public final class Reference
 	public static final class Blocks {
 		public static final ResourceLocation sequencer = resource("sequencer");
 		public static final ResourceLocation controller = resource("controller");
-
+		public static final ResourceLocation cable = resource("cable");
 
 		private Blocks() { }
 	}
