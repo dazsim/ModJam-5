@@ -42,6 +42,11 @@ public class RenderingHandler
 				0,
 				new ModelResourceLocation(Items.punchcardwritten, "inventory")
 		);
+		ModelLoader.setCustomModelResourceLocation(
+				ItemLibrary.braidedString,
+				0,
+				new ModelResourceLocation(Items.braidedstring, "inventory")
+		);
 		
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntitySequencer.class, new TESRBlockSequencer());
 		//ClientRegistry.bindTileEntitySpecialRenderer(TileEntityController.class, new TESRBlockController());
