@@ -11,6 +11,10 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.IWorldNameable;
 import net.minecraft.world.World;
 import org.atomicworkshop.jammachine.JamMachineMod;
 import org.atomicworkshop.jammachine.Reference;
@@ -23,13 +27,14 @@ import org.atomicworkshop.jammachine.sequencing.SequencerSet;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class TileEntitySequencer extends TileEntity implements ITickable
+public class TileEntitySequencer extends TileEntity implements ITickable, IWorldNameable
 {
 
 	private static final int IS_PLAYING = 0;
 	private static final int CHANGE_PATTERN = 1;
 	private boolean hasCard = false;
-	
+	private String customName;
+
 	public TileEntitySequencer()
 	{
 		sequencerSetId = UUID.randomUUID();
@@ -105,6 +110,8 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 			if (sequencer.getBeatsPerMinute() < 60) {
 				sequencer.setDesiredBPM(120);
 			}
+
+			this.customName = compoundTag.getString(NBT.name);
 		}
 	}
 
@@ -125,6 +132,9 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 
 	private NBTTagCompound writeCustomDataToNBT(NBTTagCompound compound)
 	{
+		if (hasCustomName()) {
+			compound.setString(NBT.name, customName);
+		}
 		if (sequencer != null)
 		{
 			compound.setTag(NBT.sequence, sequencer.writeToNBT());
@@ -499,5 +509,37 @@ public class TileEntitySequencer extends TileEntity implements ITickable
 		}
 
 		return sequencer;
+	}
+
+	/**
+	 * Returns true if this thing is named
+	 */
+	public boolean hasCustomName()
+	{
+		return this.customName != null && !this.customName.isEmpty();
+	}
+
+	public void setCustomName(String p_190575_1_)
+	{
+		this.customName = p_190575_1_;
+		sendUpdates();
+	}
+
+	/**
+	 * Get the formatted ChatComponent that will be used for the sender's username in chat
+	 */
+	public ITextComponent getDisplayName()
+	{
+		return this.hasCustomName() ?
+				new TextComponentString(this.getName()) :
+				new TextComponentTranslation(this.getName());
+	}
+
+	/**
+	 * Get the name of this object. For players this returns their username
+	 */
+	public String getName()
+	{
+		return this.hasCustomName() ? this.customName : Reference.Blocks.sequencer.getResourcePath();
 	}
 }

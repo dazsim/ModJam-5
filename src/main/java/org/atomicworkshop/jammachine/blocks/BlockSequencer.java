@@ -8,7 +8,9 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemNameTag;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -204,6 +206,15 @@ public class BlockSequencer extends BlockHorizontal implements ITileEntityProvid
 		    	return true;
 		    }
 	    }
+
+	    if (heldItem instanceof ItemNameTag) {
+			//Naming Sequencer
+			NBTTagCompound tagCompound = heldItemStack.getTagCompound();
+			//Not using reference because these are vanilla NBT tags.
+			NBTTagCompound display = tagCompound.getCompoundTag("display");
+			teSequencer.setCustomName(display.getString("Name"));
+			return true;
+		}
 
 	    return false;
     }
