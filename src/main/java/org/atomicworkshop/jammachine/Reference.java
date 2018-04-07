@@ -17,7 +17,7 @@ public final class Reference
 	public static final class Blocks {
 		public static final ResourceLocation sequencer = resource("sequencer");
 		public static final ResourceLocation controller = resource("controller");
-
+		public static final ResourceLocation cable = resource("cable");
 
 		private Blocks() { }
 	}
@@ -25,6 +25,7 @@ public final class Reference
 	public static final class Items {
 		public static final ResourceLocation punchcardblank = resource("punchcardblank");
 		public static final ResourceLocation punchcardwritten = resource("punchcardwritten");
+		public static final ResourceLocation braidedstring = resource("braidedstring");
 
 		private Items() { }
 	}

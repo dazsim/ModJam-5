@@ -33,6 +33,12 @@ public class RenderingHandler
 				new ModelResourceLocation(Blocks.controller, "inventory")
 		);
 		ModelLoader.setCustomModelResourceLocation(
+				ItemLibrary.cable,
+				0,
+				new ModelResourceLocation(Blocks.cable, "inventory")
+		);
+		
+		ModelLoader.setCustomModelResourceLocation(
 				ItemLibrary.punchCardBlank,
 				0,
 				new ModelResourceLocation(Items.punchcardblank, "inventory")
@@ -41,6 +47,11 @@ public class RenderingHandler
 				ItemLibrary.punchCardWritten,
 				0,
 				new ModelResourceLocation(Items.punchcardwritten, "inventory")
+		);
+		ModelLoader.setCustomModelResourceLocation(
+				ItemLibrary.braidedString,
+				0,
+				new ModelResourceLocation(Items.braidedstring, "inventory")
 		);
 		
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntitySequencer.class, new TESRBlockSequencer());

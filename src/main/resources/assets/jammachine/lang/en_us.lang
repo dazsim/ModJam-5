@@ -5,3 +5,5 @@ item.jammachine:punchcardblank.name=Blank Punch Card
 item.jammachine:punchcardwritten.name=Written Punch Card
 item.jammachine:punchcard.name=Punch Card
 tile.jammachine:controller.name=Sequencer Controller
+tile.jammachine:cable.name=Jam Cable
+item.jammachine:braidedstring.name=Braided String
