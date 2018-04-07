@@ -10,7 +10,6 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -32,6 +31,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 
 	private static final int IS_PLAYING = 0;
 	private static final int CHANGE_PATTERN = 1;
+	private static final int RUN_PROGRAM = 2;
 	private boolean hasCard = false;
 	private String customName;
 
@@ -245,10 +245,11 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 			isPlaying = type != 0;
 			updatePlayStatus(wasPlaying);
 			return true;
-		}
-		if (id == CHANGE_PATTERN) {
+		} else if (id == CHANGE_PATTERN) {
 			sequencer.setPendingPatternIndex(type);
 			return true;
+		} else if (id == RUN_PROGRAM) {
+			sequencer.setProgramming(type != 0);
 		}
 		
 		return false;
@@ -278,31 +279,43 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 	}
 
 	public ItemStack saveToCard() {
-		ItemStack i = new ItemStack(ItemLibrary.punchCardWritten,1);
+		final ItemStack i = new ItemStack(ItemLibrary.punchCardWritten,1);
 		i.setTagCompound(writeCustomDataToNBT(new NBTTagCompound()));
 		
 		return i;
 	}
 
-	public boolean checkPlayerInteraction(double x, double z,EntityPlayer playerIn)
+	public boolean checkPlayerInteraction(double x, double z, EntityPlayer playerIn)
 	{
-		//if (world.isRemote) return false;
-		//back up input coordinates
-		double backX,backZ;
-		
-		backX = x;
-		backZ = z;
+		if (sequencer == null) {
+			sequencer = new Sequencer(world, pos);
+			MusicPlayer.startTracking(sequencer);
+		}
 
-		//x = 1-x;
-		//z = 1-z;
 		if (x < 0 || x > 1 || z < 0 || z > 1) return false;
 
-		JamMachineMod.logger.info("adjusted hitlocation {},{}", x, z);
+		if (checkSequenceGridInteraction(x, z)) return true;
+		if (checkBankInteraction(x, z)) return true;
+		if (checkBPMInteraction(x, z)) return true;
+		if (checkRunButtonInteraction(x, z)) return true;
+		if (checkCardSlotInteraction(x, z)) {
+			ejectCard(playerIn.posX, playerIn.posY, playerIn.posZ);
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean checkSequenceGridInteraction(double x, double z)
+	{
 		//Scale to button grid, these may not be exact because we're using item rendering instead of generating quads.
 		//Minecraft probably applies additional scaling/transforms when rendering the item (they appear to be centered,
 		//rather than top-left aligned as the code implies)
-		x *= 28; x -= 2.5;
-		z *= 29; z -= 0.5;
+		x *= 28;
+		x -= 2.5;
+		z *= 29;
+		z -= 0.5;
+		JamMachineMod.logger.info("adjusted hitlocation {},{}", x, z);
 
 		JamMachineMod.logger.info("checking player interaction at scaled {},{}", x, z);
 
@@ -318,7 +331,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 			final int pitch = 25 - (int)z;
 			final int interval = (int)x;
 
-			boolean isEnabled = currentPattern.invertPitchAtInternal(interval, pitch);
+			final boolean isEnabled = currentPattern.invertPitchAtInternal(interval, pitch);
 
 			JamMachineMod.logger.info("Inverting pitch {} at interval {} - {}", pitch, interval, isEnabled);
 			if (!world.isRemote)
@@ -327,93 +340,109 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 			}
 			return true;
 		}
-		//did not click any buttons on pattern array
+		return false;
+	}
+
+	private boolean checkCardSlotInteraction(double clickX, double clickZ)
+	{
 		//check coords for ejecting a card.
 		if (this.hasCard)
 		{
-			if ((backX>=0.7192042839004351 && backX<=0.9325510942881259) && (backZ>=0.8448828111319173 && backZ<=0.9298803321497289))
+			final double cardSlotLeft = 0.7192042839004351;
+			final double cardSlotRight = 0.9325510942881259;
+			final double cardSlotTop = 0.8448828111319173;
+			final double cardSlotBottom = 0.9298803321497289;
+			if ((clickX>= cardSlotLeft && clickX<= cardSlotRight) && (clickZ>= cardSlotTop && clickZ<= cardSlotBottom))
 			{
-				ejectCard(playerIn.posX, playerIn.posY, playerIn.posZ);
 				return true;
 			}
 		}
-		
+		return false;
+	}
+
+	private boolean checkRunButtonInteraction(double clickX, double clickZ)
+	{
+		//check coords for ejecting a card.
+		final double runButtonLeft = 0.7192042839004351;
+		final double runButtonRight = 0.9325510942881259;
+		final double runButtonTop = 0.3479098384432291;
+		final double runButtonBottom = 0.41390746154313085;
+		if ((clickX>= runButtonLeft && clickX<= runButtonRight) && (clickZ>= runButtonTop && clickZ<= runButtonBottom))
+		{
+			sequencer.setProgramming(!sequencer.isProgramming());
+			world.addBlockEvent(pos, getBlockType(), RUN_PROGRAM, sequencer.isProgramming() ? 1 : 0);
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean checkBankInteraction(double clickX, double clickZ)
+	{
 		//check coords for setting bank
-		//old
-		//0.7582737759610318,0.8919838353273448
-		//0.45915143708791994,0.5098249754671347
-		//new
-		//0.707334934013371,0.4415902484574872
-		//0.9897283611457244,0.5620629764642562
-		double x1 = 0.707334934013371;
-		double x2 = 0.9897283611457244;
-		double z1 = 0.4415902484574872;
-		double z2 = 0.5620629764642562;
-		if ((backX>=x1 && backX<=x2) && (backZ>=z1 && backZ<=z2))
+		final double bankLeft = 0.707334934013371;
+		final double bankRight = 0.9897283611457244;
+		final double bankTop = 0.4415902484574872;
+		final double bankBottom = 0.5620629764642562;
+
+		if ((clickX>=bankLeft && clickX<=bankRight) && (clickZ>=bankTop && clickZ<=bankBottom))
 		{
 			if (sequencer == null) {
 				sequencer = new Sequencer(world, pos);
 				MusicPlayer.startTracking(sequencer);
 			}
-			double bankWidth = x2 - x1;
-			double bankHeight = z2-z1;
-			double offX = backX - x1;
-			double offZ = backZ - z1;
-			int index = 0;
-			if (offX < (bankWidth/4))
-			{
-				if (offZ < (bankHeight/2))
-				{
-					//set to 0
-					index = 0;
-					
-				} else
-				{
-					//set to 4
-					index = 4;
-					
-				}
-			} else
-			if (offX < (bankWidth/2))
-			{
-				if (offZ < (bankHeight/2))
-				{
-					//set to 1
-					index = 1;
-				} else
-				{
-					//set to 5
-					index = 5;
-				}
-			} else
-			if (offX < ((bankWidth*3)/4))
-			{
-				if (offZ < (bankHeight/2))
-				{
-					//set to 2
-					index = 2;
-				} else
-				{
-					//set to 6
-					index=6;
-				}
-			} else
-			if (offZ < (bankHeight/2))
-			{
-				//set to 3
-				index=3;
-			} else
-			{
-				//set to 7
-				index=7;
-			}
-			if (isPlaying)
-			{
-				sequencer.setPendingPatternIndex(index);
-			} else
+			final double bankWidth = bankRight - bankLeft;
+			final double bankHeight = bankBottom-bankTop;
+			final double offX = clickX - bankLeft;
+			final double offZ = clickZ - bankTop;
+			int index;
+
+			index = (int)((offX / bankWidth) * 4);
+			index += ((int)((offZ / bankHeight) * 2)) * 4;
+
+			sequencer.setPendingPatternIndex(index);
+			if (!isPlaying)
 			{
 				sequencer.setCurrentPatternIndex(index);
-				sequencer.setPendingPatternIndex(index);
+			}
+
+			if (!world.isRemote)
+			{
+				sendUpdates();
+			}
+			return true;
+		}
+		return false;
+	}
+
+	private boolean checkBPMInteraction(double clickX, double clickZ)
+	{
+		//BPM UI buttons
+		final double bpmLeft = 0.7045204265288701;
+		final double bpmRight = 0.9327918869342732;
+		final double bpmTop = 0.21970650094097977;
+		final double bpmBottom = 0.2705630830397361;
+
+		if ((clickX>= bpmLeft && clickX<= bpmRight) && (clickZ>= bpmTop && clickZ<= bpmBottom))
+		{
+			final double bpmUIWidth = bpmRight - bpmLeft;
+			final double offX = clickX - bpmLeft;
+
+			final int index = (int)((offX / bpmUIWidth) * 4);
+
+			switch (index) {
+				case 0:
+					sequencer.setDesiredBPM(Math.max(sequencer.getBeatsPerMinute() - 10, 60));
+					break;
+				case 1:
+					sequencer.setDesiredBPM(Math.max(sequencer.getBeatsPerMinute() - 1, 60));
+					break;
+				case 2:
+					sequencer.setDesiredBPM(Math.min(sequencer.getBeatsPerMinute() +1, 240));
+					break;
+				case 3:
+					sequencer.setDesiredBPM(Math.min(sequencer.getBeatsPerMinute() +10, 240));
+					break;
 			}
 			if (!world.isRemote)
 			{
@@ -421,80 +450,17 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 			}
 			return true;
 		}
-		//0.7045204265288701,0.21970650094097977
-		//0.9327918869342732,0.2705630830397361
-		//BPM UI buttons
-		if ((backX>=0.7045204265288701 && backX<=0.9327918869342732) && (backZ>=0.21970650094097977 && backZ<=0.2705630830397361))
-		{
-			if (sequencer == null) {
-				sequencer = new Sequencer(world, pos);
-				MusicPlayer.startTracking(sequencer);
-			}
-			double bpmUIWidth = 0.9327918869342732 - 0.7045204265288701;
-			double offX = backX - 0.7045204265288701;
-			if (offX<=(bpmUIWidth/4))
-			{
-				//-10
-				if (sequencer.getBeatsPerMinute()>10)
-				{
-					sequencer.setDesiredBPM(sequencer.getBeatsPerMinute()-10);
-					if (!world.isRemote)
-					{
-						sendUpdates();
-					}
-					return true;
-				}
-				
-			} else
-			if (offX<=(bpmUIWidth/2))
-			{
-				//-1
-				if (sequencer.getBeatsPerMinute()>1)
-				{
-					sequencer.setDesiredBPM(sequencer.getBeatsPerMinute()-1);
-					if (!world.isRemote)
-					{
-						sendUpdates();
-					}
-					return true;
-				}
-			} else
-			if (offX<=(bpmUIWidth*3)/4)
-			{
-				//+1
-				if (sequencer.getBeatsPerMinute()<240)
-				{
-					sequencer.setDesiredBPM(sequencer.getBeatsPerMinute()+1);
-					if (!world.isRemote)
-					{
-						sendUpdates();
-					}
-					return true;
-				}
-			} else
-			{
-				//+10
-				if (sequencer.getBeatsPerMinute()<230)
-				{
-					sequencer.setDesiredBPM(sequencer.getBeatsPerMinute()+10);
-					if (!world.isRemote)
-					{
-						sendUpdates();
-					}
-					return true;
-				}
-			}
-		}
 		return false;
 	}
+
 	public void ejectCard(double x, double y, double z)
 	{
 		JamMachineMod.logger.info("Eject Card");
 
-		ItemStack card = saveToCard();
+		final ItemStack card = saveToCard();
 		if (!world.isRemote)
 		{
-			EntityItem entityitem = new EntityItem(this.world, x, y + 0.5, z, card);
+			final EntityItem entityitem = new EntityItem(this.world, x, y + 0.5, z, card);
 			entityitem.setDefaultPickupDelay();
 			world.spawnEntity(entityitem);
 		}
@@ -519,9 +485,9 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 		return this.customName != null && !this.customName.isEmpty();
 	}
 
-	public void setCustomName(String p_190575_1_)
+	public void setCustomName(String name)
 	{
-		this.customName = p_190575_1_;
+		this.customName = name;
 		sendUpdates();
 	}
 

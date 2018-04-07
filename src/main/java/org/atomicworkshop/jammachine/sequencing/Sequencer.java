@@ -16,6 +16,7 @@ import org.atomicworkshop.jammachine.Reference;
 import org.atomicworkshop.jammachine.Reference.NBT;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,6 +36,9 @@ public class Sequencer
 	private int currentInterval = -1;
 	private int noteBlockSearch;
 	private String name;
+	private boolean isProgramming;
+	private LinkedList<Integer> programList = new LinkedList<>();
+	private int programIndex;
 
 	public Sequencer(World world, BlockPos blockPos)
 	{
@@ -105,7 +109,12 @@ public class Sequencer
 		if (pendingPatternIndex > patterns.length) {
 			pendingPatternIndex %= patterns.length;
 		}
-		this.pendingPatternIndex = pendingPatternIndex;
+		if (isProgramming) {
+			programList.add(pendingPatternIndex);
+		} else
+		{
+			this.pendingPatternIndex = pendingPatternIndex;
+		}
 	}
 
 	public void setCurrentPatternIndex(int currentPatternIndex)
@@ -123,7 +132,24 @@ public class Sequencer
 
 	public void updatePendingPattern()
 	{
-		currentPatternIndex = pendingPatternIndex;
+		if (isProgramming) {
+			programIndex++;
+			if (programIndex >= programList.size()) {
+				programIndex = 0;
+			}
+			currentPatternIndex = programList.get(programIndex);
+
+			int nextProgramIndex = programIndex + 1;
+			if (nextProgramIndex >= programList.size()) {
+				nextProgramIndex = 0;
+			}
+
+			pendingPatternIndex = programList.get(nextProgramIndex);
+
+		} else
+		{
+			currentPatternIndex = pendingPatternIndex;
+		}
 	}
 
 	public Pattern getCurrentPattern()
@@ -185,7 +211,10 @@ public class Sequencer
 		tagCompound.setInteger(NBT.beatsPerMinute, beatsPerMinute);
 		tagCompound.setInteger(NBT.currentPatternIndex, currentPatternIndex);
 		tagCompound.setInteger(NBT.pendingPatternIndex, pendingPatternIndex);
-		tagCompound.setString(NBT.name, name);
+		if (this.name != null)
+		{
+			tagCompound.setString(NBT.name, name);
+		}
 
 		final NBTTagList patternList = new NBTTagList();
 		for (int patternIndex = 0; patternIndex < patterns.length; patternIndex++)
@@ -339,4 +368,16 @@ public class Sequencer
     public void setName(String name) {
         this.name = name;
     }
+
+	public void setProgramming(boolean isProgramming)
+	{
+		this.isProgramming = isProgramming;
+		programList.clear();
+		programList.add(currentPatternIndex);
+	}
+
+	public boolean isProgramming()
+	{
+		return isProgramming;
+	}
 }

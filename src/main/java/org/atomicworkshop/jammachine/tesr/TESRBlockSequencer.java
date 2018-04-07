@@ -121,6 +121,31 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 				GlStateManager.popMatrix();
 			}
 		}
+
+		//Render Run Button
+		GlStateManager.pushMatrix();
+		{
+
+			GlStateManager.scale(0.5, 0.5, 0.5);
+			GlStateManager.translate(3, 0, -2.5);
+			GlStateManager.scale(14, 2, 4);
+			itemRenderer.renderItem(disabledItemInactiveInterval, TransformType.FIXED);
+		}
+		GlStateManager.popMatrix();
+
+		GlStateManager.pushMatrix();
+		{
+			final FontRenderer fontrenderer = getFontRenderer();
+			final float textScale = 0.05f;
+			final String run = "Run";
+
+			GlStateManager.translate(1.5, 0.5, -1.3);
+			GlStateManager.rotate(-90, 1, 0, 0);
+			GlStateManager.scale(textScale, -textScale, textScale);
+			fontrenderer.drawString(run, -fontrenderer.getStringWidth(run) / 2, 0, 0xFFFFFF);
+		}
+		GlStateManager.popMatrix();
+
 		GlStateManager.popMatrix();
 	}
 
