@@ -34,6 +34,7 @@ public class Sequencer
 	private int currentPatternIndex;
 	private int currentInterval = -1;
 	private int noteBlockSearch;
+	private String name;
 
 	public Sequencer(World world, BlockPos blockPos)
 	{
@@ -150,6 +151,7 @@ public class Sequencer
 
 		currentPatternIndex = compound.getInteger(NBT.currentPatternIndex);
 		pendingPatternIndex = compound.getInteger(NBT.pendingPatternIndex);
+		name = compound.getString(NBT.name);
 
 		NBTTagList nbtPatterns = compound.getTagList(NBT.pattern, Constants.NBT.TAG_COMPOUND);
 
@@ -183,6 +185,7 @@ public class Sequencer
 		tagCompound.setInteger(NBT.beatsPerMinute, beatsPerMinute);
 		tagCompound.setInteger(NBT.currentPatternIndex, currentPatternIndex);
 		tagCompound.setInteger(NBT.pendingPatternIndex, pendingPatternIndex);
+		tagCompound.setString(NBT.name, name);
 
 		final NBTTagList patternList = new NBTTagList();
 		for (int patternIndex = 0; patternIndex < patterns.length; patternIndex++)
@@ -328,4 +331,12 @@ public class Sequencer
 		return PIANO;
 
 	}
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

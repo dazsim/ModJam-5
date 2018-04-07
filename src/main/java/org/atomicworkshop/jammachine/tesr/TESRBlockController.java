@@ -1,6 +1,7 @@
 package org.atomicworkshop.jammachine.tesr;
 
 import org.atomicworkshop.jammachine.libraries.ItemLibrary;
+import org.atomicworkshop.jammachine.sequencing.ControllerPattern;
 import org.atomicworkshop.jammachine.sequencing.JamController;
 import org.atomicworkshop.jammachine.sequencing.Pattern;
 import org.atomicworkshop.jammachine.sequencing.Sequencer;
@@ -73,7 +74,13 @@ public class TESRBlockController extends TileEntitySpecialRenderer<TileEntityCon
 			GlStateManager.disableLighting();
 			GlStateManager.depthMask(true);
 
-			//renderSequence(controller);
+			int currentSequencerInterval = controller.getSequenceInterval();
+			int displayedSection = te.getDisplayedSection();
+
+			for (int i = 0; i < 2; ++i) {
+				renderControllerPattern(te.getSelectedSequence(i), i, currentSequencerInterval, displayedSection);
+			}
+
 			//renderPatternButtons(controller);
 			renderBPMButtons(controller);
 			if (te.hasCard())
@@ -87,43 +94,6 @@ public class TESRBlockController extends TileEntitySpecialRenderer<TileEntityCon
         GlStateManager.popMatrix();
 	}
 
-	private void renderPatternButtons(Sequencer sequencer)
-	{
-		final RenderItem itemRenderer = mc.getRenderItem();
-		final int currentPatternIndex = sequencer.getCurrentPatternIndex();
-		final int pendingPatternIndex = sequencer.getPendingPatternIndex();
-
-		GlStateManager.pushMatrix();
-		{
-			GlStateManager.translate(18.5, 0, 12);
-			for (int patternIndex = 0; patternIndex < 8; patternIndex++)
-			{
-				final int patternButtonX = patternIndex & 3;
-				final int patternButtonY = (patternIndex & 4) >> 2;
-
-				final boolean isEnabled = patternIndex == pendingPatternIndex;
-				final boolean isCurrent = patternIndex == currentPatternIndex;
-
-				GlStateManager.pushMatrix();
-				{
-					GlStateManager.translate(patternButtonX, isEnabled ? 0.0f : disabledButtonHeight, patternButtonY);
-
-					if (isCurrent)
-					{
-						itemRenderer.renderItem(enabledItemActiveInterval, TransformType.FIXED);
-					} else if (isEnabled)
-					{
-						itemRenderer.renderItem(enabledItemInactiveInterval, TransformType.FIXED);
-					} else
-					{
-						itemRenderer.renderItem(disabledItemInactiveInterval, TransformType.FIXED);
-					}
-				}
-				GlStateManager.popMatrix();
-			}
-		}
-		GlStateManager.popMatrix();
-	}
 	private void renderBPMButtons(JamController controller)
 	{
 		//0.7045204265288701,0.21970650094097977
@@ -184,31 +154,46 @@ public class TESRBlockController extends TileEntitySpecialRenderer<TileEntityCon
 		
 		GlStateManager.popMatrix();
 	}
-	private void renderSequence(Sequencer sequencer)
+
+	private void renderControllerPattern(ControllerPattern cp, int index, int currentInterval, int displayedInterval)
 	{
 		final RenderItem itemRenderer = mc.getRenderItem();
-		final Pattern p = sequencer.getCurrentPattern();
-
 
 		GlStateManager.pushMatrix(); // Matrix for pattern data
 
-		for (int interval=0;interval<16;interval++)
+		//index represents top half or bottom half of the controller.
+		GlStateManager.translate(0, 0, 2 + index * 14);
+
+		if (cp != null) {
+			Sequencer sequencer = cp.getSequencer();
+			if (sequencer != null) {
+				String name = sequencer.getName();
+				if (name != null) {
+					//TODO: Render Name
+					//TODO: Render "Select Sequencer" buttons.
+				}
+			}
+		}
+
+		for (int sequenceInterval=0;sequenceInterval<16;sequenceInterval++)
 		{
-			final boolean[] rawPatternData = p.getRawPatternData(interval);
+			int patternIndex = -1;
+			if (cp != null) {
+				patternIndex = cp.getPatternAtInterval(displayedInterval + sequenceInterval);
+			}
 
-	        //outer loop. reset after every outer loop.
-	        for (int pitch=0;pitch<24;pitch++)
+	        for (int pattern=0;pattern<8;pattern++)
 			{
-				final boolean isEnabled = rawPatternData[pitch];
+				final boolean isEnabled = pattern == patternIndex;
 
-				final ItemStack renderItem = getSequenceButtonColour(sequencer, interval, pitch, isEnabled);
+				final ItemStack renderItem = getSequenceButtonColour(currentInterval, displayedInterval + sequenceInterval, pattern, isEnabled);
 
 				GlStateManager.pushMatrix(); // Matrix for an individual button on the pattern sequence data
 
 				GlStateManager.translate(
-						interval,
+						sequenceInterval,
 						isEnabled ? 0.0f : disabledButtonHeight,
-						(25 - pitch)
+						(pattern)
 				);
 
 				itemRenderer.renderItem(renderItem, TransformType.FIXED);
@@ -220,12 +205,9 @@ public class TESRBlockController extends TileEntitySpecialRenderer<TileEntityCon
 		GlStateManager.popMatrix(); // Matrix for pattern data
 	}
 
-	private ItemStack getSequenceButtonColour(Sequencer sequencer, int interval, int pitch, boolean isEnabled)
+	private ItemStack getSequenceButtonColour(int currentInterval, int interval, int pattern, boolean isEnabled)
 	{
-		final int currentInterval = sequencer.getCurrentInterval();
-
-		if (isSharpPitch(pitch)) {
-		    //Use sharp colours.
+		if (pattern == 0 || pattern == 4) {
 			if (currentInterval == interval)
 			{
 				return isEnabled ? enabledItemActiveIntervalSharp : disabledItemActiveIntervalSharp;
@@ -233,7 +215,6 @@ public class TESRBlockController extends TileEntitySpecialRenderer<TileEntityCon
 				return isEnabled ? enabledItemInactiveIntervalSharp : disabledItemInactiveIntervalSharp;
 			}
 		} else {
-	        //Use non-sharp colours.
 			if (currentInterval == interval) {
 				return isEnabled ? enabledItemActiveInterval : disabledItemActiveInterval;
 			} else {
@@ -268,12 +249,5 @@ public class TESRBlockController extends TileEntitySpecialRenderer<TileEntityCon
 		fontrenderer.drawString(bpmText, -fontrenderer.getStringWidth(bpmText) / 2, 0, 0xFFFFFF);
 
 		GlStateManager.popMatrix();
-	}
-
-	@SuppressWarnings("OverlyComplexBooleanExpression")
-	private static boolean isSharpPitch(int pitch)
-	{
-		return pitch == 0 || pitch == 2 || pitch == 4 || pitch == 7 || pitch == 9 || pitch == 12 ||
-					pitch == 14 || pitch == 16 || pitch == 19 || pitch == 21 || pitch == 24;
 	}
 }

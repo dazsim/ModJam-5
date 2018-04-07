@@ -12,7 +12,7 @@ public class JamController extends SequencerSet
 	private final World world;
 	private final BlockPos pos;
 	private final List<ControllerPattern> sequencerPatternSections = Lists.newArrayList();
-	private int currentInterval = 0;
+	private int sequenceInterval = 0;
 
 	public JamController(World world, BlockPos pos)
 	{
@@ -47,7 +47,7 @@ public class JamController extends SequencerSet
 	@Override
 	public void marchInterval()
 	{
-		currentInterval++;
+		sequenceInterval++;
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class JamController extends SequencerSet
 		{
 			if (section.getSequencerId().equals(id)) {
 
-				return section.getPatternAtInterval(currentInterval);
+				return section.getPatternAtInterval(sequenceInterval);
 			}
 		}
 
@@ -91,4 +91,12 @@ public class JamController extends SequencerSet
 		}
 		return null;
 	}
+
+    public int getSequenceInterval() {
+        return sequenceInterval;
+    }
+
+    public void setSequenceInterval(int sequenceInterval) {
+        this.sequenceInterval = sequenceInterval;
+    }
 }
