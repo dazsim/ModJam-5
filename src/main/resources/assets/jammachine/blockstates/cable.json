@@ -2,13 +2,62 @@
   "forge_marker": 1,
   "defaults": {
     "transform": "forge:default-block",
-    "model": "jammachine:floorcenter"
+        "model": "jammachine:floorcenter"
     
-  }
+    
+  },
   "variants": {
     "inventory": {
+        
         "y" : 180
-    }
+        
+    },
+        
+        "normal": [ {} ],
+        "floorcenter" : [{
+            "true": {
+                "model": "jammachine:floorcenter"
+            },
+            "false": {
+            }
+        }],
+        "ceilingcenter" : [{
+            "true": {
+                "model": "jammachine:ceilingcenter"
+            },
+            "false": {
+            }
+        }],
+         "northcenter" : [{
+            "true": {
+                "model": "jammachine:northcenter"
+            },
+            "false": {
+            }
+        }],
+         "southcenter" : [{
+            "true": {
+                "model": "jammachine:southcenter"
+            },
+            "false": {
+            }
+        }],
+         "eastcenter" : [{
+            "true": {
+                "model": "jammachine:eastcenter"
+            },
+            "false": {
+            }
+        }],
+         "westcenter" : [{
+            "true": {
+                "model": "jammachine:westcenter"
+            },
+            "false": {
+            }
+        }]
+       
+           
    }
   
 }

@@ -1,13 +1,11 @@
-"__comment": "Designed by Workshopcraft with Notepad",
+{
+    "__comment": "Designed by Workshopcraft with Notepad",
     "textures": {
         "particle": "jammachine:blocks/cable",
         "texture": "jammachine:blocks/cable"
     },
     "elements":    
-        {
-            
-            //default floor center cable
-           
+        [{
                 "__comment": "floorcenter",
                 "from": [ 5.5, 0, 5.5 ],
                 "to": [ 10.5, 1, 10.5 ],
@@ -18,7 +16,9 @@
                     "south": { "uv": [ 7.5, 15, 12.5, 16 ], "texture": "#texture" },
                     "west": { "uv": [ 7.5, 15, 12.5, 16 ], "texture": "#texture" },
                     "east": { "uv": [ 7.5, 15, 12.5, 16 ], "texture": "#texture" }
-           
-        }
+                }
+        }],
+        
+                "ambientocclusion":"false"
    
 }
