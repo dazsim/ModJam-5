@@ -1,30 +1,22 @@
 package org.atomicworkshop.jammachine.blocks;
 
+import org.atomicworkshop.jammachine.JamMachineMod;
+import org.atomicworkshop.jammachine.tiles.TileEntitySequencer;
+
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockHorizontal;
-import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.BlockAir;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import org.atomicworkshop.jammachine.JamMachineMod;
-import org.atomicworkshop.jammachine.items.ItemPunchCardWritten;
-import org.atomicworkshop.jammachine.items.ItemPunchCardBlank;
-import org.atomicworkshop.jammachine.sequencing.MusicPlayer;
-import org.atomicworkshop.jammachine.tiles.TileEntitySequencer;
-import org.atomicworkshop.jammachine.util.CollisionMaths;
-import javax.annotation.Nullable;
 
 @SuppressWarnings("deprecation")
 public class BlockCable extends Block 
@@ -36,13 +28,13 @@ public class BlockCable extends Block
 	 public static final PropertyBool CEILING = PropertyBool.create("ceiling");
 	 /* cable placed on floor */
 	 
-	 //public static final PropertyBool NORTH = PropertyBool.create("north");
+	 public static final PropertyBool NORTH = PropertyBool.create("north");
 	 /* cable placed on floor */
-	 //public static final PropertyBool SOUTH = PropertyBool.create("south");
+	 public static final PropertyBool SOUTH = PropertyBool.create("south");
 	 /* cable placed on floor */
-	 //public static final PropertyBool EAST = PropertyBool.create("east");
+	 public static final PropertyBool EAST = PropertyBool.create("east");
 	 /* cable placed on floor */
-	 //public static final PropertyBool WEST = PropertyBool.create("west");
+	 public static final PropertyBool WEST = PropertyBool.create("west");
 	 
 	 
 	 
@@ -76,7 +68,7 @@ public class BlockCable extends Block
 	@Override
 	protected BlockStateContainer createBlockState()
 	{
-		return new BlockStateContainer(this);
+		return new BlockStateContainer(this,FLOOR, CEILING,NORTH,SOUTH,EAST,WEST);
 	}
 
 	@Override
@@ -98,11 +90,51 @@ public class BlockCable extends Block
 	                                        EntityLivingBase placer, EnumHand hand)
 	{
 		/*check if there is already a cable in this block*/
+		
+		JamMachineMod.logger.info(facing.toString());
+		//System.out.println(world.getBlockState(pos).getBlock().toString());
+		JamMachineMod.logger.info(world.getBlockState(pos).getBlock().toString());
+		if (world.getBlockState(pos).getBlock().toString().equals("Block{minecraft:air}"))
+		{
+			JamMachineMod.logger.info("IS AIR");
+			if (facing.equals(facing.UP))
+			{
+				JamMachineMod.logger.info("IS UP");
+				return (this.createBlockState().getBaseState().withProperty(this.FLOOR, true).withProperty(this.CEILING, false).withProperty(this.NORTH, false).withProperty(this.SOUTH, false).withProperty(this.EAST, false).withProperty(this.WEST, false));
+			}
+			if (facing.equals(facing.DOWN))
+			{
+				JamMachineMod.logger.info("IS DOWN");
+				return (this.createBlockState().getBaseState().withProperty(this.FLOOR, false).withProperty(this.CEILING, true).withProperty(this.NORTH, false).withProperty(this.SOUTH, false).withProperty(this.EAST, false).withProperty(this.WEST, false));
+			}
+			if (facing.equals(facing.NORTH))
+			{
+				JamMachineMod.logger.info("IS NORTH");
+				return (this.createBlockState().getBaseState().withProperty(this.FLOOR, false).withProperty(this.CEILING, false).withProperty(this.NORTH, false).withProperty(this.SOUTH, true).withProperty(this.EAST, false).withProperty(this.WEST, false));
+			}
+			if (facing.equals(facing.SOUTH))
+			{
+				JamMachineMod.logger.info("IS SOUTH");
+				return (this.createBlockState().getBaseState().withProperty(this.FLOOR, false).withProperty(this.CEILING, false).withProperty(this.NORTH, true).withProperty(this.SOUTH, false).withProperty(this.EAST, false).withProperty(this.WEST, false));
+			}
+			if (facing.equals(facing.EAST))
+			{
+				JamMachineMod.logger.info("IS EAST");
+				return (this.createBlockState().getBaseState().withProperty(this.FLOOR, false).withProperty(this.CEILING, false).withProperty(this.NORTH, false).withProperty(this.SOUTH, false).withProperty(this.EAST, false).withProperty(this.WEST, true));
+			}
+			if (facing.equals(facing.WEST))
+			{
+				JamMachineMod.logger.info("IS WEST");
+				return (this.createBlockState().getBaseState().withProperty(this.FLOOR, false).withProperty(this.CEILING, false).withProperty(this.NORTH, false).withProperty(this.SOUTH, false).withProperty(this.EAST, true).withProperty(this.WEST, false));
+			}
+		}
 		if (world.getBlockState(pos).getBlock() instanceof BlockCable)
 		{
 			/*check if there is already a cable on this surface*/
-			if (facing.equals(facing.DOWN))
+			System.out.println(facing.toString());
+			if (facing.equals(facing.UP))
 			{
+				
 				if (world.getBlockState(pos).getProperties().containsKey(FLOOR))
 				{
 					return (world.getBlockState(pos));
@@ -111,7 +143,7 @@ public class BlockCable extends Block
 					return (world.getBlockState(pos).withProperty(this.FLOOR, true));
 				}
 			}
-			if (facing.equals(facing.UP))
+			if (facing.equals(facing.DOWN))
 			{
 				if (world.getBlockState(pos).getProperties().containsKey(CEILING))
 				{
