@@ -1,9 +1,16 @@
 package org.atomicworkshop.jammachine.sequencing;
 
 import com.google.common.collect.Lists;
+import net.minecraft.block.BlockNote;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.NoteBlockEvent;
+import net.minecraftforge.event.world.NoteBlockEvent.Play;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -37,8 +44,7 @@ public final class MusicPlayer
 
 			for (final Sequencer sequencer : sequencerSet)
 			{
-				sequencer.setCurrentInterval(0);
-				sequencer.setCurrentPatternIndex(sequencer.getPendingPatternIndex());
+				sequencer.reset();
 			}
 
 			playingSequences.add(e);
@@ -84,6 +90,41 @@ public final class MusicPlayer
 		}
 	}
 
+	public static void playNote(Sequencer sequencer, AdjacentNoteBlock noteBlock, Byte pitchToPlay)
+	{
+		final BlockPos sequencerBlockPos = sequencer.getBlockPos();
+		final BlockPos pos = sequencerBlockPos.offset(noteBlock.getDirection());
+		final int instrumentId = noteBlock.getInstrument().ordinal();
+
+		//Schedule sound to be played
+		final World world = sequencer.getWorld();
+		final Play e = new Play(world, pos, world.getBlockState(pos), pitchToPlay, instrumentId);
+		if (MinecraftForge.EVENT_BUS.post(e)) return;
+
+		final int playingInstrumentId = e.getInstrument().ordinal();
+		final int playingNoteId = e.getVanillaNoteId();
+		final float pitch = (float) StrictMath.pow(2.0D, (playingNoteId - 12) / 12.0D);
+		final SoundEvent instrument = getInstrument(playingInstrumentId);
+
+		final double x = pos.getX() + 0.5;
+		final double y = pos.getY() + 0.5;
+		final double z = pos.getZ() + 0.5;
+		world.playSound(x, y, z, instrument, SoundCategory.RECORDS, 3.0F, pitch, false);
+
+		//Trigger a note particle at location
+		world.spawnParticle(EnumParticleTypes.NOTE, x, y + 0.7D, z, playingNoteId / 24.0D, 0.0D, 0.0D);
+	}
+
+
+	private static SoundEvent getInstrument(int eventId)
+	{
+		if (eventId < 0 || eventId >= BlockNote.INSTRUMENTS.size())
+		{
+			eventId = 0;
+		}
+
+		return BlockNote.INSTRUMENTS.get(eventId);
+	}
 
 	private static final List<Sequencer> trackedSequencers = Lists.newArrayList();
 	private static final List<JamController> trackedControllers = Lists.newArrayList();

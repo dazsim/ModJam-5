@@ -101,7 +101,7 @@ public class Sequencer
 
 	public int getPendingPatternIndex()
 	{
-		return pendingPatternIndex;
+		return pendingPatternIndex < 0 ? 0 : pendingPatternIndex;
 	}
 
 	public void setPendingPatternIndex(int pendingPatternIndex)
@@ -127,7 +127,7 @@ public class Sequencer
 
 	public int getCurrentPatternIndex()
 	{
-		return currentPatternIndex;
+		return currentPatternIndex < 0 ? 0 : currentPatternIndex;
 	}
 
 	public void updatePendingPattern()
@@ -179,12 +179,12 @@ public class Sequencer
 		pendingPatternIndex = compound.getInteger(NBT.pendingPatternIndex);
 		name = compound.getString(NBT.name);
 
-		NBTTagList nbtPatterns = compound.getTagList(NBT.pattern, Constants.NBT.TAG_COMPOUND);
+		final NBTTagList nbtPatterns = compound.getTagList(NBT.pattern, Constants.NBT.TAG_COMPOUND);
 
 		for (int patternIndex = 0; patternIndex < patterns.length; patternIndex++)
 		{
-			NBTTagCompound patternNBT = nbtPatterns.getCompoundTagAt(patternIndex);
-			Pattern pattern = patterns[patternIndex];
+			final NBTTagCompound patternNBT = nbtPatterns.getCompoundTagAt(patternIndex);
+			final Pattern pattern = patterns[patternIndex];
 
 			for (int interval = 0; interval < 16; interval++)
 			{
@@ -202,6 +202,13 @@ public class Sequencer
 				}
 			}
 		}
+
+		programList.clear();
+		for (final int programPatternIndex : compound.getIntArray(NBT.program))
+		{
+			programList.add(programPatternIndex);
+		}
+		isProgramming = compound.getBoolean(NBT.isProgramming);
 	}
 
 	public NBTTagCompound writeToNBT()
@@ -211,7 +218,7 @@ public class Sequencer
 		tagCompound.setInteger(NBT.beatsPerMinute, beatsPerMinute);
 		tagCompound.setInteger(NBT.currentPatternIndex, currentPatternIndex);
 		tagCompound.setInteger(NBT.pendingPatternIndex, pendingPatternIndex);
-		if (this.name != null)
+		if (name != null)
 		{
 			tagCompound.setString(NBT.name, name);
 		}
@@ -236,6 +243,21 @@ public class Sequencer
 			patternList.appendTag(patternNBT);
 		}
 		tagCompound.setTag(NBT.pattern, patternList);
+
+
+		if (!programList.isEmpty())
+		{
+			final int[] programPatternIndices = new int[programList.size()];
+			int index = 0;
+			for (final Integer programPatternIndex : programList)
+			{
+				programPatternIndices[index++] = programPatternIndex;
+			}
+
+			tagCompound.setIntArray(NBT.program, programPatternIndices);
+		}
+
+		tagCompound.setBoolean(NBT.isProgramming, isProgramming);
 
 		return tagCompound;
 	}
@@ -373,11 +395,23 @@ public class Sequencer
 	{
 		this.isProgramming = isProgramming;
 		programList.clear();
-		programList.add(currentPatternIndex);
+		programList.add(currentPatternIndex < 0 ? 0 : currentPatternIndex);
 	}
 
 	public boolean isProgramming()
 	{
 		return isProgramming;
+	}
+
+	public void reset()
+	{
+		this.programIndex = 0;
+		setCurrentInterval(-1);
+		setCurrentPatternIndex(getPendingPatternIndex());
+	}
+
+	public int getProgramLength()
+	{
+		return programList.size();
 	}
 }

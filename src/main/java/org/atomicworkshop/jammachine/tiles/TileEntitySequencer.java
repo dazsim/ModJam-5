@@ -1,5 +1,6 @@
 package org.atomicworkshop.jammachine.tiles;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -19,10 +20,7 @@ import org.atomicworkshop.jammachine.JamMachineMod;
 import org.atomicworkshop.jammachine.Reference;
 import org.atomicworkshop.jammachine.Reference.NBT;
 import org.atomicworkshop.jammachine.libraries.ItemLibrary;
-import org.atomicworkshop.jammachine.sequencing.MusicPlayer;
-import org.atomicworkshop.jammachine.sequencing.Pattern;
-import org.atomicworkshop.jammachine.sequencing.Sequencer;
-import org.atomicworkshop.jammachine.sequencing.SequencerSet;
+import org.atomicworkshop.jammachine.sequencing.*;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
@@ -32,6 +30,8 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 	private static final int IS_PLAYING = 0;
 	private static final int CHANGE_PATTERN = 1;
 	private static final int RUN_PROGRAM = 2;
+	private static final int ENABLE_NOTE = 3;
+	private static final int DISABLE_NOTE = 4;
 	private boolean hasCard = false;
 	private String customName;
 
@@ -240,18 +240,37 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 	@Override
 	public boolean receiveClientEvent(int id, int type)
 	{
-		if (id == IS_PLAYING) {
+		final int controlCode = id & 7;
+
+		if (controlCode == IS_PLAYING) {
 			final boolean wasPlaying = isPlaying;
 			isPlaying = type != 0;
 			updatePlayStatus(wasPlaying);
 			return true;
-		} else if (id == CHANGE_PATTERN) {
+		}
+		if (controlCode == CHANGE_PATTERN) {
 			sequencer.setPendingPatternIndex(type);
 			return true;
-		} else if (id == RUN_PROGRAM) {
-			sequencer.setProgramming(type != 0);
 		}
-		
+		if (controlCode == RUN_PROGRAM) {
+			sequencer.setProgramming(type != 0);
+			return true;
+		}
+		if (controlCode == ENABLE_NOTE) {
+			sequencer.getCurrentPattern().setPitchAtInternal(id >> 4, type);
+			ImmutableList<AdjacentNoteBlock> availableNoteBlocks = sequencer.getAvailableNoteBlocks();
+			if (!availableNoteBlocks.isEmpty())
+			{
+				AdjacentNoteBlock noteBlock = availableNoteBlocks.get(0);
+				MusicPlayer.playNote(sequencer, noteBlock, (byte)type);
+			}
+			return true;
+		}
+		if (controlCode == DISABLE_NOTE) {
+			sequencer.getCurrentPattern().resetPitchAtInterval(id >> 4, type);
+			return true;
+		}
+
 		return false;
 	}
 
@@ -333,10 +352,17 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 
 			final boolean isEnabled = currentPattern.invertPitchAtInternal(interval, pitch);
 
+
 			JamMachineMod.logger.info("Inverting pitch {} at interval {} - {}", pitch, interval, isEnabled);
 			if (!world.isRemote)
 			{
-				sendUpdates();
+				if (isEnabled) {
+					world.addBlockEvent(pos, getBlockType(), ENABLE_NOTE | (interval << 4), pitch);
+				} else {
+					world.addBlockEvent(pos, getBlockType(), DISABLE_NOTE | (interval << 4), pitch);
+				}
+				//sendUpdates();
+				this.markDirty();
 			}
 			return true;
 		}

@@ -52,8 +52,10 @@ public final class Reference
 		public static String sequence = "sequence";
 		public static String hasCard = "hasCard";
 		public static String name = "name";
+		public static String program = "program";
+		public static String isProgramming = "isProgramming";
 
-        private NBT() { }
+		private NBT() { }
 	}
 
 	private Reference() { }

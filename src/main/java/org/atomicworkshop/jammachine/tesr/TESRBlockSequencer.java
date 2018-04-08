@@ -126,10 +126,12 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 		GlStateManager.pushMatrix();
 		{
 
+			ItemStack itemToRender = sequencer.isProgramming() ? enabledItemActiveInterval : disabledItemInactiveInterval;
+
 			GlStateManager.scale(0.5, 0.5, 0.5);
 			GlStateManager.translate(3, 0, -2.5);
 			GlStateManager.scale(14, 2, 4);
-			itemRenderer.renderItem(disabledItemInactiveInterval, TransformType.FIXED);
+			itemRenderer.renderItem(itemToRender, TransformType.FIXED);
 		}
 		GlStateManager.popMatrix();
 
@@ -137,7 +139,7 @@ public class TESRBlockSequencer extends TileEntitySpecialRenderer<TileEntitySequ
 		{
 			final FontRenderer fontrenderer = getFontRenderer();
 			final float textScale = 0.05f;
-			final String run = "Run";
+			final String run = "Prog " + sequencer.getProgramLength();
 
 			GlStateManager.translate(1.5, 0.5, -1.3);
 			GlStateManager.rotate(-90, 1, 0, 0);
