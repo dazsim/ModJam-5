@@ -1,10 +1,12 @@
 package org.atomicworkshop.jammachine.blocks;
 
 import org.atomicworkshop.jammachine.JamMachineMod;
+import org.atomicworkshop.jammachine.tiles.TileEntityCable;
 import org.atomicworkshop.jammachine.tiles.TileEntitySequencer;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
+import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -19,7 +21,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 @SuppressWarnings("deprecation")
-public class BlockCable extends Block 
+public class BlockCable extends Block implements ITileEntityProvider
 {
 	
 	/* cable placed on floor */
@@ -45,7 +47,11 @@ public class BlockCable extends Block
 		//blockState.validateProperty(block, property)
 		//final IBlockState defaultState = blockState.getBaseState().withProperty(NORTH, Boolean.FALSE).withProperty(EAST, Boolean.FALSE).withProperty(SOUTH, Boolean.FALSE).withProperty(WEST, Boolean.FALSE).withProperty(FLOOR, Boolean.FALSE).withProperty(CEILING, Boolean.FALSE);
 		
-		final IBlockState defaultState = this.blockState.getBaseState().withProperty(FLOOR, Boolean.FALSE).withProperty(CEILING, Boolean.FALSE);
+		final IBlockState defaultState = this.blockState.getBaseState()
+				.withProperty(FLOOR, Boolean.FALSE).withProperty(CEILING, Boolean.FALSE)
+				.withProperty(NORTH, Boolean.FALSE).withProperty(SOUTH, Boolean.FALSE)
+				.withProperty(EAST, Boolean.FALSE).withProperty(WEST, Boolean.FALSE)
+				;
 		
 		setDefaultState(defaultState);
 	}
@@ -69,8 +75,21 @@ public class BlockCable extends Block
 	protected BlockStateContainer createBlockState()
 	{
 		return new BlockStateContainer(this,FLOOR, CEILING,NORTH,SOUTH,EAST,WEST);
+		
 	}
 
+	@Override
+	public IBlockState getActualState(IBlockState state,IBlockAccess worldIn,BlockPos pos)
+	{
+		return this.getDefaultState()
+				.withProperty(FLOOR, (Boolean)state.getProperties().get(FLOOR))
+				.withProperty(CEILING, (Boolean)state.getProperties().get(CEILING))
+				.withProperty(NORTH, (Boolean)state.getProperties().get(NORTH))
+				.withProperty(SOUTH, (Boolean)state.getProperties().get(SOUTH))
+				.withProperty(EAST, (Boolean)state.getProperties().get(EAST))
+				.withProperty(WEST, (Boolean)state.getProperties().get(WEST))
+				;
+	}
 	@Override
 	public int getMetaFromState(IBlockState state)
 	{
@@ -175,17 +194,7 @@ public class BlockCable extends Block
 	@Override
 	public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
 	{
-		/*final TileEntitySequencer teSequencer = getTileEntity(worldIn, pos);
-		if (teSequencer != null) {
-			if (teSequencer.getHasCard())
-			{
-				teSequencer.ejectCard(pos.getX(), pos.getY(), pos.getZ());
-			}
-
-			teSequencer.stopPlaying();
-			MusicPlayer.stopTrackingSequencerAt(worldIn, pos);
-		}*/
-		//notify adjcent blocks that this block is broken
+		
 		super.breakBlock(worldIn, pos, state);
 	}
 
@@ -200,10 +209,10 @@ public class BlockCable extends Block
 			if (isPowered) break;
 		}
 
-		final TileEntitySequencer tileEntity = getTileEntity(worldIn, pos);
+		final TileEntityCable tileEntity = getTileEntity(worldIn, pos);
 		if (tileEntity == null) return;
 
-		tileEntity.notifyPowered(isPowered);
+		//tileEntity.notifyPowered(isPowered);
 	}
 
 	@Override
@@ -212,12 +221,7 @@ public class BlockCable extends Block
 	{
 		return false; 
 	}
-	@Override
-	public boolean isTopSolid(IBlockState state)
-	{
-		return true;
-		//return false; 
-	}
+	
 	
 	
 	
@@ -225,16 +229,16 @@ public class BlockCable extends Block
 	@Deprecated
 	public boolean eventReceived(IBlockState state, World world, BlockPos pos, int id, int param)
 	{
-		final TileEntitySequencer tileEntity = getTileEntity(world, pos);
+		final TileEntityCable tileEntity = getTileEntity(world, pos);
 		if (tileEntity == null) return false;
 
 		return tileEntity.receiveClientEvent(id, param);
 	}
 
-	public TileEntitySequencer getTileEntity(IBlockAccess world, BlockPos pos) {
+	public TileEntityCable getTileEntity(IBlockAccess world, BlockPos pos) {
 		final TileEntity tileEntity = world.getTileEntity(pos);
-		if (tileEntity instanceof TileEntitySequencer) {
-			return (TileEntitySequencer)tileEntity;
+		if (tileEntity instanceof TileEntityCable) {
+			return (TileEntityCable)tileEntity;
 		}
 		JamMachineMod.logger.error("No Tile entity found at block location? {}", pos);
 		return null;
@@ -252,6 +256,12 @@ public class BlockCable extends Block
 
 	    return false;
     }
+
+	@Override
+	public TileEntity createNewTileEntity(World worldIn, int meta) {
+		// TODO Auto-generated method stub
+		return new TileEntityCable();
+	}
 
 
 }

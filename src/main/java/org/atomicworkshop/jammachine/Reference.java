@@ -33,6 +33,7 @@ public final class Reference
 	public static final class TileEntities {
 		public static final String sequencer = tileEntityName("sequencer");
 		public static final String controller = tileEntityName("controller");
+		public static final String cable = tileEntityName("cable");
 
 		private TileEntities() { }
 
@@ -51,7 +52,17 @@ public final class Reference
 		public static String pattern = "pattern";
 		public static String sequence = "sequence";
 		public static String hasCard = "hasCard";
-
+		
+		/* cables */
+		
+		public static String floor = "floor";
+		public static String ceiling = "ceiling";
+		public static String north = "north";
+		public static String south = "south";
+		public static String east = "east";
+		public static String west = "west";
+		
+		
 		private NBT() { }
 	}
 

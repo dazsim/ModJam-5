@@ -14,42 +14,42 @@
     },
         
         "normal": [ {} ],
-        "floorcenter" : [{
+        "floor" : [{
             "true": {
                 "model": "jammachine:floorcenter"
             },
             "false": {
             }
         }],
-        "ceilingcenter" : [{
+        "ceiling" : [{
             "true": {
                 "model": "jammachine:ceilingcenter"
             },
             "false": {
             }
         }],
-         "northcenter" : [{
+         "north" : [{
             "true": {
                 "model": "jammachine:northcenter"
             },
             "false": {
             }
         }],
-         "southcenter" : [{
+         "south" : [{
             "true": {
                 "model": "jammachine:southcenter"
             },
             "false": {
             }
         }],
-         "eastcenter" : [{
+         "east" : [{
             "true": {
                 "model": "jammachine:eastcenter"
             },
             "false": {
             }
         }],
-         "westcenter" : [{
+         "west" : [{
             "true": {
                 "model": "jammachine:westcenter"
             },

@@ -11,6 +11,7 @@ import org.atomicworkshop.jammachine.items.ItemBraidedString;
 import org.atomicworkshop.jammachine.items.ItemPunchCardBlank;
 import org.atomicworkshop.jammachine.items.ItemPunchCardWritten;
 import org.atomicworkshop.jammachine.libraries.BlockLibrary;
+import org.atomicworkshop.jammachine.tiles.TileEntityCable;
 import org.atomicworkshop.jammachine.tiles.TileEntityController;
 import org.atomicworkshop.jammachine.tiles.TileEntitySequencer;
 
@@ -37,6 +38,8 @@ public final class RegistrationHandler
 		registerBlock(registry, new BlockCable(), Blocks.cable);
 		GameRegistry.registerTileEntity(TileEntitySequencer.class, TileEntities.sequencer);
 		GameRegistry.registerTileEntity(TileEntityController.class, TileEntities.controller);
+		GameRegistry.registerTileEntity(TileEntityCable.class, TileEntities.cable);
+		
 		
 	}
 
