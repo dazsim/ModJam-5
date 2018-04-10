@@ -332,13 +332,13 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 		//rather than top-left aligned as the code implies)
 		x *= 28;
 		x -= 2.5;
-		z *= 29;
-		z -= 0.5;
+		z *= 30;
+		z -= 2.4;
 		JamMachineMod.logger.info("adjusted hitlocation {},{}", x, z);
 
 		JamMachineMod.logger.info("checking player interaction at scaled {},{}", x, z);
 
-		if (x >= 0 && x < 16 && z >= 0 && z < 26) {
+		if (x >= 0 && x < 16 && z >= 0 && z < 25) {
 			if (sequencer == null) {
 				sequencer = new Sequencer(world, pos);
 				MusicPlayer.startTracking(sequencer);
@@ -347,7 +347,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 			//Hit a sequence button
 			final Pattern currentPattern = sequencer.getCurrentPattern();
 
-			final int pitch = 25 - (int)z;
+			final int pitch = 24 - (int)z;
 			final int interval = (int)x;
 
 			final boolean isEnabled = currentPattern.invertPitchAtInternal(interval, pitch);
