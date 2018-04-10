@@ -32,6 +32,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 	private static final int RUN_PROGRAM = 2;
 	private static final int ENABLE_NOTE = 3;
 	private static final int DISABLE_NOTE = 4;
+	private static final int CHANGE_BPM = 5;
 	private boolean hasCard = false;
 	private String customName;
 
@@ -250,10 +251,18 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 		}
 		if (controlCode == CHANGE_PATTERN) {
 			sequencer.setPendingPatternIndex(type);
+			if (!isPlaying)
+			{
+				sequencer.setCurrentPatternIndex(type);
+			}
 			return true;
 		}
 		if (controlCode == RUN_PROGRAM) {
 			sequencer.setProgramming(type != 0);
+			return true;
+		}
+		if (controlCode == CHANGE_BPM) {
+			sequencer.setDesiredBPM(type);
 			return true;
 		}
 		if (controlCode == ENABLE_NOTE) {
@@ -361,8 +370,7 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 				} else {
 					world.addBlockEvent(pos, getBlockType(), DISABLE_NOTE | (interval << 4), pitch);
 				}
-				//sendUpdates();
-				this.markDirty();
+				markDirty();
 			}
 			return true;
 		}
@@ -395,8 +403,12 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 		final double runButtonBottom = 0.41390746154313085;
 		if ((clickX>= runButtonLeft && clickX<= runButtonRight) && (clickZ>= runButtonTop && clickZ<= runButtonBottom))
 		{
-			sequencer.setProgramming(!sequencer.isProgramming());
-			world.addBlockEvent(pos, getBlockType(), RUN_PROGRAM, sequencer.isProgramming() ? 1 : 0);
+			if (!world.isRemote)
+			{
+				sequencer.setProgramming(!sequencer.isProgramming());
+
+				world.addBlockEvent(pos, getBlockType(), RUN_PROGRAM, sequencer.isProgramming() ? 1 : 0);
+			}
 			return true;
 		}
 
@@ -426,15 +438,17 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 			index = (int)((offX / bankWidth) * 4);
 			index += ((int)((offZ / bankHeight) * 2)) * 4;
 
-			sequencer.setPendingPatternIndex(index);
+
+			/*sequencer.setPendingPatternIndex(index);
 			if (!isPlaying)
 			{
 				sequencer.setCurrentPatternIndex(index);
-			}
+			}*/
 
 			if (!world.isRemote)
 			{
-				sendUpdates();
+				world.addBlockEvent(pos, getBlockType(), CHANGE_PATTERN, index);
+				markDirty();
 			}
 			return true;
 		}
@@ -472,7 +486,8 @@ public class TileEntitySequencer extends TileEntity implements ITickable, IWorld
 			}
 			if (!world.isRemote)
 			{
-				sendUpdates();
+				world.addBlockEvent(pos, getBlockType(), CHANGE_BPM, sequencer.getBeatsPerMinute());
+				markDirty();
 			}
 			return true;
 		}

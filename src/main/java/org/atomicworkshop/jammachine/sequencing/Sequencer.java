@@ -417,6 +417,11 @@ public class Sequencer
 
 		if (isProgramming && !programList.isEmpty()) {
 			currentPatternIndex = programList.getFirst();
+			if (programList.size() > 1) {
+				pendingPatternIndex = programList.get(1);
+			} else {
+				pendingPatternIndex = currentPatternIndex;
+			}
 		} else {
 			currentPatternIndex = 0;
 			pendingPatternIndex = 0;
