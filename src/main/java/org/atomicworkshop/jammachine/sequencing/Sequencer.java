@@ -33,7 +33,8 @@ public class Sequencer
 	private int beatsPerMinute;
 	private int pendingPatternIndex;
 	private int currentPatternIndex;
-	private int currentInterval = -1;
+	private int currentInterval;
+	private boolean isAtStart;
 	private int noteBlockSearch;
 	private String name;
 	private boolean isProgramming;
@@ -101,7 +102,7 @@ public class Sequencer
 
 	public int getPendingPatternIndex()
 	{
-		return pendingPatternIndex < 0 ? 0 : pendingPatternIndex;
+		return pendingPatternIndex;
 	}
 
 	public void setPendingPatternIndex(int pendingPatternIndex)
@@ -127,7 +128,7 @@ public class Sequencer
 
 	public int getCurrentPatternIndex()
 	{
-		return currentPatternIndex < 0 ? 0 : currentPatternIndex;
+		return currentPatternIndex;
 	}
 
 	public void updatePendingPattern()
@@ -283,6 +284,11 @@ public class Sequencer
 
 	public boolean incrementInterval()
 	{
+		if (isAtStart) {
+			isAtStart = false;
+			return false;
+		}
+
 		boolean marchControllerPattern = false;
 		++currentInterval;
 		if (currentInterval >= 16) {
@@ -405,9 +411,16 @@ public class Sequencer
 
 	public void reset()
 	{
-		this.programIndex = 0;
-		setCurrentInterval(-1);
-		setCurrentPatternIndex(getPendingPatternIndex());
+		isAtStart = true;
+		programIndex = 0;
+		currentInterval = 0;
+
+		if (isProgramming && !programList.isEmpty()) {
+			currentPatternIndex = programList.getFirst();
+		} else {
+			currentPatternIndex = 0;
+			pendingPatternIndex = 0;
+		}
 	}
 
 	public int getProgramLength()
