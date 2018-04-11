@@ -12,6 +12,7 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -77,6 +78,9 @@ public class BlockCable extends Block implements ITileEntityProvider
 		if (worldIn.getTileEntity(pos) instanceof TileEntityCable)
 		{
 			TileEntityCable te = (TileEntityCable)worldIn.getTileEntity(pos);
+			JamMachineMod.logger.info("*********");
+			JamMachineMod.logger.info(te.hasCable(EnumFacing.DOWN).toString());
+			JamMachineMod.logger.info("*********");
 			return this.getDefaultState()
 					.withProperty(FLOOR, te.hasCable(EnumFacing.DOWN))
 					.withProperty(CEILING, te.hasCable(EnumFacing.UP))
@@ -85,6 +89,7 @@ public class BlockCable extends Block implements ITileEntityProvider
 					.withProperty(EAST, te.hasCable(EnumFacing.EAST))
 					.withProperty(WEST, te.hasCable(EnumFacing.WEST))
 					;	
+			
 		}
 		return this.getDefaultState();
 				
@@ -103,6 +108,58 @@ public class BlockCable extends Block implements ITileEntityProvider
 	
 	}
 	
+	public IBlockState setCableProperty(EnumFacing facing, IBlockState state, Boolean value)
+	{
+		if (facing.equals(EnumFacing.UP))
+    	{
+				return (this.createBlockState().getBaseState())
+					
+					.withProperty(this.FLOOR, value.booleanValue()).withProperty(this.CEILING, false)
+					.withProperty(this.NORTH, false).withProperty(this.SOUTH, false)
+					.withProperty(this.EAST, false).withProperty(this.WEST, false);
+    	}
+    	if (facing.equals(EnumFacing.DOWN))
+    	{
+    			return (this.createBlockState().getBaseState())
+					
+					.withProperty(this.FLOOR, value.booleanValue()).withProperty(this.CEILING, false)
+					.withProperty(this.NORTH, false).withProperty(this.SOUTH, false)
+					.withProperty(this.EAST, false).withProperty(this.WEST, false);
+    	}
+    	if (facing.equals(EnumFacing.NORTH))
+    	{
+    			return (this.createBlockState().getBaseState())
+					
+					.withProperty(this.FLOOR, value.booleanValue()).withProperty(this.CEILING, false)
+					.withProperty(this.NORTH, false).withProperty(this.SOUTH, false)
+					.withProperty(this.EAST, false).withProperty(this.WEST, false);
+    	}
+    	if (facing.equals(EnumFacing.SOUTH))
+    	{
+    		return (this.createBlockState().getBaseState())
+					
+					.withProperty(this.FLOOR, value.booleanValue()).withProperty(this.CEILING, false)
+					.withProperty(this.NORTH, false).withProperty(this.SOUTH, false)
+					.withProperty(this.EAST, false).withProperty(this.WEST, false);
+    	}
+    	if (facing.equals(EnumFacing.EAST))
+    	{
+    		return (this.createBlockState().getBaseState())
+					
+					.withProperty(this.FLOOR, value.booleanValue()).withProperty(this.CEILING, false)
+					.withProperty(this.NORTH, false).withProperty(this.SOUTH, false)
+					.withProperty(this.EAST, false).withProperty(this.WEST, false);
+    	}
+    	if (facing.equals(EnumFacing.WEST))
+    	{
+    		return (this.createBlockState().getBaseState())
+					
+					.withProperty(this.FLOOR, value.booleanValue()).withProperty(this.CEILING, false)
+					.withProperty(this.NORTH, false).withProperty(this.SOUTH, false)
+					.withProperty(this.EAST, false).withProperty(this.WEST, false);
+    	}
+    	return state;
+	}
 	public void setCableState(World world, BlockPos pos, EnumFacing facing)
 	{
 		if (world.getTileEntity(pos) instanceof TileEntityCable)
@@ -110,6 +167,7 @@ public class BlockCable extends Block implements ITileEntityProvider
 			TileEntityCable te = (TileEntityCable)world.getTileEntity(pos);
 			te.setCable(facing, Boolean.TRUE);
 			te.markDirty();
+			
 		}
 	}
 	
@@ -130,14 +188,17 @@ public class BlockCable extends Block implements ITileEntityProvider
 			{
 				JamMachineMod.logger.info("IS UP");
 				setCableState(world,pos,facing);
-				return this.getActualState(this.createBlockState().getBaseState(), world, pos);
+				
+				return setCableProperty(facing,createBlockState().getBaseState(),Boolean.TRUE); 
 				//return (this.createBlockState().getBaseState().withProperty(this.FLOOR, true).withProperty(this.CEILING, false).withProperty(this.NORTH, false).withProperty(this.SOUTH, false).withProperty(this.EAST, false).withProperty(this.WEST, false));
 			}
 			if (facing.equals(facing.DOWN))
 			{
 				JamMachineMod.logger.info("IS DOWN");
 				setCableState(world,pos,facing);
-				return (this.createBlockState().getBaseState().withProperty(this.FLOOR, false).withProperty(this.CEILING, true).withProperty(this.NORTH, false).withProperty(this.SOUTH, false).withProperty(this.EAST, false).withProperty(this.WEST, false));
+				return setCableProperty(facing,createBlockState().getBaseState(),Boolean.TRUE); 
+				
+				//return (this.createBlockState().getBaseState().withProperty(this.FLOOR, false).withProperty(this.CEILING, true).withProperty(this.NORTH, false).withProperty(this.SOUTH, false).withProperty(this.EAST, false).withProperty(this.WEST, false));
 			}
 			if (facing.equals(facing.NORTH))
 			{
@@ -199,7 +260,10 @@ public class BlockCable extends Block implements ITileEntityProvider
 			return getDefaultState().withProperty(this.FLOOR, true);
 		}
 		return getDefaultState(); //TODO this will change as i add support for cables connecting when you place them
+		
 	}
+	
+	
 /*
 	@Nullable
 	@Override
@@ -273,10 +337,27 @@ public class BlockCable extends Block implements ITileEntityProvider
 
 	    return false;
     }
-
+	@Override
+	public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
+    {
+		JamMachineMod.logger.error("block placed. lets see whats here.");
+		JamMachineMod.logger.error(state.toString());
+		if (state.getProperties().get(CEILING).equals(Boolean.TRUE))
+		{
+			JamMachineMod.logger.error("CEILING SET TRUE");
+			if (worldIn.getTileEntity(pos) instanceof TileEntityCable)
+			{
+				TileEntityCable te =(TileEntityCable)worldIn.getTileEntity(pos);
+				te.setCable(EnumFacing.DOWN, true);
+				
+				JamMachineMod.logger.error("setCable(EnumFacing.DOWN,true)");
+			}
+		}
+    }
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta) {
 		// TODO Auto-generated method stub
+		
 		return new TileEntityCable();
 	}
 

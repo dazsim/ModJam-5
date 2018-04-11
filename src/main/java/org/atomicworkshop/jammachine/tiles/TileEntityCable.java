@@ -144,6 +144,7 @@ public class TileEntityCable extends TileEntity{
     		WEST = state;
     	}
     	
+    	this.markDirty();
     }
 
 
