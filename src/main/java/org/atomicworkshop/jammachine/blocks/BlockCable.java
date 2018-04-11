@@ -47,13 +47,6 @@ public class BlockCable extends Block implements ITileEntityProvider
 		//blockState.validateProperty(block, property)
 		//final IBlockState defaultState = blockState.getBaseState().withProperty(NORTH, Boolean.FALSE).withProperty(EAST, Boolean.FALSE).withProperty(SOUTH, Boolean.FALSE).withProperty(WEST, Boolean.FALSE).withProperty(FLOOR, Boolean.FALSE).withProperty(CEILING, Boolean.FALSE);
 		
-		final IBlockState defaultState = this.blockState.getBaseState()
-				.withProperty(FLOOR, Boolean.FALSE).withProperty(CEILING, Boolean.FALSE)
-				.withProperty(NORTH, Boolean.FALSE).withProperty(SOUTH, Boolean.FALSE)
-				.withProperty(EAST, Boolean.FALSE).withProperty(WEST, Boolean.FALSE)
-				;
-		
-		setDefaultState(defaultState);
 	}
 
 	@Override
@@ -81,14 +74,20 @@ public class BlockCable extends Block implements ITileEntityProvider
 	@Override
 	public IBlockState getActualState(IBlockState state,IBlockAccess worldIn,BlockPos pos)
 	{
-		return this.getDefaultState()
-				.withProperty(FLOOR, (Boolean)state.getProperties().get(FLOOR))
-				.withProperty(CEILING, (Boolean)state.getProperties().get(CEILING))
-				.withProperty(NORTH, (Boolean)state.getProperties().get(NORTH))
-				.withProperty(SOUTH, (Boolean)state.getProperties().get(SOUTH))
-				.withProperty(EAST, (Boolean)state.getProperties().get(EAST))
-				.withProperty(WEST, (Boolean)state.getProperties().get(WEST))
-				;
+		if (worldIn.getTileEntity(pos) instanceof TileEntityCable)
+		{
+			TileEntityCable te = (TileEntityCable)worldIn.getTileEntity(pos);
+			return this.getDefaultState()
+					.withProperty(FLOOR, te.hasCable(EnumFacing.DOWN))
+					.withProperty(CEILING, te.hasCable(EnumFacing.UP))
+					.withProperty(NORTH, te.hasCable(EnumFacing.NORTH))
+					.withProperty(SOUTH, te.hasCable(EnumFacing.SOUTH))
+					.withProperty(EAST, te.hasCable(EnumFacing.EAST))
+					.withProperty(WEST, te.hasCable(EnumFacing.WEST))
+					;	
+		}
+		return this.getDefaultState();
+				
 	}
 	@Override
 	public int getMetaFromState(IBlockState state)
@@ -101,12 +100,23 @@ public class BlockCable extends Block implements ITileEntityProvider
 	public IBlockState getStateFromMeta(int meta)
 	{
 		return getDefaultState();
+	
 	}
-
+	
+	public void setCableState(World world, BlockPos pos, EnumFacing facing)
+	{
+		if (world.getTileEntity(pos) instanceof TileEntityCable)
+		{
+			TileEntityCable te = (TileEntityCable)world.getTileEntity(pos);
+			te.setCable(facing, Boolean.TRUE);
+			te.markDirty();
+		}
+	}
+	
 	@Override
 	public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing,
 	                                        float hitX, float hitY, float hitZ, int meta,
-	                                        EntityLivingBase placer, EnumHand hand)
+	                                        EntityLivingBase placer)
 	{
 		/*check if there is already a cable in this block*/
 		
@@ -119,31 +129,38 @@ public class BlockCable extends Block implements ITileEntityProvider
 			if (facing.equals(facing.UP))
 			{
 				JamMachineMod.logger.info("IS UP");
-				return (this.createBlockState().getBaseState().withProperty(this.FLOOR, true).withProperty(this.CEILING, false).withProperty(this.NORTH, false).withProperty(this.SOUTH, false).withProperty(this.EAST, false).withProperty(this.WEST, false));
+				setCableState(world,pos,facing);
+				return this.getActualState(this.createBlockState().getBaseState(), world, pos);
+				//return (this.createBlockState().getBaseState().withProperty(this.FLOOR, true).withProperty(this.CEILING, false).withProperty(this.NORTH, false).withProperty(this.SOUTH, false).withProperty(this.EAST, false).withProperty(this.WEST, false));
 			}
 			if (facing.equals(facing.DOWN))
 			{
 				JamMachineMod.logger.info("IS DOWN");
+				setCableState(world,pos,facing);
 				return (this.createBlockState().getBaseState().withProperty(this.FLOOR, false).withProperty(this.CEILING, true).withProperty(this.NORTH, false).withProperty(this.SOUTH, false).withProperty(this.EAST, false).withProperty(this.WEST, false));
 			}
 			if (facing.equals(facing.NORTH))
 			{
 				JamMachineMod.logger.info("IS NORTH");
+				setCableState(world,pos,facing);
 				return (this.createBlockState().getBaseState().withProperty(this.FLOOR, false).withProperty(this.CEILING, false).withProperty(this.NORTH, false).withProperty(this.SOUTH, true).withProperty(this.EAST, false).withProperty(this.WEST, false));
 			}
 			if (facing.equals(facing.SOUTH))
 			{
 				JamMachineMod.logger.info("IS SOUTH");
+				setCableState(world,pos,facing);
 				return (this.createBlockState().getBaseState().withProperty(this.FLOOR, false).withProperty(this.CEILING, false).withProperty(this.NORTH, true).withProperty(this.SOUTH, false).withProperty(this.EAST, false).withProperty(this.WEST, false));
 			}
 			if (facing.equals(facing.EAST))
 			{
 				JamMachineMod.logger.info("IS EAST");
+				setCableState(world,pos,facing);
 				return (this.createBlockState().getBaseState().withProperty(this.FLOOR, false).withProperty(this.CEILING, false).withProperty(this.NORTH, false).withProperty(this.SOUTH, false).withProperty(this.EAST, false).withProperty(this.WEST, true));
 			}
 			if (facing.equals(facing.WEST))
 			{
 				JamMachineMod.logger.info("IS WEST");
+				setCableState(world,pos,facing);
 				return (this.createBlockState().getBaseState().withProperty(this.FLOOR, false).withProperty(this.CEILING, false).withProperty(this.NORTH, false).withProperty(this.SOUTH, false).withProperty(this.EAST, true).withProperty(this.WEST, false));
 			}
 		}

@@ -16,6 +16,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 
 public class TileEntityCable extends TileEntity{
 	public Boolean FLOOR = Boolean.FALSE;
@@ -79,15 +80,71 @@ public class TileEntityCable extends TileEntity{
         compound.setBoolean(NBT.south, SOUTH);
         compound.setBoolean(NBT.east, EAST);
         compound.setBoolean(NBT.west,WEST);
-
+        
       
 
         return compound;
     }
+    /* check Tile Entity for cable */
+    public Boolean hasCable(EnumFacing facing)
+    {
+    	//JamMachineMod.logger.info("The Facing is "+facing.toString());
+    	if (facing.equals(EnumFacing.UP))
+    	{
+    		return Boolean.valueOf(CEILING);
+    	}
+    	if (facing.equals(EnumFacing.DOWN))
+    	{
+    		return Boolean.valueOf(FLOOR);
+    	}
+    	if (facing.equals(EnumFacing.NORTH))
+    	{
+    		return Boolean.valueOf(NORTH);
+    	}
+    	if (facing.equals(EnumFacing.SOUTH))
+    	{
+    		return Boolean.valueOf(SOUTH);
+    	}
+    	if (facing.equals(EnumFacing.EAST))
+    	{
+    		return Boolean.valueOf(EAST);
+    	}
+    	if (facing.equals(EnumFacing.WEST))
+    	{
+    		return Boolean.valueOf(WEST);
+    	}
+    	return Boolean.FALSE;
+    }
 
-   
-
-    
+    /* check Tile Entity for cable */
+    public void setCable(EnumFacing facing,Boolean state)
+    {
+    	if (facing.equals(EnumFacing.UP))
+    	{
+    		CEILING = state;
+    	}
+    	if (facing.equals(EnumFacing.DOWN))
+    	{
+    		FLOOR = state;
+    	}
+    	if (facing.equals(EnumFacing.NORTH))
+    	{
+    		NORTH = state;
+    	}
+    	if (facing.equals(EnumFacing.SOUTH))
+    	{
+    		SOUTH = state;
+    	}
+    	if (facing.equals(EnumFacing.EAST))
+    	{
+    		EAST = state;
+    	}
+    	if (facing.equals(EnumFacing.WEST))
+    	{
+    		WEST = state;
+    	}
+    	
+    }
 
 
     @Nullable
