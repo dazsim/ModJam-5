@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 
 import org.atomicworkshop.jammachine.Reference;
 import org.atomicworkshop.jammachine.items.ItemBraidedString;
+import org.atomicworkshop.jammachine.items.ItemCable;
 import org.atomicworkshop.jammachine.items.ItemPunchCardBlank;
 import org.atomicworkshop.jammachine.items.ItemPunchCardWritten;
 
@@ -35,6 +36,11 @@ public class ItemLibrary
 	@Nonnull
 	public static final ItemBraidedString braidedString;
 	
+	@ObjectHolder("heldcable")
+	@Nonnull
+	public static final ItemCable heldCable;
+	
+	
 	//Trick IntelliJ/Eclipse into thinking that sequencer won't be null
 	static {
 		sequencer = null;
@@ -44,5 +50,6 @@ public class ItemLibrary
 		punchCardBlank = null;
 		punchCardWritten = null;
 		braidedString = null;
+		heldCable = null;
 	}
 }

@@ -18,7 +18,7 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 
-public class TileEntityCable extends TileEntity{
+public class TileEntityCablebackup extends TileEntity{
 	public Boolean FLOOR = Boolean.FALSE;
 	public Boolean CEILING = Boolean.FALSE;
 	public Boolean NORTH = Boolean.FALSE;

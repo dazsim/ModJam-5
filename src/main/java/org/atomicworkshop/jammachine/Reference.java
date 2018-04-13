@@ -26,7 +26,7 @@ public final class Reference
 		public static final ResourceLocation punchcardblank = resource("punchcardblank");
 		public static final ResourceLocation punchcardwritten = resource("punchcardwritten");
 		public static final ResourceLocation braidedstring = resource("braidedstring");
-
+		public static final ResourceLocation heldcable = resource("heldcable");
 		private Items() { }
 	}
 

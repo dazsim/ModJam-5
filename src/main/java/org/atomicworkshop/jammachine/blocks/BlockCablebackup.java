@@ -22,7 +22,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 @SuppressWarnings("deprecation")
-public class BlockCable extends Block implements ITileEntityProvider
+public class BlockCablebackup extends Block implements ITileEntityProvider
 {
 	
 	/* cable placed on floor */
@@ -43,7 +43,7 @@ public class BlockCable extends Block implements ITileEntityProvider
 	 
 	private final AxisAlignedBB boundingBox = new AxisAlignedBB(0, 0, 0, 1, 0.2, 1);
 
-	public BlockCable() {
+	public BlockCablebackup() {
 		super(new MachineMaterial());
 		//blockState.validateProperty(block, property)
 		//final IBlockState defaultState = blockState.getBaseState().withProperty(NORTH, Boolean.FALSE).withProperty(EAST, Boolean.FALSE).withProperty(SOUTH, Boolean.FALSE).withProperty(WEST, Boolean.FALSE).withProperty(FLOOR, Boolean.FALSE).withProperty(CEILING, Boolean.FALSE);
@@ -94,9 +94,19 @@ public class BlockCable extends Block implements ITileEntityProvider
 		return this.getDefaultState();
 				
 	}
-	
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return 0; //TODO : this will change as i add support for cables connecting to each other. or not
+	}
 
+	@Override
+	@Deprecated
+	public IBlockState getStateFromMeta(int meta)
+	{
+		return getDefaultState();
 	
+	}
 	/* sets cable state in blockstate */
 	public IBlockState setCableProperty(EnumFacing facing, IBlockState state, Boolean value)
 	{
@@ -184,7 +194,7 @@ public class BlockCable extends Block implements ITileEntityProvider
 			
 			
 		}
-		if (world.getBlockState(pos).getBlock() instanceof BlockCable)
+		if (world.getBlockState(pos).getBlock() instanceof BlockCablebackup)
 		{
 			/*check if there is already a cable on this surface*/
 			System.out.println(facing.toString());
@@ -319,11 +329,7 @@ public class BlockCable extends Block implements ITileEntityProvider
 		
 		return new TileEntityCable();
 	}
-	@Override
-	public int getMetaFromState(IBlockState state)
-	{
-		return 0; //TODO : this will change as i add support for cables connecting to each other. or not
-	}
+
 
 }
 

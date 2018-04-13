@@ -8,6 +8,7 @@ import org.atomicworkshop.jammachine.blocks.BlockCable;
 import org.atomicworkshop.jammachine.blocks.BlockController;
 import org.atomicworkshop.jammachine.blocks.BlockSequencer;
 import org.atomicworkshop.jammachine.items.ItemBraidedString;
+import org.atomicworkshop.jammachine.items.ItemCable;
 import org.atomicworkshop.jammachine.items.ItemPunchCardBlank;
 import org.atomicworkshop.jammachine.items.ItemPunchCardWritten;
 import org.atomicworkshop.jammachine.libraries.BlockLibrary;
@@ -50,10 +51,13 @@ public final class RegistrationHandler
 		registerItemFromBlock(registry, BlockLibrary.sequencer);
 		registerItemFromBlock(registry, BlockLibrary.controller);
 		registerItemFromBlock(registry, BlockLibrary.cable);
-
+		
+		
 		registerItem(registry, new ItemPunchCardBlank(), Items.punchcardblank, true);
 		registerItem(registry, new ItemPunchCardWritten(), Items.punchcardwritten, false);
 		registerItem(registry, new ItemBraidedString(), Items.braidedstring, true);
+		registerItem(registry, new ItemCable(), Items.heldcable, true);
+		
 		
 	}
 
