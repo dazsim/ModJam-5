@@ -1,17 +1,13 @@
 package org.atomicworkshop.jammachine.tiles;
 
-import java.util.Collection;
-import java.util.Iterator;
-
 import javax.annotation.Nullable;
 
 import org.atomicworkshop.jammachine.JamMachineMod;
 import org.atomicworkshop.jammachine.Reference.NBT;
 import org.atomicworkshop.jammachine.blocks.BlockCable;
+import org.atomicworkshop.jammachine.libraries.ItemLibrary;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
@@ -42,12 +38,13 @@ public class TileEntityCable extends TileEntity{
         SOUTH = Boolean.valueOf(compound.getBoolean(NBT.south));
         EAST = Boolean.valueOf(compound.getBoolean(NBT.east));
         WEST = Boolean.valueOf(compound.getBoolean(NBT.west));
-        Block b = this.getWorld().getBlockState(pos).getBlock();
+        /*Block b = this.getWorld().getBlockState(pos).getBlock();
         this.getWorld().setBlockState(pos, this.getWorld().getBlockState(pos)
         		.withProperty(BlockCable.FLOOR, this.FLOOR).withProperty(BlockCable.CEILING, this.CEILING)
         		.withProperty(BlockCable.NORTH, this.NORTH).withProperty(BlockCable.SOUTH, this.SOUTH)
         		.withProperty(BlockCable.EAST, this.EAST).withProperty(BlockCable.WEST, this.WEST)
-        		);
+        		);*/
+        ItemLibrary.heldCable.logTE(this);
        
 
         
@@ -60,20 +57,7 @@ public class TileEntityCable extends TileEntity{
 
         super.writeToNBT(compound);
 
-        Collection<IProperty<?>> props  = this.getWorld().getBlockState(pos).getBlock().getActualState(this.getWorld().getBlockState(pos), world, pos).getPropertyKeys();
-        Iterator iprop = props.iterator();
-        while(iprop.hasNext())
-        {
-        	PropertyBool propB = (PropertyBool)iprop.next();
-        	if (propB.getName().equals(BlockCable.FLOOR.getName()))
-        	{
-        		this.FLOOR = propB.equals(true) || false;
-        	}
-        	if (propB.getName().equals(BlockCable.CEILING.getName()))
-        	{
-        		this.CEILING = propB.equals(true) || false;
-        	}
-        }
+        
         compound.setBoolean(NBT.floor, FLOOR);
         compound.setBoolean(NBT.ceiling, CEILING);
         compound.setBoolean(NBT.north, NORTH);
@@ -124,29 +108,41 @@ public class TileEntityCable extends TileEntity{
     	if (facing.equals(EnumFacing.UP))
     	{
     		CEILING = state;
+    		this.markDirty();
+    		return;
     	}
     	if (facing.equals(EnumFacing.DOWN))
     	{
     		FLOOR = state;
+    		this.markDirty();
+    		return;
     	}
     	if (facing.equals(EnumFacing.NORTH))
     	{
     		NORTH = state;
+    		this.markDirty();
+    		return;
     	}
     	if (facing.equals(EnumFacing.SOUTH))
     	{
     		SOUTH = state;
+    		this.markDirty();
+    		return;
     	}
     	if (facing.equals(EnumFacing.EAST))
     	{
     		EAST = state;
+    		this.markDirty();
+    		return;
     	}
     	if (facing.equals(EnumFacing.WEST))
     	{
     		WEST = state;
+    		this.markDirty();
+    		return;
     	}
     	
-    	this.markDirty();
+    	
     	
     }
 

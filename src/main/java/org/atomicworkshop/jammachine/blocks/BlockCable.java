@@ -78,9 +78,9 @@ public class BlockCable extends Block implements ITileEntityProvider
 		if (worldIn.getTileEntity(pos) instanceof TileEntityCable)
 		{
 			TileEntityCable te = (TileEntityCable)worldIn.getTileEntity(pos);
-			JamMachineMod.logger.info("*********");
-			JamMachineMod.logger.info(te.hasCable(EnumFacing.DOWN).toString());
-			JamMachineMod.logger.info("*********");
+			//JamMachineMod.logger.info("*********");
+			//JamMachineMod.logger.info(te.hasCable(EnumFacing.DOWN).toString());
+			//JamMachineMod.logger.info("*********");
 			return this.getDefaultState()
 					.withProperty(FLOOR, te.hasCable(EnumFacing.DOWN))
 					.withProperty(CEILING, te.hasCable(EnumFacing.UP))
@@ -168,56 +168,7 @@ public class BlockCable extends Block implements ITileEntityProvider
 	                                        float hitX, float hitY, float hitZ, int meta,
 	                                        EntityLivingBase placer)
 	{
-		/*check if there is already a cable in this block*/
 		
-		JamMachineMod.logger.info(facing.toString());
-		//System.out.println(world.getBlockState(pos).getBlock().toString());
-		JamMachineMod.logger.info(world.getBlockState(pos).getBlock().toString());
-		if (world.getBlockState(pos).getBlock().toString().equals("Block{minecraft:air}"))
-		{
-			JamMachineMod.logger.info("IS AIR");
-				
-			setCableState(world,pos,facing,true);
-			
-			return setCableProperty(facing,getActualState(this.getDefaultState(), world, pos),Boolean.TRUE); 
-			//return (this.createBlockState().getBaseState().withProperty(this.FLOOR, true).withProperty(this.CEILING, false).withProperty(this.NORTH, false).withProperty(this.SOUTH, false).withProperty(this.EAST, false).withProperty(this.WEST, false));
-			
-			
-		}
-		if (world.getBlockState(pos).getBlock() instanceof BlockCable)
-		{
-			/*check if there is already a cable on this surface*/
-			System.out.println(facing.toString());
-			if (facing.equals(facing.UP))
-			{
-				
-				if (world.getBlockState(pos).getProperties().containsKey(FLOOR))
-				{
-					return (world.getBlockState(pos));
-				}  else
-				{
-					return (world.getBlockState(pos).withProperty(this.FLOOR, true));
-				}
-			}
-			if (facing.equals(facing.DOWN))
-			{
-				if (world.getBlockState(pos).getProperties().containsKey(CEILING))
-				{
-					return (world.getBlockState(pos));
-				} else
-				{
-					/*valid placement. make sure there is a valid block above this one*/
-					if (world.getBlockState(pos).getBlock().isFullBlock(world.getBlockState(pos)))
-					{
-						return (world.getBlockState(pos).withProperty(this.CEILING, true));
-					}
-				}
-			}
-		}
-		if (facing.DOWN.equals(facing))
-		{
-			return getDefaultState().withProperty(this.FLOOR, true);
-		}
 		return getDefaultState(); //TODO this will change as i add support for cables connecting when you place them
 		
 	}
@@ -296,23 +247,7 @@ public class BlockCable extends Block implements ITileEntityProvider
 
 	    return false;
     }
-	@Override
-	public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
-    {
-		JamMachineMod.logger.error("block placed. lets see whats here.");
-		JamMachineMod.logger.error(state.toString());
-		if (state.getProperties().get(CEILING).equals(Boolean.TRUE))
-		{
-			JamMachineMod.logger.error("CEILING SET TRUE");
-			if (worldIn.getTileEntity(pos) instanceof TileEntityCable)
-			{
-				TileEntityCable te =(TileEntityCable)worldIn.getTileEntity(pos);
-				te.setCable(EnumFacing.DOWN, true);
-				
-				JamMachineMod.logger.error("setCable(EnumFacing.DOWN,true)");
-			}
-		}
-    }
+	
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta) {
 		// TODO Auto-generated method stub
@@ -322,7 +257,7 @@ public class BlockCable extends Block implements ITileEntityProvider
 	@Override
 	public int getMetaFromState(IBlockState state)
 	{
-		return 0; //TODO : this will change as i add support for cables connecting to each other. or not
+		return 0; 
 	}
 
 }
