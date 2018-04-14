@@ -27,17 +27,18 @@ public class RenderingHandler
 				0,
 				new ModelResourceLocation(Blocks.sequencer, "inventory")
 		);
-		ModelLoader.setCustomModelResourceLocation(
-				ItemLibrary.controller,
-				0,
-				new ModelResourceLocation(Blocks.controller, "inventory")
-		);
-		ModelLoader.setCustomModelResourceLocation(
-				ItemLibrary.cable,
-				0,
-				new ModelResourceLocation(Blocks.cable, "inventory")
-		);
-		
+//
+//		ModelLoader.setCustomModelResourceLocation(
+//				ItemLibrary.controller,
+//				0,
+//				new ModelResourceLocation(Blocks.controller, "inventory")
+//		);
+//		ModelLoader.setCustomModelResourceLocation(
+//				ItemLibrary.cable,
+//				0,
+//				new ModelResourceLocation(Blocks.cable, "inventory")
+//		);
+//
 		ModelLoader.setCustomModelResourceLocation(
 				ItemLibrary.punchCardBlank,
 				0,
@@ -48,13 +49,13 @@ public class RenderingHandler
 				0,
 				new ModelResourceLocation(Items.punchcardwritten, "inventory")
 		);
-		ModelLoader.setCustomModelResourceLocation(
-				ItemLibrary.braidedString,
-				0,
-				new ModelResourceLocation(Items.braidedstring, "inventory")
-		);
+//		ModelLoader.setCustomModelResourceLocation(
+//				ItemLibrary.braidedString,
+//				0,
+//				new ModelResourceLocation(Items.braidedstring, "inventory")
+//		);
 		
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntitySequencer.class, new TESRBlockSequencer());
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityController.class, new TESRBlockController());
+//		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityController.class, new TESRBlockController());
 	}
 }

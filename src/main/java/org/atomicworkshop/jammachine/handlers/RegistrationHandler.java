@@ -33,10 +33,10 @@ public final class RegistrationHandler
 		final IForgeRegistry<Block> registry = registryEvent.getRegistry();
 
 		registerBlock(registry, new BlockSequencer(), Blocks.sequencer);
-		registerBlock(registry, new BlockController(), Blocks.controller);
-		registerBlock(registry, new BlockCable(), Blocks.cable);
+//		registerBlock(registry, new BlockController(), Blocks.controller);
+//		registerBlock(registry, new BlockCable(), Blocks.cable);
 		GameRegistry.registerTileEntity(TileEntitySequencer.class, TileEntities.sequencer);
-		GameRegistry.registerTileEntity(TileEntityController.class, TileEntities.controller);
+//		GameRegistry.registerTileEntity(TileEntityController.class, TileEntities.controller);
 		
 	}
 
@@ -45,12 +45,12 @@ public final class RegistrationHandler
 		final IForgeRegistry<Item> registry = registryEvent.getRegistry();
 
 		registerItemFromBlock(registry, BlockLibrary.sequencer);
-		registerItemFromBlock(registry, BlockLibrary.controller);
-		registerItemFromBlock(registry, BlockLibrary.cable);
+//		registerItemFromBlock(registry, BlockLibrary.controller);
+//		registerItemFromBlock(registry, BlockLibrary.cable);
 
 		registerItem(registry, new ItemPunchCardBlank(), Items.punchcardblank, true);
 		registerItem(registry, new ItemPunchCardWritten(), Items.punchcardwritten, false);
-		registerItem(registry, new ItemBraidedString(), Items.braidedstring, true);
+//		registerItem(registry, new ItemBraidedString(), Items.braidedstring, true);
 		
 	}
 
