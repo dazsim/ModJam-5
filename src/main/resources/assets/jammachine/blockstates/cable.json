@@ -1,23 +1,129 @@
 {
-  "forge_marker": 1,
-  "defaults": {
-    "transform": "forge:default-block"
-  },
-  "variants": {
-        "inventory": {
-            "y" : 180},
+      "multipart": [
+        {
+          "when": { "floor": "true" },
+          "apply": { "model": "jammachine:floorcenter", "uvlock": true }
+        },
+        {
+          "when": { "ceiling": "true" },
+          "apply": { "model": "jammachine:ceilingcenter", "uvlock": true }
+        },
+        {
+          "when": { "north": "true" },
+          "apply": { "model": "jammachine:northcenter", "uvlock": true }
+        },
+        {
+          "when": { "east": "true" },
+          "apply": { "model": "jammachine:eastcenter",  "uvlock": true }
+        },
+        {
+          "when": { "south": "true" },
+          "apply": { "model": "jammachine:southcenter",  "uvlock": true }
+        },
+        {
+          "when": { "west": "true" },
+          "apply": { "model": "jammachine:westcenter", "uvlock": true }
+        },
+        {
+          "when": { "floor": "true", "north": "true" },
+          "apply": { "model": "jammachine:floorconnectnorth", "uvlock": true }
+        },
+        {
+          "when": { "floor": "true", "south": "true" },
+          "apply": { "model": "jammachine:floorconnectnorth", "y": 180, "uvlock": true }
+        },
+        {
+          "when": { "floor": "true", "east": "true" },
+          "apply": { "model": "jammachine:floorconnectnorth","y": 90, "uvlock": true }
+        },
+        {
+          "when": { "floor": "true", "west": "true" },
+          "apply": { "model": "jammachine:floorconnectnorth","y": 270, "uvlock": true }
+        },
+        {
+          "when": { "north": "true", "ceiling": "true" },
+          "apply": { "model": "jammachine:northconnectceiling", "uvlock": true }
+        },
+        {
+          "when": { "west": "true", "ceiling": "true" },
+          "apply": { "model": "jammachine:northconnectceiling","y": 270, "uvlock": true }
+        },
+        {
+          "when": { "south": "true", "ceiling": "true" },
+          "apply": { "model": "jammachine:northconnectceiling","y": 180, "uvlock": true }
+        },
+        {
+          "when": { "east": "true", "ceiling": "true" },
+          "apply": { "model": "jammachine:northconnectceiling","y": 90, "uvlock": true }
+        },
+        {
+          "when": { "north": "true", "floor": "true" },
+          "apply": { "model": "jammachine:northconnectfloor", "uvlock": true }
+        },
+        {
+          "when": { "west": "true", "floor": "true" },
+          "apply": { "model": "jammachine:northconnectfloor","y": 270, "uvlock": true }
+        },
+        {
+          "when": { "south": "true", "floor": "true" },
+          "apply": { "model": "jammachine:northconnectfloor","y": 180, "uvlock": true }
+        },
+        {
+          "when": { "east": "true", "floor": "true" },
+          "apply": { "model": "jammachine:northconnectfloor","y": 90, "uvlock": true }
+        },
+        {
+          "when": { "north": "true", "east": "true" },
+          "apply": { "model": "jammachine:northconnecteast", "uvlock": true }
+        },
+        {
+          "when": { "east": "true", "south": "true" },
+          "apply": { "model": "jammachine:northconnecteast","y": 90, "uvlock": true }
+        },
+        {
+          "when": { "south": "true", "west": "true" },
+          "apply": { "model": "jammachine:northconnecteast","y": 180, "uvlock": true }
+        },
+        {
+          "when": { "west": "true", "north": "true" },
+          "apply": { "model": "jammachine:northconnecteast","y": 270, "uvlock": true }
+        },
+        {
+          "when": { "north": "true", "west": "true" },
+          "apply": { "model": "jammachine:northconnectwest", "uvlock": true }
+        },
+        {
+          "when": { "east": "true", "north": "true" },
+          "apply": { "model": "jammachine:northconnectwest","y": 90, "uvlock": true }
+        },
+        {
+          "when": { "south": "true", "east": "true" },
+          "apply": { "model": "jammachine:northconnectwest","y": 180, "uvlock": true }
+        },
+        {
+          "when": { "west": "true", "south": "true" },
+          "apply": { "model": "jammachine:northconnectwest","y": 270, "uvlock": true }
+        }
         
-        "normal":  {} ,
-        "floor" : { "true": {
-            "ceiling" : { "false": {
-                 "north" : { "false": {
-                    "south" : { "false": {
-                        "east" : { "false": {
-                            "west" : { "false": "model": "jammachine:floorcenter" }
-                        }}
-                    }}
-                 }}
-            }}
-       }} 
-  }   
-}
+        ,
+        {
+          "when": { "north": "true", "ceiling": "true" },
+          "apply": { "model": "jammachine:ceilingconnectnorth", "uvlock": true }
+        },
+        {
+          "when": { "west": "true", "ceiling": "true" },
+          "apply": { "model": "jammachine:ceilingconnectnorth","y": 270, "uvlock": true }
+        },
+        {
+          "when": { "south": "true", "ceiling": "true" },
+          "apply": { "model": "jammachine:ceilingconnectnorth","y": 180, "uvlock": true }
+        },
+        {
+          "when": { "east": "true", "ceiling": "true" },
+          "apply": { "model": "jammachine:ceilingconnectnorth","y": 90, "uvlock": true }
+        }
+        
+       
+        
+      ]
+}  
