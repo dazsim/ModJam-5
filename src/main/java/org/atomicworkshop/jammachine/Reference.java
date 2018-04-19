@@ -62,8 +62,52 @@ public final class Reference
 		public static String east = "east";
 		public static String west = "west";
 		
+		public static String floornorth = "floornorth";
+		public static String floorsouth = "floorsouth";
+		public static String flooreast = "flooreast";
+		public static String floorwest = "floorwest";
 		
 		private NBT() { }
+	}
+	
+	/*
+	 * FOR REFERENCE
+	 * 
+	 * 0 = North
+	 * 1 = South
+	 * 2 = East
+	 * 3 = West
+	 * 4 = Floor
+	 * 5 = Ceiling
+	 */
+	public static final class Connections {
+		public static int[][] connections;
+		public int[][] getConnections()
+		{
+			int[][] connections = new int[6][4];
+			for (int a = 0;a<6;a++)
+			{
+				if (a%2==0)
+				{
+					connections[a][0] = (a+2) % 6;
+					connections[a][1] = (a+3) % 6;
+					connections[a][2] = (a+4) % 6;
+					connections[a][3] = (a+5) % 6;
+							
+				} else
+				{
+					connections[a][0] = (a+1) % 6;
+					connections[a][1] = (a+2) % 6;
+					connections[a][2] = (a+3) % 6;
+					connections[a][3] = (a+4) % 6;
+				}
+				   
+			}
+			return connections;
+		}
+		public Connections() { 
+			this.connections = getConnections();
+		}
 	}
 
 	private Reference() { }

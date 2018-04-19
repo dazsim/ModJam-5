@@ -13,15 +13,45 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public class TileEntityCable extends TileEntity{
+	
 	public Boolean FLOOR = Boolean.FALSE;
 	public Boolean CEILING = Boolean.FALSE;
 	public Boolean NORTH = Boolean.FALSE;
 	public Boolean SOUTH = Boolean.FALSE;
 	public Boolean EAST = Boolean.FALSE;
 	public Boolean WEST = Boolean.FALSE;
+	//This is where it gets silly
+	public Boolean FLOORNorth = Boolean.FALSE;
+	public Boolean FLOORSouth = Boolean.FALSE;
+	public Boolean FLOOREast = Boolean.FALSE;
+	public Boolean FLOORWest = Boolean.FALSE;
+	public Boolean CEILINGNorth = Boolean.FALSE;
+	public Boolean CEILINGSouth = Boolean.FALSE;
+	public Boolean CEILINGEast = Boolean.FALSE;
+	public Boolean CEILINGWest = Boolean.FALSE;
+	public Boolean NORTHFloor = Boolean.FALSE;
+	public Boolean NORTHCeiling = Boolean.FALSE;
+	public Boolean NORTHEast = Boolean.FALSE;
+	public Boolean NORTHWest = Boolean.FALSE;
+	public Boolean SOUTHFloor = Boolean.FALSE;
+	public Boolean SOUTHCeiling = Boolean.FALSE;
+	public Boolean SOUTHEast = Boolean.FALSE;
+	public Boolean SOUTHWest = Boolean.FALSE;
+	public Boolean EASTFloor = Boolean.FALSE;
+	public Boolean EASTCeiling = Boolean.FALSE;
+	public Boolean EASTNorth = Boolean.FALSE;
+	public Boolean EASTSouth = Boolean.FALSE;
+	public Boolean WESTFloor = Boolean.FALSE;
+	public Boolean WESTCeiling = Boolean.FALSE;
+	public Boolean WESTNorth = Boolean.FALSE;
+	public Boolean WESTSouth = Boolean.FALSE;
 	
+	public boolean[][] adjcentCables;
+	//adjcentCables = new boolean[6][4];
 	
 	
 	
@@ -38,6 +68,12 @@ public class TileEntityCable extends TileEntity{
         SOUTH = Boolean.valueOf(compound.getBoolean(NBT.south));
         EAST = Boolean.valueOf(compound.getBoolean(NBT.east));
         WEST = Boolean.valueOf(compound.getBoolean(NBT.west));
+        
+        FLOORNorth = Boolean.valueOf(compound.getBoolean(NBT.floornorth));
+        FLOORSouth = Boolean.valueOf(compound.getBoolean(NBT.floorsouth));
+        FLOOREast = Boolean.valueOf(compound.getBoolean(NBT.flooreast));
+        FLOORWest = Boolean.valueOf(compound.getBoolean(NBT.floorwest));
+        
         /*Block b = this.getWorld().getBlockState(pos).getBlock();
         this.getWorld().setBlockState(pos, this.getWorld().getBlockState(pos)
         		.withProperty(BlockCable.FLOOR, this.FLOOR).withProperty(BlockCable.CEILING, this.CEILING)
@@ -50,7 +86,13 @@ public class TileEntityCable extends TileEntity{
         
     }
 
-    @Override
+    public TileEntityCable() {
+		super();
+		adjcentCables = new boolean[6][4];
+		
+	}
+
+	@Override
     public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
         JamMachineMod.logger.info("writing cable to NBT");
@@ -65,7 +107,10 @@ public class TileEntityCable extends TileEntity{
         compound.setBoolean(NBT.east, EAST);
         compound.setBoolean(NBT.west,WEST);
         
-      
+        compound.setBoolean(NBT.floornorth, FLOORNorth);
+        compound.setBoolean(NBT.floornorth, FLOORSouth);
+        compound.setBoolean(NBT.floornorth, FLOOREast);
+        compound.setBoolean(NBT.floornorth, FLOORWest);
 
         return compound;
     }
@@ -141,11 +186,35 @@ public class TileEntityCable extends TileEntity{
     		this.markDirty();
     		return;
     	}
-    	
-    	
-    	
     }
 
+    /* Set Connections to adjcent cables */
+    public void setConnections(EnumFacing facing,Boolean state,World world, BlockPos pos)
+    {
+    	if (facing.equals(EnumFacing.DOWN))
+    	{
+    		if (world.getBlockState(pos.offset(EnumFacing.NORTH)).getBlock().isAir(world.getBlockState(pos.offset(EnumFacing.NORTH)), null, pos.offset(EnumFacing.NORTH)))
+    		{
+    			//adjcent is AIR, Check for wrap around(obtuse connection)
+    		} else if ((world.getBlockState(pos.offset(EnumFacing.NORTH))).getBlock().hasTileEntity()) 
+    		{
+	    		if (world.getTileEntity(pos.offset(EnumFacing.NORTH)) instanceof TileEntityCable)
+	    		{
+	    			TileEntityCable te = (TileEntityCable)world.getTileEntity(pos.offset(EnumFacing.NORTH));
+	    			//adjcent is cable, Check for connecting cable
+	    			if (te.FLOOR.booleanValue())
+	    			{
+	    				//set both cables connection
+	    				te.FLOORSouth = true;
+	    				this.FLOORNorth = true;
+	    				this.markDirty();
+	    				te.markDirty();
+	    				return;
+	    			}
+	    		}
+    		}
+    	}
+    }
 
     @Nullable
     @Override

@@ -121,8 +121,11 @@
         {
           "when": { "east": "true", "ceiling": "true" },
           "apply": { "model": "jammachine:ceilingconnectnorth","y": 90, "uvlock": true }
+        },
+        {
+            "when": { "floornorth": "true"},
+          "apply": { "model": "jammachine:floorconnectnorth", "uvlock": true }
         }
-        
        
         
       ]

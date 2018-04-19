@@ -158,6 +158,7 @@ public class BlockCable extends Block implements ITileEntityProvider
 		{
 			TileEntityCable te = (TileEntityCable)world.getTileEntity(pos);
 			te.setCable(facing, Boolean.valueOf(state));
+			te.setConnections(facing,Boolean.valueOf(state),world,pos); 
 			te.markDirty();
 			
 		}
