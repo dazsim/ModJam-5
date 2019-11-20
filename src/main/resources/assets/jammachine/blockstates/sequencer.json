@@ -2,18 +2,14 @@
   "forge_marker": 1,
   "defaults": {
     "transform": "forge:default-block",
-    "model": "jammachine:sequencer"
-    
+    "model": "jammachine:block/sequencer"
   },
   "variants": {
-    "inventory": {
-      "y ": 180
-    },
     "facing": {
-      "north": { "model": "jammachine:sequencer", "y": 270},
-      "south": { "model": "jammachine:sequencer", "y": 90},
-      "east": { "model": "jammachine:sequencer"},
-      "west": { "model": "jammachine:sequencer", "y": 180}
+      "north": { "model": "jammachine:block/sequencer", "y": 270},
+      "south": { "model": "jammachine:block/sequencer", "y": 90},
+      "east": { "model": "jammachine:block/sequencer"},
+      "west": { "model": "jammachine:block/sequencer", "y": 180}
     }
   }
 }

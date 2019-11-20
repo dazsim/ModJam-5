@@ -1,48 +1,29 @@
 package org.atomicworkshop.jammachine.libraries;
 
-import javax.annotation.Nonnull;
-
+import net.minecraft.item.Item;
+import net.minecraftforge.registries.ObjectHolder;
 import org.atomicworkshop.jammachine.Reference;
-import org.atomicworkshop.jammachine.items.ItemBraidedString;
 import org.atomicworkshop.jammachine.items.ItemPunchCardBlank;
 import org.atomicworkshop.jammachine.items.ItemPunchCardWritten;
 
-import net.minecraft.item.ItemBlock;
-import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
+import javax.annotation.Nonnull;
 
-@SuppressWarnings("ALL")
+@SuppressWarnings("ConstantConditions")
 @ObjectHolder(Reference.MOD_ID)
-public class ItemLibrary
-{
-	@Nonnull
-	public static final ItemBlock sequencer;
+public class ItemLibrary {
+    @Nonnull
+    public static final Item sequencer;
+    @Nonnull
+    @ObjectHolder("punchcardblank")
+    public static final ItemPunchCardBlank punchCardBlank;
+    @Nonnull
+    @ObjectHolder("punchcardwritten")
+    public static final ItemPunchCardWritten punchCardWritten;
 
-	@Nonnull
-	public static final ItemBlock controller;
-
-	@Nonnull
-	public static final ItemBlock cable;
-	
-	@ObjectHolder("punchcardblank")
-	@Nonnull
-	public static final ItemPunchCardBlank punchCardBlank;
-
-	@ObjectHolder("punchcardwritten")
-	@Nonnull
-	public static final ItemPunchCardWritten punchCardWritten;
-
-	@ObjectHolder("braidedstring")
-	@Nonnull
-	public static final ItemBraidedString braidedString;
-	
-	//Trick IntelliJ/Eclipse into thinking that sequencer won't be null
-	static {
-		sequencer = null;
-		controller = null;
-		cable = null;
-
-		punchCardBlank = null;
-		punchCardWritten = null;
-		braidedString = null;
-	}
+    //Trick IntelliJ/Eclipse into thinking that sequencer won't be null
+    static {
+        sequencer = null;
+        punchCardBlank = null;
+        punchCardWritten = null;
+    }
 }

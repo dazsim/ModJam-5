@@ -1,35 +1,34 @@
 package org.atomicworkshop.jammachine.sequencing;
 
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.SoundEvent;
-import net.minecraftforge.event.world.NoteBlockEvent.Instrument;
+import net.minecraft.state.properties.NoteBlockInstrument;
+import net.minecraft.util.Direction;
 
 public class AdjacentNoteBlock
 {
-	private Instrument instrument = null;
-	private final EnumFacing direction;
+    private NoteBlockInstrument instrument = null;
+    private final Direction direction;
 
-	AdjacentNoteBlock(EnumFacing direction)
-	{
-		this.direction = direction;
-	}
+    AdjacentNoteBlock(Direction direction)
+    {
+        this.direction = direction;
+    }
 
-	boolean canPlay()
-	{
-		return instrument != null;
-	}
+    boolean canPlay()
+    {
+        return instrument != null;
+    }
 
-	public Instrument getInstrument()
-	{
-		return instrument;
-	}
+    public NoteBlockInstrument getInstrument()
+    {
+        return instrument;
+    }
 
-	public void setInstrument(Instrument instrument) {
-		this.instrument = instrument;
-	}
+    public void setInstrument(NoteBlockInstrument instrument) {
+        this.instrument = instrument;
+    }
 
-	public EnumFacing getDirection()
-	{
-		return direction;
-	}
+    public Direction getDirection()
+    {
+        return direction;
+    }
 }
