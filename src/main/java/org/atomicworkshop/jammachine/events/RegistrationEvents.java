@@ -1,6 +1,8 @@
 package org.atomicworkshop.jammachine.events;
 
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.tileentity.TileEntityType;
+import org.atomicworkshop.jammachine.gui.SequencerContainer;
 import org.atomicworkshop.jammachine.tiles.SequencerTileEntity;
 import org.atomicworkshop.jammachine.items.ItemPunchCardBlank;
 import org.atomicworkshop.jammachine.items.ItemPunchCardWritten;
@@ -56,7 +58,6 @@ public class RegistrationEvents {
         registry.register(new BlockItem(BlockLibrary.sequencer, new Item.Properties().group(itemGroup)).setRegistryName(Reference.Blocks.SEQUENCER));
         registry.register(new ItemPunchCardBlank(new Item.Properties().group(itemGroup)).setRegistryName(Reference.Items.PUNCH_CARD_BLANK));
         registry.register(new ItemPunchCardWritten(new Item.Properties()).setRegistryName(Reference.Items.PUNCH_CARD_WRITTEN));
-
     }
 
     @SubscribeEvent
@@ -69,5 +70,11 @@ public class RegistrationEvents {
                         .build(null)
                         .setRegistryName(Reference.TileEntities.SEQUENCER)
         );
+    }
+
+    @SubscribeEvent
+    public static void onRegisterContainerTypes(RegistryEvent.Register<ContainerType<?>> registryEvent) {
+        final IForgeRegistry<ContainerType<?>> registry = registryEvent.getRegistry();
+        registry.register(new ContainerType<>(SequencerContainer::new).setRegistryName(Reference.Container.SEQUENCER));
     }
 }

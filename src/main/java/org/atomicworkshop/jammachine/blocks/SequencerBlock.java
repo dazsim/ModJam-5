@@ -158,10 +158,13 @@ public class SequencerBlock extends Block {
         final Item heldItem = heldItemStack.getItem();
 
         if (heldItemStack.isEmpty()) {
-            if (hand == Hand.OFF_HAND) return false;
-            final Vec3d hitVec = CollisionMaths.calculateSlopeHit(pos, state.get(BlockStateProperties.HORIZONTAL_FACING), playerIn);
-            if (hitVec == null) return false;
-            return teSequencer.checkPlayerInteraction(hitVec.x, hitVec.z, playerIn);
+//            if (hand == Hand.OFF_HAND) return false;
+//            final Vec3d hitVec = CollisionMaths.calculateSlopeHit(pos, state.get(BlockStateProperties.HORIZONTAL_FACING), playerIn);
+//            if (hitVec == null) return false;
+//            return teSequencer.checkPlayerInteraction(hitVec.x, hitVec.z, playerIn);
+
+            playerIn.openContainer(teSequencer);
+            return true;
         }
 
         if (heldItem instanceof ItemPunchCardBlank) {

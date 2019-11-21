@@ -28,6 +28,12 @@ public final class Reference {
         private TileEntities() {}
     }
 
+    public static class Container {
+        public static final ResourceLocation SEQUENCER = resource("sequencer_container");
+
+        private Container() {}
+    }
+
     public static final class Items {
 
         public static final ResourceLocation PUNCH_CARD_WRITTEN = resource("punchcardwritten");

@@ -1,14 +1,19 @@
 package org.atomicworkshop.jammachine.tiles;
 
 import com.google.common.collect.ImmutableList;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.INameable;
+import net.minecraft.util.IWorldPosCallable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import org.atomicworkshop.jammachine.Reference.NBT;
+import org.atomicworkshop.jammachine.gui.SequencerContainer;
 import org.atomicworkshop.jammachine.libraries.ItemLibrary;
 import org.atomicworkshop.jammachine.JamMachineMod;
 import org.atomicworkshop.jammachine.libraries.TileEntityTypeLibrary;
@@ -26,10 +31,11 @@ import org.atomicworkshop.jammachine.Reference;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiFunction;
 
-public class SequencerTileEntity extends TileEntity implements ITickableTileEntity, INameable
-{
+public class SequencerTileEntity extends TileEntity implements ITickableTileEntity, INameable, INamedContainerProvider {
 
     private static final int IS_PLAYING = 0;
     private static final int CHANGE_PATTERN = 1;
@@ -569,5 +575,11 @@ public class SequencerTileEntity extends TileEntity implements ITickableTileEnti
     public ITextComponent getName()
     {
         return new TranslationTextComponent(Reference.Blocks.SEQUENCER.getPath());
+    }
+
+    @Nullable
+    @Override
+    public Container createMenu(int screenId, PlayerInventory playerInventory, PlayerEntity player) {
+        return new SequencerContainer(screenId, playerInventory, IWorldPosCallable.of(world, pos));
     }
 }
