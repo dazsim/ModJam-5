@@ -375,33 +375,36 @@ public class SequencerTileEntity extends TileEntity implements ITickableTileEnti
         JamMachineMod.LOGGER.info("checking player interaction at scaled {},{}", x, z);
 
         if (x >= 0 && x < 16 && z >= 0 && z < 25) {
-            if (sequencer == null) {
-                sequencer = new Sequencer(world, pos);
-                MusicPlayer.startTracking(sequencer);
-            }
-
-            //Hit a sequence button
-            final Pattern currentPattern = sequencer.getCurrentPattern();
+//            if (sequencer == null) {
+//                sequencer = new Sequencer(world, pos);
+//                MusicPlayer.startTracking(sequencer);
+//            }
 
             final int pitch = 24 - (int)z;
             final int interval = (int)x;
 
-            final boolean isEnabled = currentPattern.invertPitchAtInternal(interval, pitch);
-
-
-            JamMachineMod.LOGGER.info("Inverting pitch {} at interval {} - {}", pitch, interval, isEnabled);
-            if (!world.isRemote)
-            {
-                if (isEnabled) {
-                    world.addBlockEvent(pos, getBlockState().getBlock(), ENABLE_NOTE | (interval << 4), pitch);
-                } else {
-                    world.addBlockEvent(pos, getBlockState().getBlock(), DISABLE_NOTE | (interval << 4), pitch);
-                }
-                markDirty();
-            }
+            final Pattern currentPattern = sequencer.getCurrentPattern();
+            notifyPitchAtIntervalChanged(pitch, interval, !currentPattern.isPitchActiveAtInterval(pitch, interval));
             return true;
         }
         return false;
+    }
+
+    public void notifyPitchAtIntervalChanged(int pitch, int interval, boolean isEnabled) {
+        //Hit a sequence button
+        final Pattern currentPattern = sequencer.getCurrentPattern();
+        currentPattern.setPitchAtInterval(interval, pitch, isEnabled);
+
+        JamMachineMod.LOGGER.info("Inverting pitch {} at interval {} - {}", pitch, interval, isEnabled);
+        if (!world.isRemote)
+        {
+            if (isEnabled) {
+                world.addBlockEvent(pos, getBlockState().getBlock(), ENABLE_NOTE | (interval << 4), pitch);
+            } else {
+                world.addBlockEvent(pos, getBlockState().getBlock(), DISABLE_NOTE | (interval << 4), pitch);
+            }
+            markDirty();
+        }
     }
 
     private boolean checkCardSlotInteraction(double clickX, double clickZ)

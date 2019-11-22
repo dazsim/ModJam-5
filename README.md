@@ -4,3 +4,4 @@ TheJamMachine2
 * mods.toml
 * Loot table
 * Custom names for sequencers
+* Logging markers

@@ -12,6 +12,8 @@ import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.atomicworkshop.jammachine.gui.SequencerScreen;
@@ -25,9 +27,20 @@ public class JamMachineMod
 {
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
+    public static SimpleChannel CHANNEL;
 
     public JamMachineMod() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+    }
+
+    private void setup(final FMLCommonSetupEvent event) {
+        CHANNEL = NetworkRegistry.newSimpleChannel(Reference.CHANNEL_NAME, () -> "1.0", s -> true, s -> true);
+
+        int packetId = 0;
+        CHANNEL.registerMessage(++packetId, SequencerSetPitchAtInterval.class,
+                SequencerSetPitchAtInterval::toBytes,
+                SequencerSetPitchAtInterval::new,
+                SequencerSetPitchAtInterval::handle);
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {

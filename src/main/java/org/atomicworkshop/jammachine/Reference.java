@@ -9,6 +9,7 @@ import java.util.UUID;
 public final class Reference {
     public static final String MOD_ID = "jammachine";
     public static final UUID EMPTY_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+    public static final ResourceLocation CHANNEL_NAME = resource("jam_machine");
     public static Direction[] HORIZONTALS = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
 
     public static ResourceLocation resource(String resourceName) {

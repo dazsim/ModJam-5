@@ -8,15 +8,18 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.NoteBlockEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 
-@EventBusSubscriber
+@EventBusSubscriber(Dist.CLIENT)
 public final class MusicPlayer
 {
     private static final List<PlayingSequence> playingSequences = Lists.newArrayList();
@@ -53,6 +56,25 @@ public final class MusicPlayer
         if (sequencerSetId == null) return;
         synchronized (sequenceLock) {
             playingSequences.removeIf(playingSequence -> playingSequence.getSequencerSet().getId().equals(sequencerSetId));
+        }
+    }
+
+    @SubscribeEvent
+    public static void onWorldUnloaded(WorldEvent.Unload worldEvent) {
+        final int dimensionId = worldEvent.getWorld().getWorld().dimension.getType().getId();
+        synchronized (sequenceLock) {
+            playingSequences.removeIf(ps ->
+                    StreamSupport
+                            .stream(ps.getSequencerSet().spliterator(), true)
+                            .anyMatch(sequencer -> sequencer.getWorld().dimension.getType().getId() == dimensionId)
+            );
+
+        }
+        synchronized (trackingLock) {
+            trackedControllers.removeIf(controller ->
+                    controller.getWorld().dimension.getType().getId() == dimensionId);
+            trackedSequencers.removeIf(controller ->
+                    controller.getWorld().dimension.getType().getId() == dimensionId);
         }
     }
 
