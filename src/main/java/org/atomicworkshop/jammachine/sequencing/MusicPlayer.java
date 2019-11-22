@@ -57,7 +57,7 @@ public final class MusicPlayer
     }
 
     @SubscribeEvent
-    public static void onClientTick(TickEvent.ClientTickEvent clientTickEvent) {
+    public static void onClientTick(TickEvent.RenderTickEvent clientTickEvent) {
         if (clientTickEvent.phase != TickEvent.Phase.START) return;
         final Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.isGamePaused()) return;

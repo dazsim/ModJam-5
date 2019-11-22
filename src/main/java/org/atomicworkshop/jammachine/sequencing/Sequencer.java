@@ -205,7 +205,7 @@ public class Sequencer
                 for (final byte pitch : pitchesAtInterval)
                 {
 
-                    pattern.setPitchAtInternal(interval, pitch);
+                    pattern.setPitchAtInterval(interval, pitch);
                 }
             }
         }

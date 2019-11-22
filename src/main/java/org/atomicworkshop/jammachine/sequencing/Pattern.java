@@ -10,8 +10,13 @@ public class Pattern
 {
     private boolean[][] patternData = new boolean[16][25];
 
-    public void setPitchAtInternal(int interval, int pitch)
+    public void setPitchAtInterval(int interval, int pitch)
     {
+        setPitchAtInterval(interval, pitch, true);
+    }
+
+
+    public void setPitchAtInterval(int interval, int pitch, boolean checked) {
         if (pitch > 24) {
             pitch %= 25;
         }
@@ -19,18 +24,11 @@ public class Pattern
             interval %= 16;
         }
 
-        patternData[interval][pitch] = true;
+        patternData[interval][pitch] = checked;
     }
 
     public void resetPitchAtInterval(int interval, int pitch) {
-        if (pitch > 24) {
-            pitch %= 25;
-        }
-        if (interval >= 16) {
-            interval %= 16;
-        }
-
-        patternData[interval][pitch] = false;
+        setPitchAtInterval(interval, pitch, false);
     }
 
     public boolean invertPitchAtInternal(int interval, int pitch)
@@ -57,6 +55,16 @@ public class Pattern
     {
         return patternData[interval];
 
+    }
+
+    public boolean isPitchActiveAtInterval(int interval, int pitch) {
+        while (pitch > 24) {
+            pitch -= 25;
+        }
+        while (interval >= 16) {
+            interval -= 16;
+        }
+        return patternData[interval][pitch];
     }
 
     private static class PitchIterator implements Iterator<Byte>

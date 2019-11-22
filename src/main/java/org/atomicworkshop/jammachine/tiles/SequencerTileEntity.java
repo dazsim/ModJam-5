@@ -31,9 +31,7 @@ import org.atomicworkshop.jammachine.Reference;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.function.BiFunction;
 
 public class SequencerTileEntity extends TileEntity implements ITickableTileEntity, INameable, INamedContainerProvider {
 
@@ -295,7 +293,7 @@ public class SequencerTileEntity extends TileEntity implements ITickableTileEnti
             return true;
         }
         if (controlCode == ENABLE_NOTE) {
-            sequencer.getCurrentPattern().setPitchAtInternal(id >> 4, type);
+            sequencer.getCurrentPattern().setPitchAtInterval(id >> 4, type);
             ImmutableList<AdjacentNoteBlock> availableNoteBlocks = sequencer.getAvailableNoteBlocks();
             if (!availableNoteBlocks.isEmpty())
             {
