@@ -62,6 +62,7 @@ public class Sequencer
         beatsPerMinute = 120;
 
         id = UUID.randomUUID();
+        isAtStart = true;
     }
 
     private void setAdjacentNoteBlock(Direction direction, NoteBlockInstrument sound)
@@ -352,6 +353,10 @@ public class Sequencer
     public boolean isProgramming()
     {
         return isProgramming;
+    }
+
+    public boolean isPlaying() {
+        return !this.isAtStart || this.currentInterval != 0;
     }
 
     public void reset()

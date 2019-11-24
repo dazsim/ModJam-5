@@ -12,6 +12,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
+import org.atomicworkshop.jammachine.ClientConfig;
 import org.atomicworkshop.jammachine.Reference.NBT;
 import org.atomicworkshop.jammachine.gui.SequencerContainer;
 import org.atomicworkshop.jammachine.libraries.ItemLibrary;
@@ -294,11 +295,12 @@ public class SequencerTileEntity extends TileEntity implements ITickableTileEnti
         }
         if (controlCode == ENABLE_NOTE) {
             sequencer.getCurrentPattern().setPitchAtInterval(id >> 4, type);
-            ImmutableList<AdjacentNoteBlock> availableNoteBlocks = sequencer.getAvailableNoteBlocks();
-            if (!availableNoteBlocks.isEmpty())
-            {
-                AdjacentNoteBlock noteBlock = availableNoteBlocks.get(0);
-                MusicPlayer.playNote(sequencer, noteBlock, (byte)type);
+            if (!ClientConfig.USE_GUI) {
+                ImmutableList<AdjacentNoteBlock> availableNoteBlocks = sequencer.getAvailableNoteBlocks();
+                if (!availableNoteBlocks.isEmpty()) {
+                    AdjacentNoteBlock noteBlock = availableNoteBlocks.get(0);
+                    MusicPlayer.playNote(sequencer, noteBlock, (byte) type);
+                }
             }
             return true;
         }
@@ -375,11 +377,6 @@ public class SequencerTileEntity extends TileEntity implements ITickableTileEnti
         JamMachineMod.LOGGER.info("checking player interaction at scaled {},{}", x, z);
 
         if (x >= 0 && x < 16 && z >= 0 && z < 25) {
-//            if (sequencer == null) {
-//                sequencer = new Sequencer(world, pos);
-//                MusicPlayer.startTracking(sequencer);
-//            }
-
             final int pitch = 24 - (int)z;
             final int interval = (int)x;
 
@@ -395,7 +392,7 @@ public class SequencerTileEntity extends TileEntity implements ITickableTileEnti
         final Pattern currentPattern = sequencer.getCurrentPattern();
         currentPattern.setPitchAtInterval(interval, pitch, isEnabled);
 
-        JamMachineMod.LOGGER.info("Inverting pitch {} at interval {} - {}", pitch, interval, isEnabled);
+        JamMachineMod.LOGGER.info("Sett pitch {} at interval {} - {}", pitch, interval, isEnabled);
         if (!world.isRemote)
         {
             if (isEnabled) {

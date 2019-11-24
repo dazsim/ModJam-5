@@ -1,4 +1,4 @@
-package org.atomicworkshop.jammachine;
+package org.atomicworkshop.jammachine.network;
 
 import com.google.common.base.MoreObjects;
 import net.minecraft.network.PacketBuffer;
@@ -29,7 +29,6 @@ public class SequencerSetPitchAtInterval {
     }
 
     public SequencerSetPitchAtInterval(int pitch, int interval, boolean isEnabled, BlockPos pos, DimensionType dimension) {
-
         this.pitch = pitch;
         this.interval = interval;
         this.isEnabled = isEnabled;

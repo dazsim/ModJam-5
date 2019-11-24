@@ -5,3 +5,4 @@ TheJamMachine2
 * Loot table
 * Custom names for sequencers
 * Logging markers
+* Chunk unloading should kill sequencer.

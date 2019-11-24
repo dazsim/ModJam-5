@@ -15,6 +15,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -22,11 +23,13 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
+import org.atomicworkshop.jammachine.ClientConfig;
 import org.atomicworkshop.jammachine.JamMachineMod;
 import org.atomicworkshop.jammachine.items.ItemPunchCardBlank;
 import org.atomicworkshop.jammachine.items.ItemPunchCardWritten;
 import org.atomicworkshop.jammachine.sequencing.MusicPlayer;
 import org.atomicworkshop.jammachine.tiles.SequencerTileEntity;
+import org.atomicworkshop.jammachine.util.CollisionMaths;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -161,14 +164,17 @@ public class SequencerBlock extends Block {
         final Item heldItem = heldItemStack.getItem();
 
         if (heldItemStack.isEmpty()) {
-//            if (hand == Hand.OFF_HAND) return false;
-//            final Vec3d hitVec = CollisionMaths.calculateSlopeHit(pos, state.get(BlockStateProperties.HORIZONTAL_FACING), playerIn);
-//            if (hitVec == null) return false;
-//            return teSequencer.checkPlayerInteraction(hitVec.x, hitVec.z, playerIn);
-
-            if (!worldIn.isRemote) {
-                NetworkHooks.openGui((ServerPlayerEntity)playerIn, teSequencer, pos);
+            if (ClientConfig.USE_GUI) {
+                if (!worldIn.isRemote) {
+                    NetworkHooks.openGui((ServerPlayerEntity) playerIn, teSequencer, pos);
+                }
+            } else {
+                if (hand == Hand.OFF_HAND) return false;
+                final Vec3d hitVec = CollisionMaths.calculateSlopeHit(pos, state.get(BlockStateProperties.HORIZONTAL_FACING), playerIn);
+                if (hitVec == null) return false;
+                return teSequencer.checkPlayerInteraction(hitVec.x, hitVec.z, playerIn);
             }
+
             return true;
         }
 

@@ -3,10 +3,15 @@ package org.atomicworkshop.jammachine.gui;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.network.PacketDistributor;
+import org.atomicworkshop.jammachine.JamMachineMod;
 import org.atomicworkshop.jammachine.Reference;
+import org.atomicworkshop.jammachine.network.SequencerSetPitchAtInterval;
 import org.atomicworkshop.jammachine.sequencing.AdjacentNoteBlock;
 import org.atomicworkshop.jammachine.sequencing.MusicPlayer;
 import org.atomicworkshop.jammachine.sequencing.Sequencer;
@@ -15,6 +20,7 @@ import org.atomicworkshop.jammachine.tiles.SequencerTileEntity;
 public class SequencerScreen extends ContainerScreen<SequencerContainer> {
     private final SequencerTileEntity tileEntity;
     private final Sequencer sequencer;
+    private TextureManager textureManager;
     private int lastInterval = -1;
 
     private static final ResourceLocation guiTexture = new ResourceLocation(Reference.MOD_ID, "textures/gui/sequencer.png");
@@ -25,42 +31,29 @@ public class SequencerScreen extends ContainerScreen<SequencerContainer> {
         sequencer = tileEntity.getSequencer();
     }
 
-    private PatternButton[] patternButtons = new PatternButton[25 * 16];
+    private PatternButton[][] patternButtons = new PatternButton[16][25];
 
     @Override
     protected void init() {
-        this.xSize = 176;
-        this.ySize = 245;
+        this.xSize = 196;
+        this.ySize = 246;
 
         super.init();
+
+        assert this.minecraft != null;
+        textureManager = this.minecraft.getTextureManager();
 
         int width = 10;
         int height = 8;
 
         for (int interval=0;interval<16;interval++) {
             for (int pitch=0;pitch<25;pitch++) {
-                int finalPitch = pitch;
-                int finalInterval = interval;
-
-                int x = interval * (width + 1) + (interval / 4) * 2 + guiLeft + 8;
+                int x = interval * (width + 1) + (interval / 4) + guiLeft + 8;
                 int y = (24-pitch) * (height + 1) + guiTop + 8;
 
-                PatternButton b = new PatternButton(x, y, width, height, finalInterval, finalPitch, sequencer, button -> {
-                    container.set(finalPitch, finalInterval, button.isChecked());
-                    //TODO: Sync to server.
-                    sequencer.getCurrentPattern().setPitchAtInterval(finalInterval, finalPitch, button.isChecked());
-                    if (button.isChecked()) {
-                        ImmutableList<AdjacentNoteBlock> availableNoteBlocks = sequencer.getAvailableNoteBlocks();
-                        if (!availableNoteBlocks.isEmpty())
-                        {
-                            AdjacentNoteBlock noteBlock = availableNoteBlocks.get(0);
-                            MusicPlayer.playNote(sequencer, noteBlock, (byte)finalPitch);
-                        }
-                    }
-                });
+                PatternButton b = new PatternButton(x, y, width, height, interval, pitch, sequencer, this::onPatternPressed);
                 addButton(b);
-                b.setChecked(sequencer.getCurrentPattern().isPitchActiveAtInterval(finalInterval, finalPitch));
-                patternButtons[interval * 25 + pitch] = b;
+                patternButtons[interval][pitch] = b;
             }
         }
     }
@@ -68,10 +61,23 @@ public class SequencerScreen extends ContainerScreen<SequencerContainer> {
     @Override
     public void render(int mouseX, int mouseY, float partialTicks) {
         int currentInterval = sequencer.getCurrentInterval();
+        if (!sequencer.isPlaying()) {
+            currentInterval = -1;
+        }
+
         if (currentInterval != lastInterval) {
-            for (PatternButton patternButton : patternButtons) {
-                patternButton.updateInterval();
+            if (lastInterval != -1) {
+                for (PatternButton patternButton : patternButtons[lastInterval]) {
+                    patternButton.updateInterval();
+                }
             }
+
+            if (currentInterval != -1) {
+                for (PatternButton patternButton : patternButtons[currentInterval]) {
+                    patternButton.updateInterval();
+                }
+            }
+
             lastInterval = currentInterval;
         }
 
@@ -86,9 +92,31 @@ public class SequencerScreen extends ContainerScreen<SequencerContainer> {
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bindTexture(this.guiTexture);
+        textureManager.bindTexture(guiTexture);
         int lvt_4_1_ = this.guiLeft;
         int lvt_5_1_ = this.guiTop;
         this.blit(lvt_4_1_, lvt_5_1_, 0, 0, this.xSize, this.ySize);
+    }
+
+    private void onPatternPressed(int finalPitch, int finalInterval, boolean isChecked) {
+        container.set(finalPitch, finalInterval, isChecked);
+        final World world = tileEntity.getWorld();
+        assert world != null;
+        JamMachineMod.CHANNEL.send(PacketDistributor.SERVER.noArg(),
+                new SequencerSetPitchAtInterval(
+                        finalPitch,
+                        finalInterval,
+                        isChecked,
+                        tileEntity.getPos(),
+                        world.dimension.getType()
+                ));
+        sequencer.getCurrentPattern().setPitchAtInterval(finalInterval, finalPitch, isChecked);
+        if (isChecked) {
+            ImmutableList<AdjacentNoteBlock> availableNoteBlocks = sequencer.getAvailableNoteBlocks();
+            if (!availableNoteBlocks.isEmpty()) {
+                AdjacentNoteBlock noteBlock = availableNoteBlocks.get(0);
+                MusicPlayer.playNote(sequencer, noteBlock, (byte) finalPitch);
+            }
+        }
     }
 }

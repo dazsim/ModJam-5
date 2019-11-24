@@ -23,12 +23,16 @@ public class PatternButton extends AbstractButton {
         this.pitch = pitch;
         this.sequencer = sequencer;
         this.onPress = onPressed;
+
+        this.isChecked = sequencer.isPlaying() && sequencer.getCurrentPattern().isPitchActiveAtInterval(interval, pitch);
+        updateColour();
     }
 
     @Override
     public void onPress() {
         this.isChecked = !this.isChecked;
-        this.onPress.onPress(this);
+        this.onPress.onPress(pitch, interval, isChecked);
+        updateColour();
     }
 
     @Override
@@ -84,6 +88,11 @@ public class PatternButton extends AbstractButton {
         }
     }
 
+    @Override
+    public void renderToolTip(int p_renderToolTip_1_, int p_renderToolTip_2_) {
+
+    }
+
     @SuppressWarnings("OverlyComplexBooleanExpression")
     private static boolean isSharpPitch(int pitch)
     {
@@ -109,6 +118,6 @@ public class PatternButton extends AbstractButton {
     }
 
     public interface IPressable {
-        void onPress(PatternButton var1);
+        void onPress(int pitch, int interval, boolean isChecked);
     }
 }
