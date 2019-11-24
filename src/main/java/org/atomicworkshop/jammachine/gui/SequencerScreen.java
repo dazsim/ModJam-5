@@ -3,6 +3,7 @@ package org.atomicworkshop.jammachine.gui;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
@@ -56,6 +57,39 @@ public class SequencerScreen extends ContainerScreen<SequencerContainer> {
                 patternButtons[interval][pitch] = b;
             }
         }
+
+        int bpmXPos = 340;
+        int bpmYPos = 30;
+        int bpmWidth = 14;
+        int bpmHeight = 10;
+
+        addButton(new Button(bpmXPos, bpmYPos, bpmWidth, bpmHeight, "<<", (button) -> {
+            final int beatsPerMinute = sequencer.getBeatsPerMinute() - 10;
+            sequencer.setDesiredBPM(beatsPerMinute);
+        }));
+
+        bpmXPos += bpmWidth + 1;
+        addButton(new Button(bpmXPos, bpmYPos, bpmWidth, bpmHeight, "<", (button) -> {
+            final int beatsPerMinute = sequencer.getBeatsPerMinute() - 1;
+            sequencer.setDesiredBPM(beatsPerMinute);
+        }));
+
+        bpmXPos += bpmWidth + 1;
+        addButton(new Button(bpmXPos, bpmYPos, bpmWidth, bpmHeight, ">", (button) -> {
+            final int beatsPerMinute = sequencer.getBeatsPerMinute() + 1;
+            sequencer.setDesiredBPM(beatsPerMinute);
+        }));
+
+        bpmXPos += bpmWidth + 1;
+        addButton(new Button(bpmXPos, bpmYPos, bpmWidth, bpmHeight, ">>", (button) -> {
+            final int beatsPerMinute = sequencer.getBeatsPerMinute() + 10;
+            sequencer.setDesiredBPM(beatsPerMinute);
+        }));
+
+        addButton(new Button(340, 45, (bpmWidth * 4) + 3, 18, "Prog 1", (button) -> {
+
+        }));
+
     }
 
     @Override
@@ -82,6 +116,16 @@ public class SequencerScreen extends ContainerScreen<SequencerContainer> {
         }
 
         super.render(mouseX, mouseY, partialTicks);
+
+        font.drawString("SEQ-9001", guiLeft + 200, 8, 0xFFFFFF);
+
+        double textScale = 1.5;
+        GlStateManager.pushMatrix();
+        GlStateManager.scaled(textScale, textScale, textScale);
+        final String bpmText = String.valueOf(sequencer.getBeatsPerMinute());
+        final float offset = font.getStringWidth(bpmText) / 2.0f;
+        font.drawString(bpmText, guiLeft + 105 - offset, 12, 0xFFFFFF);
+        GlStateManager.popMatrix();
     }
 
     @Override
